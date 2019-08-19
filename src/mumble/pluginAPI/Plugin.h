@@ -23,15 +23,31 @@ extern "C" {
 
 	// functions for general plugin info
 	PLUGIN_EXPORT const char* name();
-	PLUGIN_EXPORT const char* version();
-	PLUGIN_EXPORT int apiVersion();
-	PLUGIN_EXPORT const char* author();
-	PLUGIN_EXPORT const char* description();
+	PLUGIN_EXPORT const char* getVersion();
+	PLUGIN_EXPORT int getNumericVersion(); // This could facilitate programmatic version comparisons
+	PLUGIN_EXPORT int getRequiredApiVersion();
+	PLUGIN_EXPORT const char* getAuthor();
+	PLUGIN_EXPORT const char* getDescription();
 	PLUGIN_EXPORT void setFunctionPointers(const struct MumbleFunctions functions);
 
 
 
+	// Tell the plugin the ID by which it is referenced by Mumble
 	PLUGIN_EXPORT void registerPluginID(const char* id);
+
+
+	// Parameters to functions below are yet to be determined
+
+	// Callback functions
+	PLUGIN_EXPORT void onChannelChanged();
+	PLUGIN_EXPORT void onConnectedServerChanged();
+	PLUGIN_EXPORT void onServerConnect();
+	PLUGIN_EXPORT void onServerDisconnect();
+	PLUGIN_EXPORT void onNewClientConnectedToServer();
+	PLUGIN_EXPORT void onClientDisconnectedFromServer();
+	PLUGIN_EXPORT void onClientJoinedChannel();
+	PLUGIN_EXPORT void onClientLeftChannel();
+	PLUGIN_EXPORT void onUsernameChanged();
 
 
 #ifdef __cplusplus
