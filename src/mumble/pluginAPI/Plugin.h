@@ -48,6 +48,9 @@ extern "C" {
 	PLUGIN_EXPORT void onClientJoinedChannel();
 	PLUGIN_EXPORT void onClientLeftChannel();
 	PLUGIN_EXPORT void onUsernameChanged();
+	PLUGIN_EXPORT void onAudioInput(short* inputPCM, bool isSpeech);
+	PLUGIN_EXPORT void onAudioOutput_short(short* outputPCM, int sampleCount, int channelCount);
+	PLUGIN_EXPORT void onAudioOutput_float(float* outputPCM, int sampleCount, int channelCount);
 
 
 #ifdef __cplusplus
