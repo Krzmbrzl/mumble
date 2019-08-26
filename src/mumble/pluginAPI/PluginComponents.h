@@ -11,6 +11,12 @@ enum Status {
 	ERROR
 };
 
+struct Version {
+	int major;
+	int minor;
+	int patch;
+};
+
 struct MumbleFunctions {
 };
 
