@@ -1,4 +1,6 @@
-/**
+/// @file pluginAPI/Plugin.h
+
+/*
  * This is a first draft for a plugin interface
  */
 
@@ -18,42 +20,103 @@ extern "C" {
 #endif
 
 	// functions for init and de-init
+	
+	/// Gets called right after loading the plugin in order to let the plugin initialize.
 	PLUGIN_EXPORT Status init();
+	
+	/// Gets called when unloading the plugin in order to allow it to clean up after itself.
 	PLUGIN_EXPORT void shutdown();
 
-	// The intention is to call this function as a first step whenever loading a plugin - It's good habit
-	// to tell your partner who you are first, right?
-	PLUGIN_EXPORT void setMumbleInfo(Version MumbleVersion, Version mumbleAPIVersion, Version minimalExpectedAPIVersion);
+	/// Tells the plugin some basic information about the Mumble client loading it.
+	/// This function will be the first one that is being called on this plugin - even before it is decided whether to load
+	/// the plugin at all.
+	///
+	/// @param mumbleVersion The Version of the Mumble client
+	/// @param mumbleAPIVersion The Version of the plugin-API the Mumble client runs with
+	/// @param minimalExpectedAPIVersion The minimal Version the Mumble clients expects this plugin to meet in order to load it
+	PLUGIN_EXPORT void setMumbleInfo(Version mumbleVersion, Version mumbleAPIVersion, Version minimalExpectedAPIVersion);
 
 	// functions for general plugin info
-	PLUGIN_EXPORT const char* name();
-	PLUGIN_EXPORT const char* getDisplayVersion();
-	PLUGIN_EXPORT Version getVersion();
-	PLUGIN_EXPORT Version getRequiredApiVersion();
-	PLUGIN_EXPORT const char* getAuthor();
-	PLUGIN_EXPORT const char* getDescription();
-	PLUGIN_EXPORT void setFunctionPointers(const struct MumbleFunctions functions);
+	
+	/// Gets the name of the plugin.
+	///
+	/// @param[out] nameBuffer The buffer into which the name of the plugin shall be copied by this function
+	/// @param bufferSize The size of the buffer - The length of the name of the plugin (including the terminating zero-byte) must not exceed
+	/// 	this length
+	/// @returns The actual length of the plugin's name (including the terminating zero-byte)
+	PLUGIN_EXPORT int getName(char* nameBuffer, int bufferSize);
+
+	/// Gets the plugin's version in a display-ready representation.
+	///
+	/// @param[out] versionBuffer The buffer into which the version string shall be copied by this function
+	/// @param bufferSize The size of the buffer - The length of the version (including terminating zero-byte) must not exceed this length
+	/// @returns The actual length of the version string (including the terminating zero-byte)
+	PLUGIN_EXPORT int getDisplayVersion(char* versionBuffer, int bufferSize);
+
+	/// Gets the Version of this plugin
+	///
+	/// @returns The plugin's version
+	PLUGIN_EXPORT struct Version getVersion();
+
+	/// Gets the Version of the plugin-API this plugin intends to use.
+	/// Mumble will decide whether this plugin is loadable or not based on the return value of this function.
+	///
+	/// @return The respective API Version
+	PLUGIN_EXPORT struct Version getApiVersion();
+
+	/// Gets the name of the plugin author(s)
+	///
+	/// @param[out] authorBuffer The buffer into which the author name shall be copied by this function
+	/// @param bufferSize The size of the buffer - The length of the author name (including the terminating zero-byte) must not exceed
+	/// 	this length.
+	/// @returns The actual length of the author string (including the terminating zero-byte) 
+	PLUGIN_EXPORT int getAuthor(char* authorBuffer, int bufferSize);
+
+	/// Gets the description of the plugin
+	///
+	/// @param[out] descriptionBuffer The buffer into which the description shall be copied by this function
+	/// @param bufferSize The siue of the buffer - The length of the description (including the terminating zero-byte) must not exceed
+	/// 	this length.
+	/// @returns The actual length of the author string (including the terminating zero-byte) 
+	PLUGIN_EXPORT int getDescription(char* descriptionBuffer, int bufferSize);
+
+	/// Provides the MumbleFunctions struct to the plugin. This struct contains function pointers that can be used
+	/// to interact with the Mumble client. It is up to the plugin to store this struct somewhere if it wants to make use
+	/// of it at some point.
+	///
+	/// @param functions The MumbleFunctions struct
+	PLUGIN_EXPORT void setFunctionPointers(const struct MumbleFunctions* functions);
 
 
 
-	// Tell the plugin the ID by which it is referenced by Mumble
-	PLUGIN_EXPORT void registerPluginID(const char* id);
+	/// Sets the ID of this plugin. This is the ID Mumble will reference this plugin with and by which this plugin
+	/// can identify itself when communicating with Mumble.
+	///
+	/// @param id The ID for this plugin
+	PLUGIN_EXPORT void setPluginID(int id);
 
 
 	// Parameters to functions below are yet to be determined
 
 	// -------- Callback functions -----------
 
-	/// Called whenever the user changes his/her channel.
-	PLUGIN_EXPORT void onChannelChanged();
 	/// Called when connecting to a server.
-	PLUGIN_EXPORT void onServerConnect();
+	PLUGIN_EXPORT void onServerConnected();
 	/// Called when disconnecting from a server.
-	PLUGIN_EXPORT void onServerDisconnect();
+	PLUGIN_EXPORT void onServerDisconnected();
 	/// Called when a new client connects to the server the user is currently connected to.
 	PLUGIN_EXPORT void onNewClientConnectedToServer();
 	/// Called when a client disconnects from the server the user is currently connected to.
 	PLUGIN_EXPORT void onClientDisconnectedFromServer();
+	/// Called whenever any user on the server enters a channel
+	/// This function will also be called when freshly connecting to a server as each user on that
+	/// server needs to be "added" to the respective channel as far as the local client is concerned.
+	///
+	/// @param userID The ID of the user this event has been triggered for
+	/// @param previousChannelID The ID of the chanel the user is coming from. Negative IDs indicate that there is no previous channel (e.g. the user
+	/// 	freshly connected to the server)
+	/// @param newChannelID The ID of the channel the user has entered
+	PLUGIN_EXPORT void onChannelEntered(unsigned int userID, int previousChannelID, int newChannelID);
 	/// Called when a client joins the channel the user is currently in.
 	PLUGIN_EXPORT void onClientJoinedChannel();
 	/// Called when a client leaves the channel the user is currently in.
