@@ -98,12 +98,16 @@ extern "C" {
 
 	/// Called when connecting to a server.
 	PLUGIN_EXPORT void onServerConnected();
+
 	/// Called when disconnecting from a server.
 	PLUGIN_EXPORT void onServerDisconnected();
+
 	/// Called when a new client connects to the server the user is currently connected to.
 	PLUGIN_EXPORT void onNewClientConnectedToServer();
+
 	/// Called when a client disconnects from the server the user is currently connected to.
 	PLUGIN_EXPORT void onClientDisconnectedFromServer();
+
 	/// Called whenever any user on the server enters a channel
 	/// This function will also be called when freshly connecting to a server as each user on that
 	/// server needs to be "added" to the respective channel as far as the local client is concerned.
@@ -113,16 +117,16 @@ extern "C" {
 	/// 	freshly connected to the server)
 	/// @param newChannelID The ID of the channel the user has entered
 	PLUGIN_EXPORT void onChannelEntered(unsigned int userID, int previousChannelID, int newChannelID);
-	/// Called when a client joins the channel the user is currently in.
-	PLUGIN_EXPORT void onClientJoinedChannel();
-	/// Called when a client leaves the channel the user is currently in.
-	PLUGIN_EXPORT void onClientLeftChannel();
+
 	/// Called when the user changes his/her username
 	PLUGIN_EXPORT void onUsernameChanged();
+
 	/// Called whenever there is audio input
 	PLUGIN_EXPORT void onAudioInput(short* inputPCM, bool isSpeech);
+
 	/// Called whenever there is audio output
 	PLUGIN_EXPORT void onAudioOutput_short(short* outputPCM, int sampleCount, int channelCount);
+
 	/// Called whenever there is audio output
 	PLUGIN_EXPORT void onAudioOutput_float(float* outputPCM, int sampleCount, int channelCount);
 
