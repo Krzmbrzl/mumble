@@ -43,13 +43,13 @@ extern "C" {
 	/// @param[out] nameBuffer The buffer into which the name of the plugin shall be copied by this function
 	/// @param bufferSize The size of the buffer - The length of the name of the plugin (including the terminating zero-byte) must not exceed
 	/// 	this length
-	PLUGIN_EXPORT void getName(char* nameBuffer, int bufferSize);
+	PLUGIN_EXPORT void getName(char *nameBuffer, int bufferSize);
 
 	/// Gets the plugin's version in a display-ready representation.
 	///
 	/// @param[out] versionBuffer The buffer into which the version string shall be copied by this function
 	/// @param bufferSize The size of the buffer - The length of the version (including terminating zero-byte) must not exceed this length
-	PLUGIN_EXPORT void getDisplayVersion(char* versionBuffer, int bufferSize);
+	PLUGIN_EXPORT void getDisplayVersion(char *versionBuffer, int bufferSize);
 
 	/// Gets the Version of this plugin
 	///
@@ -67,21 +67,21 @@ extern "C" {
 	/// @param[out] authorBuffer The buffer into which the author name shall be copied by this function
 	/// @param bufferSize The size of the buffer - The length of the author name (including the terminating zero-byte) must not exceed
 	/// 	this length.
-	PLUGIN_EXPORT void getAuthor(char* authorBuffer, int bufferSize);
+	PLUGIN_EXPORT void getAuthor(char *authorBuffer, int bufferSize);
 
 	/// Gets the description of the plugin
 	///
 	/// @param[out] descriptionBuffer The buffer into which the description shall be copied by this function
 	/// @param bufferSize The siue of the buffer - The length of the description (including the terminating zero-byte) must not exceed
 	/// 	this length.
-	PLUGIN_EXPORT void getDescription(char* descriptionBuffer, int bufferSize);
+	PLUGIN_EXPORT void getDescription(char *descriptionBuffer, int bufferSize);
 
 	/// Provides the MumbleFunctions struct to the plugin. This struct contains function pointers that can be used
 	/// to interact with the Mumble client. It is up to the plugin to store this struct somewhere if it wants to make use
 	/// of it at some point.
 	///
 	/// @param functions The MumbleFunctions struct
-	PLUGIN_EXPORT void setFunctionPointers(const struct MumbleFunctions* functions);
+	PLUGIN_EXPORT void setFunctionPointers(const struct MumbleFunctions *functions);
 
 
 
@@ -122,13 +122,13 @@ extern "C" {
 	PLUGIN_EXPORT void onUsernameChanged();
 
 	/// Called whenever there is audio input
-	PLUGIN_EXPORT void onAudioInput(short* inputPCM, bool isSpeech);
+	PLUGIN_EXPORT void onAudioInput(short *inputPCM, bool isSpeech);
 
 	/// Called whenever there is audio output
-	PLUGIN_EXPORT void onAudioOutput_short(short* outputPCM, int sampleCount, int channelCount);
+	PLUGIN_EXPORT void onAudioOutput_short(short *outputPCM, int sampleCount, int channelCount);
 
 	/// Called whenever there is audio output
-	PLUGIN_EXPORT void onAudioOutput_float(float* outputPCM, int sampleCount, int channelCount);
+	PLUGIN_EXPORT void onAudioOutput_float(float *outputPCM, int sampleCount, int channelCount);
 
 
 #ifdef __cplusplus
