@@ -5,6 +5,8 @@
 #ifndef MUMBLE_PLUGINCOMPONENT_H_
 #define MUMBLE_PLUGINCOMPONENT_H_
 
+#include <stdint.h>
+
 // Define an enum for error codes
 enum Status {
 	OK=0,
@@ -12,9 +14,9 @@ enum Status {
 };
 
 struct Version {
-	int major;
-	int minor;
-	int patch;
+	int32_t major;
+	int32_t minor;
+	int32_t patch;
 };
 
 struct MumbleFunctions {

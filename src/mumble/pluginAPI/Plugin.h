@@ -8,6 +8,7 @@
 #define MUMBLE_PLUGIN_H_
 
 #include "PluginComponents.h"
+#include <stdint.h>
 
 #ifdef WIN32
 #define PLUGIN_EXPORT __declspec(dllexport)
@@ -43,13 +44,13 @@ extern "C" {
 	/// @param[out] nameBuffer The buffer into which the name of the plugin shall be copied by this function
 	/// @param bufferSize The size of the buffer - The length of the name of the plugin (including the terminating zero-byte) must not exceed
 	/// 	this length
-	PLUGIN_EXPORT void getName(char *nameBuffer, int bufferSize);
+	PLUGIN_EXPORT void getName(char *nameBuffer, int32_t bufferSize);
 
 	/// Gets the plugin's version in a display-ready representation.
 	///
 	/// @param[out] versionBuffer The buffer into which the version string shall be copied by this function
 	/// @param bufferSize The size of the buffer - The length of the version (including terminating zero-byte) must not exceed this length
-	PLUGIN_EXPORT void getDisplayVersion(char *versionBuffer, int bufferSize);
+	PLUGIN_EXPORT void getDisplayVersion(char *versionBuffer, int32_t bufferSize);
 
 	/// Gets the Version of this plugin
 	///
@@ -67,14 +68,14 @@ extern "C" {
 	/// @param[out] authorBuffer The buffer into which the author name shall be copied by this function
 	/// @param bufferSize The size of the buffer - The length of the author name (including the terminating zero-byte) must not exceed
 	/// 	this length.
-	PLUGIN_EXPORT void getAuthor(char *authorBuffer, int bufferSize);
+	PLUGIN_EXPORT void getAuthor(char *authorBuffer, int32_t bufferSize);
 
 	/// Gets the description of the plugin
 	///
 	/// @param[out] descriptionBuffer The buffer into which the description shall be copied by this function
 	/// @param bufferSize The siue of the buffer - The length of the description (including the terminating zero-byte) must not exceed
 	/// 	this length.
-	PLUGIN_EXPORT void getDescription(char *descriptionBuffer, int bufferSize);
+	PLUGIN_EXPORT void getDescription(char *descriptionBuffer, int32_t bufferSize);
 
 	/// Provides the MumbleFunctions struct to the plugin. This struct contains function pointers that can be used
 	/// to interact with the Mumble client. It is up to the plugin to store this struct somewhere if it wants to make use
@@ -89,7 +90,7 @@ extern "C" {
 	/// can identify itself when communicating with Mumble.
 	///
 	/// @param id The ID for this plugin
-	PLUGIN_EXPORT void setPluginID(int id);
+	PLUGIN_EXPORT void setPluginID(int32_t id);
 
 
 	// Parameters to functions below are yet to be determined
@@ -116,7 +117,7 @@ extern "C" {
 	/// @param previousChannelID The ID of the chanel the user is coming from. Negative IDs indicate that there is no previous channel (e.g. the user
 	/// 	freshly connected to the server)
 	/// @param newChannelID The ID of the channel the user has entered
-	PLUGIN_EXPORT void onChannelEntered(unsigned int userID, int previousChannelID, int newChannelID);
+	PLUGIN_EXPORT void onChannelEntered(unsigned int32_t userID, int32_t previousChannelID, int32_t newChannelID);
 
 	/// Called when the user changes his/her username
 	PLUGIN_EXPORT void onUsernameChanged();
@@ -125,10 +126,10 @@ extern "C" {
 	PLUGIN_EXPORT void onAudioInput(short *inputPCM, bool isSpeech);
 
 	/// Called whenever there is audio output
-	PLUGIN_EXPORT void onAudioOutput_short(short *outputPCM, int sampleCount, int channelCount);
+	PLUGIN_EXPORT void onAudioOutput_short(short *outputPCM, int32_t sampleCount, int32_t channelCount);
 
 	/// Called whenever there is audio output
-	PLUGIN_EXPORT void onAudioOutput_float(float *outputPCM, int sampleCount, int channelCount);
+	PLUGIN_EXPORT void onAudioOutput_float(float *outputPCM, int32_t sampleCount, int32_t channelCount);
 
 
 #ifdef __cplusplus
