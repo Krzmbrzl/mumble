@@ -118,7 +118,7 @@ extern "C" {
 	/// @param previousChannelID The ID of the chanel the user is coming from. Negative IDs indicate that there is no previous channel (e.g. the user
 	/// 	freshly connected to the server)
 	/// @param newChannelID The ID of the channel the user has entered
-	PLUGIN_EXPORT void onChannelEntered(unsigned int32_t userID, int32_t previousChannelID, int32_t newChannelID);
+	PLUGIN_EXPORT void onChannelEntered(uint32_t userID, int32_t previousChannelID, int32_t newChannelID);
 
 	/// Called when the user changes his/her username
 	PLUGIN_EXPORT void onUsernameChanged();
