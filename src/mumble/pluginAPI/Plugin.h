@@ -114,6 +114,13 @@ extern "C" {
 	/// @param newChannelID The ID of the channel the user has entered
 	PLUGIN_EXPORT void onChannelEntered(uint32_t userID, int32_t previousChannelID, int32_t newChannelID);
 
+	/// Called whenever a user leaves a channel.
+	/// This function will also be called when the user disconnects from the server.
+	///
+	/// @param userID The ID of the user that left the channel
+	/// @param channelID The ID of the channel the user left
+	PLUGIN_EXPORT void onChannelExited(uint32_t userID, int32_t channelID);
+
 	/// Called when the user changes his/her username
 	PLUGIN_EXPORT void onUsernameChanged();
 
