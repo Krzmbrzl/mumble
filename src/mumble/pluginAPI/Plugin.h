@@ -104,12 +104,6 @@ extern "C" {
 	/// Called when disconnecting from a server.
 	PLUGIN_EXPORT void onServerDisconnected();
 
-	/// Called when a new client connects to the server the user is currently connected to.
-	PLUGIN_EXPORT void onNewClientConnectedToServer();
-
-	/// Called when a client disconnects from the server the user is currently connected to.
-	PLUGIN_EXPORT void onClientDisconnectedFromServer();
-
 	/// Called whenever any user on the server enters a channel
 	/// This function will also be called when freshly connecting to a server as each user on that
 	/// server needs to be "added" to the respective channel as far as the local client is concerned.
