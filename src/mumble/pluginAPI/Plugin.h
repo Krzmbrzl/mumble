@@ -128,10 +128,10 @@ extern "C" {
 	PLUGIN_EXPORT void onAudioInput(short *inputPCM, bool isSpeech);
 
 	/// Called whenever there is audio output
-	PLUGIN_EXPORT void onAudioOutput_short(short *outputPCM, int32_t sampleCount, int32_t channelCount);
+	PLUGIN_EXPORT void onAudioOutput_short(short *outputPCM, uint32_t sampleCount, uint32_t channelCount);
 
 	/// Called whenever there is audio output
-	PLUGIN_EXPORT void onAudioOutput_float(float *outputPCM, int32_t sampleCount, int32_t channelCount);
+	PLUGIN_EXPORT void onAudioOutput_float(float *outputPCM, uint32_t sampleCount, uint32_t channelCount);
 
 
 #ifdef __cplusplus
