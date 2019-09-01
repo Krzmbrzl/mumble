@@ -110,15 +110,17 @@ extern "C" {
 	///
 	/// @param userID The ID of the user this event has been triggered for
 	/// @param previousChannelID The ID of the chanel the user is coming from. Negative IDs indicate that there is no previous channel (e.g. the user
-	/// 	freshly connected to the server)
-	/// @param newChannelID The ID of the channel the user has entered
+	/// 	freshly connected to the server) or the channel isn't available because of any other reason.
+	/// @param newChannelID The ID of the channel the user has entered. If the ID is negative, the new channel could not be retrieved. This means
+	/// 	that the ID is invalid.
 	PLUGIN_EXPORT void onChannelEntered(uint32_t userID, int32_t previousChannelID, int32_t newChannelID);
 
 	/// Called whenever a user leaves a channel.
 	/// This function will also be called when the user disconnects from the server.
 	///
 	/// @param userID The ID of the user that left the channel
-	/// @param channelID The ID of the channel the user left
+	/// @param channelID The ID of the channel the user left. If the ID is negative, the channel could not be retrieved. This means that the ID is
+	/// 	invalid.
 	PLUGIN_EXPORT void onChannelExited(uint32_t userID, int32_t channelID);
 
 	/// Called when the user changes his/her username
