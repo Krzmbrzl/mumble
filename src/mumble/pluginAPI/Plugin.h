@@ -134,9 +134,6 @@ extern "C" {
 	/// 	- <code>talkingState < 0</code> invalid talking state => error
 	PLUGIN_EXPORT void onUserChangedTalkingState(uint32_t userID, int32_t talkingState);
 
-	/// Called when the user changes his/her username
-	PLUGIN_EXPORT void onUsernameChanged();
-
 	/// Called whenever there is audio input
 	PLUGIN_EXPORT void onAudioInput(short *inputPCM, bool isSpeech);
 
