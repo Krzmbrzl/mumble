@@ -132,7 +132,7 @@ extern "C" {
 	/// 	- <code>talkingState == 2</code> User is whispering
 	/// 	- <code>talkingState == 3</code> User is shouting
 	/// 	- <code>talkingState < 0</code> invalid talking state => error
-	PLUGIN_EXPORT void onUserChangedTalkingState(uint32_t userID, int32_t talkingState);
+	PLUGIN_EXPORT void onUserTalkingStateChanged(uint32_t userID, int32_t talkingState);
 
 	/// Called whenever there is audio input
 	PLUGIN_EXPORT void onAudioInput(short *inputPCM, bool isSpeech);
