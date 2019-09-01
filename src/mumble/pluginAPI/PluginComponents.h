@@ -30,6 +30,11 @@ struct MumbleChannel {
 	int32_t id;
 };
 
+typedef enum Status Status_t;
+typedef struct Version Version_t;
+typedef struct MumbleUser MumbleUser_t;
+typedef struct MumbleChannel MumbleChannel_t;
+
 
 struct MumbleAPI {
 	// -------- Memory management --------
@@ -45,19 +50,19 @@ struct MumbleAPI {
 	/// Gets the local user. The returned pointer must be freed by using the freeMemory function.
 	///
 	/// @returns A pointer to the MumbleUser describing the local user.
-	const MumbleUser* (*getLocalUser)();
+	const MumbleUser_t* (*getLocalUser)();
 
 	/// Gets the user with the respective ID. The returned pointer must be freed using the freeMemory function.
 	///
 	/// @param userID The ID of the user that should be obtained.
 	/// @returns A pointer to the respective user or NULL if no such user could be found
-	const MumbleUser* (*getUser)(uint32_t userID);
+	const MumbleUser_t* (*getUser)(uint32_t userID);
 
 	/// Gets the channel with the given ID. The returned pointer must be freed using the freeMemory function.
 	///
 	/// @param channelID The Id of the channel to retrieve
 	/// @returns A pointer to the respective channel or NULL if no such channel could be found
-	const MumbleChannel* (getChannel)(int32_t channelID);
+	const MumbleChannel_t* (*getChannel)(int32_t channelID);
 
 
 	// -------- Find functions --------
@@ -66,13 +71,13 @@ struct MumbleAPI {
 	///
 	/// @param userName The name of the user to search for (case-sensitive)
 	/// @returns A pointer to the respective user or NULL if no such user could be found
-	MumbleUser* (*findUserByName)(const char *userName);
+	MumbleUser_t* (*findUserByName)(const char *userName);
 
 	/// Finds a channel with the specified name. The returned pointer must be freed by using the freeMemory function.
 	///
 	/// @param channelName The name of the user to search for (case-sensitive)
 	/// @returns A pointer to the respective channel or NULL if no such channel could be found
-	MumbleChannel* (*findChannel)(const char *channelName);
+	MumbleChannel_t* (*findChannel)(const char *channelName);
 };
 
 

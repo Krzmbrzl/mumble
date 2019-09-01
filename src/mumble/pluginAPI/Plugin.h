@@ -10,6 +10,7 @@
 #include "PluginComponents.h"
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 
 #ifdef WIN32
 #define PLUGIN_EXPORT __declspec(dllexport)
@@ -24,7 +25,7 @@ extern "C" {
 	// functions for init and de-init
 	
 	/// Gets called right after loading the plugin in order to let the plugin initialize.
-	PLUGIN_EXPORT Status init();
+	PLUGIN_EXPORT Status_t init();
 	
 	/// Gets called when unloading the plugin in order to allow it to clean up after itself.
 	PLUGIN_EXPORT void shutdown();
@@ -36,7 +37,7 @@ extern "C" {
 	/// @param mumbleVersion The Version of the Mumble client
 	/// @param mumbleAPIVersion The Version of the plugin-API the Mumble client runs with
 	/// @param minimalExpectedAPIVersion The minimal Version the Mumble clients expects this plugin to meet in order to load it
-	PLUGIN_EXPORT void setMumbleInfo(Version mumbleVersion, Version mumbleAPIVersion, Version minimalExpectedAPIVersion);
+	PLUGIN_EXPORT void setMumbleInfo(Version_t mumbleVersion, Version_t mumbleAPIVersion, Version_t minimalExpectedAPIVersion);
 
 	// functions for general plugin info
 	
@@ -56,13 +57,13 @@ extern "C" {
 	/// Gets the Version of this plugin
 	///
 	/// @returns The plugin's version
-	PLUGIN_EXPORT struct Version getVersion();
+	PLUGIN_EXPORT Version_t getVersion();
 
 	/// Gets the Version of the plugin-API this plugin intends to use.
 	/// Mumble will decide whether this plugin is loadable or not based on the return value of this function.
 	///
 	/// @return The respective API Version
-	PLUGIN_EXPORT struct Version getApiVersion();
+	PLUGIN_EXPORT Version_t getApiVersion();
 
 	/// Gets the name of the plugin author(s)
 	///
