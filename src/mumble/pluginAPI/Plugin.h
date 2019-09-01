@@ -78,12 +78,12 @@ extern "C" {
 	/// 	this length.
 	PLUGIN_EXPORT void getDescription(char *descriptionBuffer, size_t bufferSize);
 
-	/// Provides the MumbleFunctions struct to the plugin. This struct contains function pointers that can be used
+	/// Provides the MumbleAPI struct to the plugin. This struct contains function pointers that can be used
 	/// to interact with the Mumble client. It is up to the plugin to store this struct somewhere if it wants to make use
 	/// of it at some point.
 	///
-	/// @param functions The MumbleFunctions struct
-	PLUGIN_EXPORT void setFunctionPointers(const struct MumbleFunctions *functions);
+	/// @param api The MumbleAPI struct
+	PLUGIN_EXPORT void setAPIFunctions(const struct MumbleAPI *api);
 
 
 

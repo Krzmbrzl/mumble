@@ -31,7 +31,7 @@ struct MumbleChannel {
 };
 
 
-struct MumbleFunctions {
+struct MumbleAPI {
 	// -------- Memory management --------
 	
 	/// Frees the provided pointer.
