@@ -7,11 +7,7 @@
 
 #include <stdint.h>
 
-// Define an enum for error codes
-enum Status {
-	OK=0,
-	ERROR
-};
+#define STATUS_OK 0
 
 struct Version {
 	int32_t major;
@@ -30,7 +26,6 @@ struct MumbleChannel {
 	int32_t id;
 };
 
-typedef enum Status Status_t;
 typedef struct Version Version_t;
 typedef struct MumbleUser MumbleUser_t;
 typedef struct MumbleChannel MumbleChannel_t;
