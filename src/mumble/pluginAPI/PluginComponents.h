@@ -37,12 +37,17 @@ typedef struct MumbleChannel MumbleChannel_t;
 
 
 struct MumbleAPI {
-	// -------- Memory management --------
+	// -------- Memory (de-)allocation --------
 	
-	/// Frees the provided pointer.
-	///
-	/// @param pointer The pointer to free - may be NULL
-	void (*freeMemory)(void *pointer);
+	MumbleUser_t* (*allocateMumbleUser)();
+
+	void (*freeMumbleUser)(MumbleUser_t *user);
+
+	MumbleChannel_t* (*allocateMumbleChannel)();
+
+	void (*freeMumbleChannel)(MumbleChannel_t *channel);
+
+	
 
 	
 	// -------- Getter functions --------
