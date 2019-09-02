@@ -86,6 +86,13 @@ struct MumbleAPI {
 	/// 	struct may be accessed.
 	uint32_t (*getChannel)(int32_t channelID, MumbleChannel_t *channel);
 
+	/// Fills in the amount of clients that are currently connected to the server.
+	///
+	/// @param[out] A pointer to the memory the amount shall be written
+	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then it is valid to access the
+	/// 	value of the provided pointer.
+	uint32_t (*getAmountOfConnectedClients)(size_t *amount);
+
 
 
 	// -------- Find functions --------
