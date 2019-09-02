@@ -21,12 +21,12 @@ struct Version {
 
 
 struct MumbleUser {
-	char *name;
+	const char *name;
 	uint32_t id;
 };
 
 struct MumbleChannel {
-	char *name;
+	const char *name;
 	int32_t id;
 };
 
