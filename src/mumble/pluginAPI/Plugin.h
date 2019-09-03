@@ -49,12 +49,6 @@ extern "C" {
 	/// @returns A pointer to the plugin name (encoded as a C-String)
 	PLUGIN_EXPORT const char* getName();
 
-	/// Gets the plugin's version in a display-ready representation.
-	///
-	/// @param[out] versionBuffer The buffer into which the version string shall be copied by this function
-	/// @param bufferSize The size of the buffer - The length of the version (including terminating zero-byte) must not exceed this length
-	PLUGIN_EXPORT void getDisplayVersion(char *versionBuffer, size_t bufferSize);
-
 	/// Gets the Version of this plugin
 	///
 	/// @returns The plugin's version
