@@ -81,6 +81,24 @@ struct MumbleAPI {
 	/// 	may be accessed
 	error_t (*getChannelName)(MumbleConnection_t connection, MumbleChannelID_t channelID, const char **channelName);
 
+	/// Gets an array of all users that are currently connected to the provided server. This array that is allocated if
+	/// this function returns STATUS_OK has to be freed by a call to freeMemory after it is no longer needed by the plugin.
+	///
+	/// @param connection The ID of the server-connection to use as a context
+	/// @param[out] users A pointer to where the pointer of the allocated array shall be written
+	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
+	/// 	may be accessed
+	error_t (*getAllUsers)(MumbleConnection_t connection, MumbleUserID_t **users);
+
+	/// Gets an array of all channels on the provided server. This array that is allocated if this function returns STATUS_OK
+	/// has to be freed by a call to freeMemory after it is no longer needed by the plugin.
+	///
+	/// @param connection The ID of the server-connection to use as a context
+	/// @param[out] channels A pointer to where the pointer of the allocated array shall be written
+	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
+	/// 	may be accessed
+	error_t (*getAllChannels)(MumbleConnection_t connection, MumbleChannelID_t **channels);
+
 
 	// -------- Find functions --------
 	
