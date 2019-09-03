@@ -80,7 +80,7 @@ struct MumbleAPI {
 	/// @param[out] connection A pointer to the memory location the ID should be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then it is valid to access the
 	/// 	value of the provided pointer
-	uint32_t getActiveServerConnection(MumbleConnection_t *connection);
+	uint32_t (*getActiveServerConnection)(MumbleConnection_t *connection);
 
 	/// Fills in the information about the local user.
 	///
