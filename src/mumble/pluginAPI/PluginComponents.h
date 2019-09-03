@@ -66,11 +66,20 @@ struct MumbleAPI {
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param userID The user's ID whose name should be obtained
-	/// @param[out] A pointer to where the pointer to the allocated string (C-ecoded) should be written to
+	/// @param[out] userName A pointer to where the pointer to the allocated string (C-ecoded) should be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
 	error_t (*getUserName)(MumbleConnection_t connection, MumbleUserID_t userID, const char **userName);
 
+	/// Fills in the information about the given channel's name. The name allocated if this function returns STATUS_OK
+	/// has to be freed by a call to freeMemory eventually.
+	///
+	/// @param connection The ID of the server-connection to use as a context
+	/// @param channelID The channel's ID whose name should be obtained
+	/// @param[out] channelName A pointer to where the pointer to the allocated string (C-ecoded) should be written to
+	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
+	/// 	may be accessed
+	error_t (*getChannelName)(MumbleConnection_t connection, MumbleChannelID_t channelID, const char **channelName);
 
 
 	// -------- Find functions --------
