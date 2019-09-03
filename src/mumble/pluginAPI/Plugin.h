@@ -86,15 +86,13 @@ extern "C" {
 	/// of it at some point.
 	///
 	/// @param api The MumbleAPI struct
-	PLUGIN_EXPORT void setAPIFunctions(const struct MumbleAPI *api);
+	PLUGIN_EXPORT void registerAPIFunctions(const struct MumbleAPI *api);
 
-
-
-	/// Sets the ID of this plugin. This is the ID Mumble will reference this plugin with and by which this plugin
+	/// Registers the ID of this plugin. This is the ID Mumble will reference this plugin with and by which this plugin
 	/// can identify itself when communicating with Mumble.
 	///
 	/// @param id The ID for this plugin
-	PLUGIN_EXPORT void setPluginID(uint32_t id);
+	PLUGIN_EXPORT void registerPluginID(uint32_t id);
 
 
 	// Parameters to functions below are yet to be determined
