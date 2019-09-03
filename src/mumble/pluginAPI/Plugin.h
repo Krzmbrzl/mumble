@@ -27,7 +27,7 @@ extern "C" {
 	/// Gets called right after loading the plugin in order to let the plugin initialize.
 	///
 	/// @returns The status of the initialization. If everything went fine, return STATUS_OK
-	PLUGIN_EXPORT uint32_t init();
+	PLUGIN_EXPORT error_t init();
 	
 	/// Gets called when unloading the plugin in order to allow it to clean up after itself.
 	PLUGIN_EXPORT void shutdown();
