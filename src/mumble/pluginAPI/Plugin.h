@@ -94,7 +94,7 @@ extern "C" {
 	/// can identify itself when communicating with Mumble.
 	///
 	/// @param id The ID for this plugin
-	PLUGIN_EXPORT void setPluginID(int32_t id);
+	PLUGIN_EXPORT void setPluginID(uint32_t id);
 
 
 	// Parameters to functions below are yet to be determined
