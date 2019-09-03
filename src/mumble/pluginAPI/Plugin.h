@@ -43,12 +43,11 @@ extern "C" {
 
 	// functions for general plugin info
 	
-	/// Gets the name of the plugin.
+	/// Gets the name of the plugin. The plugin has to guarantee that the returned pointer will still be valid. The string will be copied
+	/// for further usage though.
 	///
-	/// @param[out] nameBuffer The buffer into which the name of the plugin shall be copied by this function
-	/// @param bufferSize The size of the buffer - The length of the name of the plugin (including the terminating zero-byte) must not exceed
-	/// 	this length
-	PLUGIN_EXPORT void getName(char *nameBuffer, size_t bufferSize);
+	/// @returns A pointer to the plugin name (encoded as a C-String)
+	PLUGIN_EXPORT const char* getName();
 
 	/// Gets the plugin's version in a display-ready representation.
 	///
@@ -67,19 +66,17 @@ extern "C" {
 	/// @return The respective API Version
 	PLUGIN_EXPORT Version_t getApiVersion();
 
-	/// Gets the name of the plugin author(s)
+	/// Gets the name of the plugin author(s). The plugin has to guarantee that the returned pointer will still be valid. The string will
+	/// be copied for further usage though.
 	///
-	/// @param[out] authorBuffer The buffer into which the author name shall be copied by this function
-	/// @param bufferSize The size of the buffer - The length of the author name (including the terminating zero-byte) must not exceed
-	/// 	this length.
-	PLUGIN_EXPORT void getAuthor(char *authorBuffer, size_t bufferSize);
+	/// @returns A pointer to the author(s) name(s) (encoded as a C-String)
+	PLUGIN_EXPORT const char* getAuthor();
 
-	/// Gets the description of the plugin
+	/// Gets the description of the plugin. The plugin has to guarantee that the returned pointer will still be valid. The string will
+	/// be copied for further usage though.
 	///
-	/// @param[out] descriptionBuffer The buffer into which the description shall be copied by this function
-	/// @param bufferSize The size of the buffer - The length of the description (including the terminating zero-byte) must not exceed
-	/// 	this length.
-	PLUGIN_EXPORT void getDescription(char *descriptionBuffer, size_t bufferSize);
+	/// @returns A pointer to the description (encoded as a C-String)
+	PLUGIN_EXPORT const char* getDescription();
 
 	/// Provides the MumbleAPI struct to the plugin. This struct contains function pointers that can be used
 	/// to interact with the Mumble client. It is up to the plugin to store this struct somewhere if it wants to make use
