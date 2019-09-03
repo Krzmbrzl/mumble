@@ -40,7 +40,7 @@ typedef struct Version Version_t;
 typedef struct MumbleUser MumbleUser_t;
 typedef struct MumbleChannel MumbleChannel_t;
 
-typedef int32_t MumbleConnection_t
+typedef int32_t MumbleConnection_t;
 
 
 struct MumbleAPI {
