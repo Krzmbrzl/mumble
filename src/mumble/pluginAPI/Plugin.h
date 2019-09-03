@@ -129,13 +129,8 @@ extern "C" {
 	/// Called when any user changes his/her talking state.
 	///
 	/// @param userID The ID of the user whose talking state has been changed
-	/// @param talkingState The new talking state the user has switched to. Currently the following talking states exist:
-	/// 	- <code>talkingState == 0</code> User is passive (not talking / not sending any audio)
-	/// 	- <code>talkingState == 1</code> User is talking
-	/// 	- <code>talkingState == 2</code> User is whispering
-	/// 	- <code>talkingState == 3</code> User is shouting
-	/// 	- <code>talkingState < 0</code> invalid talking state => error
-	PLUGIN_EXPORT void onUserTalkingStateChanged(uint32_t userID, int32_t talkingState);
+	/// @param talkingState The new TalkingState the user has switched to.
+	PLUGIN_EXPORT void onUserTalkingStateChanged(uint32_t userID, TalkingState_t talkingState);
 
 	/// Called whenever there is audio input
 	PLUGIN_EXPORT void onAudioInput(short *inputPCM, bool isSpeech);

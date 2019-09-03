@@ -9,6 +9,14 @@
 
 #define STATUS_OK 0
 
+enum TalkingState {
+	INVALID=-1,
+	PASSIVE=0,
+	TALKING,
+	WHISPERING,
+	SHOUTING
+};
+
 struct Version {
 	int32_t major;
 	int32_t minor;
@@ -27,6 +35,7 @@ struct MumbleChannel {
 };
 
 
+typedef enum TalkingState TalkingState_t;
 typedef struct Version Version_t;
 typedef struct MumbleUser MumbleUser_t;
 typedef struct MumbleChannel MumbleChannel_t;
