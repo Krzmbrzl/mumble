@@ -105,7 +105,7 @@ extern "C" {
 	/// 	freshly connected to the server) or the channel isn't available because of any other reason.
 	/// @param newChannelID The ID of the channel the user has entered. If the ID is negative, the new channel could not be retrieved. This means
 	/// 	that the ID is invalid.
-	PLUGIN_EXPORT void onChannelEntered(uint32_t userID, int32_t previousChannelID, int32_t newChannelID);
+	PLUGIN_EXPORT void onChannelEntered(MumbleUserID_t userID, MumbleChannelID_t previousChannelID, MumbleChannelID_t newChannelID);
 
 	/// Called whenever a user leaves a channel.
 	/// This function will also be called when the user disconnects from the server.
@@ -113,13 +113,13 @@ extern "C" {
 	/// @param userID The ID of the user that left the channel
 	/// @param channelID The ID of the channel the user left. If the ID is negative, the channel could not be retrieved. This means that the ID is
 	/// 	invalid.
-	PLUGIN_EXPORT void onChannelExited(uint32_t userID, int32_t channelID);
+	PLUGIN_EXPORT void onChannelExited(MumbleUserID_t userID, MumbleChannelID_t channelID);
 
 	/// Called when any user changes his/her talking state.
 	///
 	/// @param userID The ID of the user whose talking state has been changed
 	/// @param talkingState The new TalkingState the user has switched to.
-	PLUGIN_EXPORT void onUserTalkingStateChanged(uint32_t userID, TalkingState_t talkingState);
+	PLUGIN_EXPORT void onUserTalkingStateChanged(MumbleUserID_t userID, TalkingState_t talkingState);
 
 	/// Called whenever there is audio input
 	PLUGIN_EXPORT void onAudioInput(short *inputPCM, bool isSpeech);
