@@ -34,7 +34,7 @@ typedef int32_t error_t;
 
 
 struct MumbleAPI {
-	// -------- Memory (de-)allocation --------
+	// -------- Memory management --------
 	
 	/// Frees the given pointer.
 	///
@@ -60,6 +60,15 @@ struct MumbleAPI {
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the fields of the
 	/// 	passed struct may be accessed.
 	error_t (*getLocalUserID)(MumbleConnection_t connection, MumbleUserID_t *userID);
+
+	/// Fills in the information about the given user's name.
+	///
+	/// @param connection The ID of the server-connection to use as a context
+	/// @param userID The user's ID whose name should be obtained
+	/// @param[out] A pointer to where the pointer to the allocated string (C-ecoded) should be written to
+	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
+	/// 	may be accessed.
+	error_t (*getUserName)(MumbleConnection_t connection, MumbleUserID_t userID, const char **userName);
 
 
 
