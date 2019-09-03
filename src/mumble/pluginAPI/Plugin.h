@@ -77,7 +77,7 @@ extern "C" {
 	/// Gets the description of the plugin
 	///
 	/// @param[out] descriptionBuffer The buffer into which the description shall be copied by this function
-	/// @param bufferSize The siue of the buffer - The length of the description (including the terminating zero-byte) must not exceed
+	/// @param bufferSize The size of the buffer - The length of the description (including the terminating zero-byte) must not exceed
 	/// 	this length.
 	PLUGIN_EXPORT void getDescription(char *descriptionBuffer, size_t bufferSize);
 
