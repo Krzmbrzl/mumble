@@ -61,7 +61,8 @@ struct MumbleAPI {
 	/// 	may be accessed
 	error_t (*getLocalUserID)(MumbleConnection_t connection, MumbleUserID_t *userID);
 
-	/// Fills in the information about the given user's name.
+	/// Fills in the information about the given user's name. The name allocated if this function returns STATUS_OK
+	/// has to be freed by a call to freeMemory eventually.
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param userID The user's ID whose name should be obtained
