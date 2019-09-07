@@ -111,11 +111,11 @@ struct MumbleAPI {
 	/// Gets the ID of the channel the given user is currently connected to.
 	///
 	/// @param connection The ID of the server-connection to use as a context
-	/// @param user The ID of the user to search for
+	/// @param userID The ID of the user to search for
 	/// @param[out] A pointer to where the ID of the channel shall be written
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getChannelOfUser)(MumbleConnection_t connection, MumbleUserID_t user, MumbleChannelID_t *channel);
+	error_t (*getChannelOfUser)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t *channel);
 
 	/// Gets an array of all users in the specified channel.
 	///
