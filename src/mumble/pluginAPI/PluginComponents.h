@@ -156,7 +156,8 @@ struct MumbleAPI {
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param userID The ID of the user that shall be moved
 	/// @param channelID The ID of the channel to move the user to
-	/// @param password The password of the target channel. Pass NULL if the target channel does not require a password for entering
+	/// @param password The password of the target channel (encoded as a C-string). Pass NULL if the target channel does not require a
+	/// 	password for entering
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
 	error_t (*requestUserMove)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID, const char *password);
