@@ -115,7 +115,7 @@ struct MumbleAPI {
 	/// @param[out] A pointer to where the ID of the channel shall be written
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getOccupiedChannel)(MumbleConnection_t connection, MumbleUserID_t user, MumbleChannelID_t *channel);
+	error_t (*getChannelOfUser)(MumbleConnection_t connection, MumbleUserID_t user, MumbleChannelID_t *channel);
 
 
 	// -------- Find functions --------
