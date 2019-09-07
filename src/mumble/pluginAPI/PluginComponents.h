@@ -18,6 +18,12 @@ enum TalkingState {
 	SHOUTING
 };
 
+enum TransmissionMode {
+	CONTINOUS,
+	VOICE_ACTIVATION,
+	PUSH_TO_TALK
+};
+
 enum ErrorCode {
 	EC_OK = 0,
 	EC_GENERIC_ERROR
@@ -31,6 +37,7 @@ struct Version {
 
 
 typedef enum TalkingState TalkingState_t;
+typedef enum TransmissionMode TransmissionMode_t;
 typedef struct Version Version_t;
 typedef int32_t MumbleConnection_t;
 typedef uint32_t MumbleUserID_t;
@@ -125,6 +132,14 @@ struct MumbleAPI {
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
 	error_t (*getUsersInChannel)(MumbleConnection_t connection, MumbleChannelID_t channelID, MumbleUserID_t **userList);
+
+	/// Gets the current transmission mode of the local user.
+	///
+	/// @param[out] transmissionMode A pointer to where the transmission mode shall be written. The memory will only be
+	/// 	allocated if this function returns STATUS_OK.
+	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
+	/// 	may be accessed
+	error_t (*getLocalUserTransmissionMode)(TransmissionMode_t *transmissionMode);
 
 
 	// -------- Find functions --------
