@@ -66,7 +66,7 @@ struct MumbleAPI {
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param userID The user's ID whose name should be obtained
-	/// @param[out] userName A pointer to where the pointer to the allocated string (C-ecoded) should be written to
+	/// @param[out] userName A pointer to where the pointer to the allocated string (C-encoded) should be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
 	error_t (*getUserName)(MumbleConnection_t connection, MumbleUserID_t userID, const char **userName);
