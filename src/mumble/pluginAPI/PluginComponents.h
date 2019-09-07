@@ -66,40 +66,44 @@ struct MumbleAPI {
 	/// 	may be accessed
 	error_t (*getLocalUserID)(MumbleConnection_t connection, MumbleUserID_t *userID);
 
-	/// Fills in the information about the given user's name. The name allocated if this function returns STATUS_OK
-	/// has to be freed by a call to freeMemory eventually.
+	/// Fills in the information about the given user's name.
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param userID The user's ID whose name should be obtained
-	/// @param[out] userName A pointer to where the pointer to the allocated string (C-encoded) should be written to
+	/// @param[out] userName A pointer to where the pointer to the allocated string (C-encoded) should be written to. The
+	/// 	allocated memory has to be freed my a call to freeMemory by the plugin eventually. The memory will only be
+	/// 	allocated if this function returns STATUS_OK.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
 	error_t (*getUserName)(MumbleConnection_t connection, MumbleUserID_t userID, const char **userName);
 
-	/// Fills in the information about the given channel's name. The name allocated if this function returns STATUS_OK
-	/// has to be freed by a call to freeMemory eventually.
+	/// Fills in the information about the given channel's name.
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param channelID The channel's ID whose name should be obtained
-	/// @param[out] channelName A pointer to where the pointer to the allocated string (C-ecoded) should be written to
+	/// @param[out] channelName A pointer to where the pointer to the allocated string (C-ecoded) should be written to. The
+	/// 	allocated memory has to be freed my a call to freeMemory by the plugin eventually. The memory will only be
+	/// 	allocated if this function returns STATUS_OK.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
 	error_t (*getChannelName)(MumbleConnection_t connection, MumbleChannelID_t channelID, const char **channelName);
 
-	/// Gets an array of all users that are currently connected to the provided server. This array that is allocated if
-	/// this function returns STATUS_OK has to be freed by a call to freeMemory after it is no longer needed by the plugin.
+	/// Gets an array of all users that are currently connected to the provided server.
 	///
 	/// @param connection The ID of the server-connection to use as a context
-	/// @param[out] users A pointer to where the pointer of the allocated array shall be written
+	/// @param[out] users A pointer to where the pointer of the allocated array shall be written. The
+	/// 	allocated memory has to be freed my a call to freeMemory by the plugin eventually. The memory will only be
+	/// 	allocated if this function returns STATUS_OK.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
 	error_t (*getAllUsers)(MumbleConnection_t connection, MumbleUserID_t **users);
 
-	/// Gets an array of all channels on the provided server. This array that is allocated if this function returns STATUS_OK
-	/// has to be freed by a call to freeMemory after it is no longer needed by the plugin.
+	/// Gets an array of all channels on the provided server.
 	///
 	/// @param connection The ID of the server-connection to use as a context
-	/// @param[out] channels A pointer to where the pointer of the allocated array shall be written
+	/// @param[out] channels A pointer to where the pointer of the allocated array shall be written. The
+	/// 	allocated memory has to be freed my a call to freeMemory by the plugin eventually. The memory will only be
+	/// 	allocated if this function returns STATUS_OK.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
 	error_t (*getAllChannels)(MumbleConnection_t connection, MumbleChannelID_t **channels);
