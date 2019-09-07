@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define STATUS_OK 0
+#define STATUS_OK EC_OK
 
 enum TalkingState {
 	INVALID=-1,
@@ -16,6 +16,11 @@ enum TalkingState {
 	TALKING,
 	WHISPERING,
 	SHOUTING
+};
+
+enum ErrorCode {
+	EC_OK = 0,
+	EC_GENERIC_ERROR
 };
 
 struct Version {
@@ -30,7 +35,7 @@ typedef struct Version Version_t;
 typedef int32_t MumbleConnection_t;
 typedef uint32_t MumbleUserID_t;
 typedef int32_t MumbleChannelID_t;
-typedef int32_t error_t;
+typedef enum ErrorCode error_t;
 
 
 struct MumbleAPI {
