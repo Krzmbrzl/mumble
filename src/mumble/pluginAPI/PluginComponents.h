@@ -141,6 +141,17 @@ struct MumbleAPI {
 	error_t (*getLocalUserTransmissionMode)(TransmissionMode_t *transmissionMode);
 
 
+
+	// -------- Request functions --------
+	
+	/// Requests Mumble to set the local user's transmission mode to the specified one.
+	///
+	/// @param transmissionMode The requested transmission mode
+	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
+	/// 	may be accessed
+	error_t (*requestLocalUserTransmissionMode)(TransmissionMode_t transmissionMode);
+
+
 	// -------- Find functions --------
 	
 	/// Fills in the information about a user with the specified name, if such a user exists.
