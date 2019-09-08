@@ -91,6 +91,19 @@ extern "C" {
 	/// @returns The feature set of this plugin
 	PLUGIN_EXPORT uint16_t getPluginFeatures();
 
+	/// Requests this plugin to deactivate the given (sub)set of provided features.
+	/// If this is not possible, the features that can't be deactivated shall be returned by this function.
+	/// 
+	/// Example (check if FEATURE_POSITIONAL shall be deactivated):
+	/// <code>
+	/// if ((features & FEATURE_POSITIONAL) == FEATURE_POSITIONAL) { <positional shall be deactivated> };
+	/// </code>
+	///
+	/// @param features The feature set that shall be deactivated
+	/// @returns The feature set that can't be disabled (bitwise or'ed). If all requested features can be disabled, return
+	/// 	FEATURE_NONE. If none of the requested features can be disabled return the unmodified features parameter.
+	PLUGIN_EXPORT uint32_t deactivateFeatures(uint32_t features);
+
 
 	// Parameters to functions below are yet to be determined
 
