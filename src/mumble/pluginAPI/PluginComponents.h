@@ -12,7 +12,7 @@
 
 enum PluginFeature {
 	// None of the below
-	NONE = 0,
+	FEATURE_NONE = 0,
 	// The plugin provides positional data from a game
 	FEATURE_POSITIONAL = 2 << 0,
 	// The plugin modifies the input/output audio itself
