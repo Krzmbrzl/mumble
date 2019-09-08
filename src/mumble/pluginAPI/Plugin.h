@@ -84,6 +84,12 @@ extern "C" {
 	///
 	/// @param id The ID for this plugin
 	PLUGIN_EXPORT void registerPluginID(uint32_t id);
+	
+	/// Gets the feature set of this plugin. The feature set is described by bitwise or'ing the elements of the PluginFeature enum
+	/// together.
+	///
+	/// @returns The feature set of this plugin
+	PLUGIN_EXPORT uint16_t getPluginFeatures();
 
 
 	// Parameters to functions below are yet to be determined

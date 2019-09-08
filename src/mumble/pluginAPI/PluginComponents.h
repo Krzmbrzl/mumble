@@ -10,6 +10,15 @@
 
 #define STATUS_OK EC_OK
 
+enum PluginFeature {
+	// None of the below
+	NONE = 0,
+	// The plugin provides positional data from a game
+	FEATURE_POSITIONAL = 2 << 0,
+	// The plugin modifies the input/output audio itself
+	FEATURE_AUDIO = 2 << 1
+};
+
 enum TalkingState {
 	INVALID=-1,
 	PASSIVE=0,
