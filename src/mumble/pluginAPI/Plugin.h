@@ -95,9 +95,11 @@ extern "C" {
 	/// If this is not possible, the features that can't be deactivated shall be returned by this function.
 	/// 
 	/// Example (check if FEATURE_POSITIONAL shall be deactivated):
-	/// <code>
-	/// if ((features & FEATURE_POSITIONAL) == FEATURE_POSITIONAL) { <positional shall be deactivated> };
-	/// </code>
+	/// @code
+	/// if ((features & FEATURE_POSITIONAL) == FEATURE_POSITIONAL) {
+	/// 	// positional shall be deactivated
+	/// };
+	/// @endcode
 	///
 	/// @param features The feature set that shall be deactivated
 	/// @returns The feature set that can't be disabled (bitwise or'ed). If all requested features can be disabled, return
