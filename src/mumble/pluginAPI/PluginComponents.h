@@ -180,8 +180,8 @@ struct MumbleAPI {
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param userName The respective user's name
 	/// @param[out] userID A pointer to the memory the user's ID shall be written to
-	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the fields of the passed
-	/// 	struct may be accessed.
+	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer may
+	/// 	be accessed.
 	error_t (*findUserByName)(MumbleConnection_t connection, const char *userName, MumbleUserID_t *userID);
 
 	/// Fills in the information about a channel with the specified name, if such a channel exists.
@@ -189,8 +189,8 @@ struct MumbleAPI {
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param channelName The respective channel's name
 	/// @param[out] channelID A pointer to the memory the channel's ID shall be written to
-	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the fields of the passed
-	/// 	struct may be accessed.
+	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer may
+	/// 	be accessed.
 	error_t (*findChannelByName)(MumbleConnection_t connection, const char *channelName, MumbleChannelID_t *channelID);
 
 
