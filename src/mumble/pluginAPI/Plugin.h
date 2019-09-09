@@ -108,6 +108,20 @@ extern "C" {
 
 	
 	// -------- Positional Audio --------
+	// If this plugin wants to provide positional audio, all functiosn of this category have to be implemented
+
+	/// Indicates that Mumble wants to use this plugin to request positional data. Therefore it should check whether it is currently
+	/// able to do so and allocate memory that is needed for that process.
+	/// As a parameter this function gets an array of names and an array of PIDs. They are of same length and the PID at index i
+	/// belongs to a program whose name is listed at index i in the "name-array".
+	///
+	/// @param programNames An array of pointers to the program names
+	/// @param programPIDs An array of pointers to the corresponding program PIDs
+	/// @param programCount The length of programNames and programPIDs
+	/// @returns Whether the plugin is currently capable of delivering positional data. If this returns true, getPositionalData will
+	/// 	be called frequently to fetch that data. If this returns false, this function shouldn't have allocated any memory that
+	/// 	needs to be cleaned up later on.
+	PLUGIN_EXPORT bool initPositionalData(const char **programNames, const char **programPIDs, size_t programCount);
 
 	/// Retrieves the positional audio data. If no data can be fetched, set all float-vectors to 0 and return false.
 	///
@@ -123,21 +137,23 @@ extern "C" {
 	/// 	is facing). One unit represents one meter of distance.
 	/// @param[out] camera_axis A float-array of size 3 representing a vector from the bottom of the camera to its top. One unit
 	/// 	represents one meter of distance.
-	/// @param[out] context A pointer to a C-encoded string storing the context of the provided positional data. This context should
-	/// 	include information about the server (and team) the player is on. Only players with identical context will be able to hear
-	/// 	each other's audio. The plugin has to guarantee that the returned pointer will be valid until freePositionalData has been called.
-	/// @param[out] identity A pointer to a C-encoded string storing the identity of the player. It can be polled by external scripts from the
-	/// 	server and should uniquely identify the player in the game. The plugin has to guarantee that the returned pointer will be valid
-	/// 	until freePositionalData has been called.
-	/// @returns Whether the data was successfully fetched
-	PLUGIN_EXPORT bool getPositionalData(float *avatar_pos, float *avatar_front, float *avatar_axis, float *camera_pos, float *camera_front,
-			float *camera_axis, const char *context, const char *identity);
+	/// @param[out] context A pointer to where the pointer to a C-encoded string storing the context of the provided positional data
+	/// 	shall be written. This context should include information about the server (and team) the player is on. Only players with identical
+	/// 	context will be able to hear each other's audio. The returned pointer has to remain valid until the next invokation of this function
+	/// 	or until shutdownPositionalData is called.
+	/// @param[out] identity A pointer to where the pointer to a C-encoded string storing the identity of the player shall be written. It can
+	/// 	be polled by external scripts from the server and should uniquely identify the player in the game. The pointer has to remain valid
+	/// 	until the next invokation of this function or until shutdownPositionalData is called.
+	/// @returns Whether this plugin can continue delivering positional data. If this function returns false, shutdownPositionalData will
+	/// 	be called.
+	PLUGIN_EXPORT bool fetchPositionalData(float *avatar_pos, float *avatar_front, float *avatar_axis, float *camera_pos, float *camera_front,
+			float *camera_axis, const char **context, const char **identity);
 
-	/// A function indicating that the context and identity string allocated for getPositionalData may be freed from now on.
-	PLUGIN_EXPORT void freePositionalData();
+	/// Indicates that this plugin will not be asked for positional data any longer. Thus any memory allocated for this purpose should
+	/// be freed at this point.
+	PLUGIN_EXPORT void shutdownPositionalData();
 
 
-	// Parameters to functions below are yet to be determined
 
 	// -------- Callback functions -----------
 
