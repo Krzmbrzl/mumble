@@ -158,35 +158,43 @@ extern "C" {
 	// -------- Callback functions -----------
 
 	/// Called when connecting to a server.
-	PLUGIN_EXPORT void onServerConnected();
+	///
+	/// @param connection The ID of the newly established server-connection
+	PLUGIN_EXPORT void onServerConnected(MumbleConnection_t connection);
 
 	/// Called when disconnecting from a server.
-	PLUGIN_EXPORT void onServerDisconnected();
+	///
+	/// @param connection The ID of the server-connection that has been terminated
+	PLUGIN_EXPORT void onServerDisconnected(MumbleConnection_t connection);
 
 	/// Called whenever any user on the server enters a channel
 	/// This function will also be called when freshly connecting to a server as each user on that
 	/// server needs to be "added" to the respective channel as far as the local client is concerned.
 	///
+	/// @param connection The ID of the server-connection this event is connected to
 	/// @param userID The ID of the user this event has been triggered for
 	/// @param previousChannelID The ID of the chanel the user is coming from. Negative IDs indicate that there is no previous channel (e.g. the user
 	/// 	freshly connected to the server) or the channel isn't available because of any other reason.
 	/// @param newChannelID The ID of the channel the user has entered. If the ID is negative, the new channel could not be retrieved. This means
 	/// 	that the ID is invalid.
-	PLUGIN_EXPORT void onChannelEntered(MumbleUserID_t userID, MumbleChannelID_t previousChannelID, MumbleChannelID_t newChannelID);
+	PLUGIN_EXPORT void onChannelEntered(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t previousChannelID,
+			MumbleChannelID_t newChannelID);
 
 	/// Called whenever a user leaves a channel.
 	/// This function will also be called when the user disconnects from the server.
 	///
+	/// @param connection The ID of the server-connection this event is connected to
 	/// @param userID The ID of the user that left the channel
 	/// @param channelID The ID of the channel the user left. If the ID is negative, the channel could not be retrieved. This means that the ID is
 	/// 	invalid.
-	PLUGIN_EXPORT void onChannelExited(MumbleUserID_t userID, MumbleChannelID_t channelID);
+	PLUGIN_EXPORT void onChannelExited(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID);
 
 	/// Called when any user changes his/her talking state.
 	///
+	/// @param connection The ID of the server-connection this event is connected to
 	/// @param userID The ID of the user whose talking state has been changed
 	/// @param talkingState The new TalkingState the user has switched to.
-	PLUGIN_EXPORT void onUserTalkingStateChanged(MumbleUserID_t userID, TalkingState_t talkingState);
+	PLUGIN_EXPORT void onUserTalkingStateChanged(MumbleConnection_t connection, MumbleUserID_t userID, TalkingState_t talkingState);
 
 	/// Called whenever there is audio input.
 	///
