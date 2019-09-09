@@ -212,6 +212,19 @@ extern "C" {
 	/// @returns Whether this callback has modified the audio output-array
 	PLUGIN_EXPORT bool onAudioOutput_float(float *outputPCM, uint32_t sampleCount, uint32_t channelCount);
 
+	/// Called whenever data has been received that has been sent by a plugin. This data should only be processed by the
+	/// intended plugin. For this reason a dataID is provided that should be used to determine whether the data is intended
+	/// for this plugin or not. As soon as the data has been processed, no further plugins will be notified about it.
+	///
+	/// @param connection The ID of the server-connection the data is coming from
+	/// @param sender The ID of the user whose client's plugin has sent the data
+	/// @param data The sent data represented as a string
+	/// @param dataLength The length of data
+	/// @param messageID The ID of this data
+	/// @return Whether the given data has been processed by this plugin
+	PLUGIN_EXPORT bool receiveData(MumbleConnection_t connection, MumbleUserID_t sender, const char *data, size_t dataLenght,
+			const char *dataID);
+
 
 #ifdef __cplusplus
 }
