@@ -172,6 +172,7 @@ struct MumbleAPI {
 	error_t (*requestUserMove)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID, const char *password);
 
 
+
 	// -------- Find functions --------
 	
 	/// Fills in the information about a user with the specified name, if such a user exists.
@@ -191,6 +192,25 @@ struct MumbleAPI {
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the fields of the passed
 	/// 	struct may be accessed.
 	error_t (*findChannelByName)(MumbleConnection_t connection, const char *channelName, MumbleChannelID_t *channelID);
+
+
+
+	// -------- Miscellaneous --------
+	
+	/// Sends the provided data to the provided client(s). This kind of data can only be received by another plugin active
+	/// on that client. The sent data can be seen by any active plugin on the receiving client. Therefore the sent data
+	/// must not contain sensitive information or anything else that shouldn't be known by others.
+	///
+	/// @param connection The ID of the server-connection to send the data through (the server the given users are on)
+	/// @param users An array of user IDs to send the data to
+	/// @param userCount The size of the provided user-array
+	/// @param data The data that shall be sent as a String
+	/// @param dataLength The length of the data-string
+	/// @param messageID The ID of the sent data. This has to be used by the receiving plugin(s) to figure out what to do with
+	/// 	the data
+	/// @returns The error code. If everything went well, STATUS_OK will be returned.
+	error_t sendData(MumbleConnection_t connection, MumbleUserID_t *users, size_t userCount, const char *data, size_t dataLength,
+			const char *dataID);
 };
 
 
