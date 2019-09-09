@@ -87,7 +87,7 @@ struct MumbleAPI {
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param userID The user's ID whose name should be obtained
 	/// @param[out] userName A pointer to where the pointer to the allocated string (C-encoded) should be written to. The
-	/// 	allocated memory has to be freed my a call to freeMemory by the plugin eventually. The memory will only be
+	/// 	allocated memory has to be freed by a call to freeMemory by the plugin eventually. The memory will only be
 	/// 	allocated if this function returns STATUS_OK.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
@@ -98,7 +98,7 @@ struct MumbleAPI {
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param channelID The channel's ID whose name should be obtained
 	/// @param[out] channelName A pointer to where the pointer to the allocated string (C-ecoded) should be written to. The
-	/// 	allocated memory has to be freed my a call to freeMemory by the plugin eventually. The memory will only be
+	/// 	allocated memory has to be freed by a call to freeMemory by the plugin eventually. The memory will only be
 	/// 	allocated if this function returns STATUS_OK.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
@@ -108,21 +108,23 @@ struct MumbleAPI {
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param[out] users A pointer to where the pointer of the allocated array shall be written. The
-	/// 	allocated memory has to be freed my a call to freeMemory by the plugin eventually. The memory will only be
+	/// 	allocated memory has to be freed by a call to freeMemory by the plugin eventually. The memory will only be
 	/// 	allocated if this function returns STATUS_OK.
+	/// @param[out] userCount A pointer to where the size of the allocated user-array shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getAllUsers)(MumbleConnection_t connection, MumbleUserID_t **users);
+	error_t (*getAllUsers)(MumbleConnection_t connection, MumbleUserID_t **users, size_t *userCount);
 
 	/// Gets an array of all channels on the provided server.
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param[out] channels A pointer to where the pointer of the allocated array shall be written. The
-	/// 	allocated memory has to be freed my a call to freeMemory by the plugin eventually. The memory will only be
+	/// 	allocated memory has to be freed by a call to freeMemory by the plugin eventually. The memory will only be
 	/// 	allocated if this function returns STATUS_OK.
+	/// @param[out] channelCount A pointer to where the size of the allocated channel-array shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getAllChannels)(MumbleConnection_t connection, MumbleChannelID_t **channels);
+	error_t (*getAllChannels)(MumbleConnection_t connection, MumbleChannelID_t **channels, size_t *channelCount);
 
 	/// Gets the ID of the channel the given user is currently connected to.
 	///
@@ -137,10 +139,13 @@ struct MumbleAPI {
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param channelID The ID of the channel whose users shall be retrieved
-	/// @param[out] userList A pointer to where the pointer of the allocated array shall be written.
+	/// @param[out] userList A pointer to where the pointer of the allocated array shall be written. The allocated memory has
+	/// 	to be freed by a call to freeMemory by the plugin eventually. The memory will only be allocated if this function
+	/// 	returns STATUS_OK.
+	/// @param[out] userCount A pointer to where the size of the allocated user-array shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getUsersInChannel)(MumbleConnection_t connection, MumbleChannelID_t channelID, MumbleUserID_t **userList);
+	error_t (*getUsersInChannel)(MumbleConnection_t connection, MumbleChannelID_t channelID, MumbleUserID_t **userList, size_t *userCount);
 
 	/// Gets the current transmission mode of the local user.
 	///
