@@ -115,12 +115,14 @@ extern "C" {
 	/// 	One unit represents one meter of distance.
 	/// @param[out] avatar_front A float-array of size 3 representing the cartesian direction-vector of the player/avatar ingame (where it
 	/// 	is facing). One unit represents one meter of distance.
-	/// @param[out] avatar_top A float-array of size 3 representing <TODO>.One unit represents one meter of distance.
+	/// @param[out] avatar_axis A float-array of size 3 representing the vector pointing from the toes of the character to its head. One
+	/// 	unit represents one meter of distance.
 	/// @param[out] camera_pos A float-array of size 3 representing the cartesian position of the camera in the ingame world.
 	/// 	One unit represents one meter of distance.
 	/// @param[out] camera_front A float-array of size 3 representing the cartesian direction-vector of the camera ingame (where it
 	/// 	is facing). One unit represents one meter of distance.
-	/// @param[out] camera_top A float-array of size 3 representing <TODO>.One unit represents one meter of distance.
+	/// @param[out] camera_axis A float-array of size 3 representing a vector from the bottom of the camera to its top. One unit
+	/// 	represents one meter of distance.
 	/// @param[out] context A pointer to a C-encoded string storing the context of the provided positional data. This context should
 	/// 	include information about the server (and team) the player is on. Only players with identical context will be able to hear
 	/// 	each other's audio. The plugin has to guarantee that the returned pointer will be valid until freePositionalData has been called.
@@ -128,8 +130,8 @@ extern "C" {
 	/// 	server and should uniquely identify the player in the game. The plugin has to guarantee that the returned pointer will be valid
 	/// 	until freePositionalData has been called.
 	/// @returns Whether the data was successfully fetched
-	PLUGIN_EXPORT bool getPositionalData(float *avatar_pos, float *avatar_front, float *avatar_top, float *camera_pos, float *camera_front,
-			float *camera_top, const char *context, const char *identity);
+	PLUGIN_EXPORT bool getPositionalData(float *avatar_pos, float *avatar_front, float *avatar_axis, float *camera_pos, float *camera_front,
+			float *camera_axis, const char *context, const char *identity);
 
 	/// A function indicating that the context and identity string allocated for getPositionalData may be freed from now on.
 	PLUGIN_EXPORT void freePositionalData();
