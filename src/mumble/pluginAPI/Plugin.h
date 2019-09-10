@@ -121,7 +121,7 @@ extern "C" {
 	/// @returns Whether the plugin is currently capable of delivering positional data. If this returns true, getPositionalData will
 	/// 	be called frequently to fetch that data. If this returns false, this function shouldn't have allocated any memory that
 	/// 	needs to be cleaned up later on.
-	PLUGIN_EXPORT bool initPositionalData(const char **programNames, const char **programPIDs, size_t programCount);
+	PLUGIN_EXPORT bool initPositionalData(const char **programNames, const uint64_t **programPIDs, size_t programCount);
 
 	/// Retrieves the positional audio data. If no data can be fetched, set all float-vectors to 0 and return false.
 	///
