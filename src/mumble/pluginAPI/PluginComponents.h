@@ -11,11 +11,11 @@
 #define STATUS_OK EC_OK
 
 enum PluginFeature {
-	// None of the below
+	/// None of the below
 	FEATURE_NONE = 0,
-	// The plugin provides positional data from a game
+	/// The plugin provides positional data from a game
 	FEATURE_POSITIONAL = 2 << 0,
-	// The plugin modifies the input/output audio itself
+	/// The plugin modifies the input/output audio itself
 	FEATURE_AUDIO = 2 << 1
 };
 
@@ -36,6 +36,16 @@ enum TransmissionMode {
 enum ErrorCode {
 	EC_OK = 0,
 	EC_GENERIC_ERROR
+};
+
+enum PositionalDataErrorCode {
+	/// Positional data has been initialized properly
+	PDEC_OK = 0,
+	/// Positional data is temporarily unavailable (e.g. because the corresponding process isn't running) but might be
+	/// at another point in time.
+	PDEC_ERROR_TEMP,
+	/// Positional data is permanently unavailable (e.g. because the respective memory offsets are outdated).
+	PDEC_ERROR_PERM
 };
 
 struct Version {

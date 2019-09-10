@@ -118,10 +118,11 @@ extern "C" {
 	/// @param programNames An array of pointers to the program names
 	/// @param programPIDs An array of pointers to the corresponding program PIDs
 	/// @param programCount The length of programNames and programPIDs
-	/// @returns Whether the plugin is currently capable of delivering positional data. If this returns true, getPositionalData will
-	/// 	be called frequently to fetch that data. If this returns false, this function shouldn't have allocated any memory that
-	/// 	needs to be cleaned up later on.
-	PLUGIN_EXPORT bool initPositionalData(const char **programNames, const uint64_t **programPIDs, size_t programCount);
+	/// @returns The error code. If everything went fine PDEC_OK shall be returned. In that case Mumble will start frequently
+	/// 	calling fetchPositionalData. If this returns anything but PDEC_OK, Mumble will assume that the plugin is (currently)
+	/// 	uncapable of providing positional data. In this case this function must not have allocated any memory that needs to be
+	/// 	cleaned up later on. Depending on the returned error code, Mumble might try to call this function again later on.
+	PLUGIN_EXPORT uint8_t initPositionalData(const char **programNames, const uint64_t **programPIDs, size_t programCount);
 
 	/// Retrieves the positional audio data. If no data can be fetched, set all float-vectors to 0 and return false.
 	///
