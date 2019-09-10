@@ -229,7 +229,7 @@ extern "C" {
 	/// @param sender The ID of the user whose client's plugin has sent the data
 	/// @param data The sent data represented as a string
 	/// @param dataLength The length of data
-	/// @param messageID The ID of this data
+	/// @param dataID The ID of this data
 	/// @return Whether the given data has been processed by this plugin
 	PLUGIN_EXPORT bool onReceiveData(MumbleConnection_t connection, MumbleUserID_t sender, const char *data, size_t dataLenght,
 			const char *dataID);

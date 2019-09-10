@@ -221,7 +221,7 @@ struct MumbleAPI {
 	/// @param userCount The size of the provided user-array
 	/// @param data The data that shall be sent as a String
 	/// @param dataLength The length of the data-string
-	/// @param messageID The ID of the sent data. This has to be used by the receiving plugin(s) to figure out what to do with
+	/// @param dataID The ID of the sent data. This has to be used by the receiving plugin(s) to figure out what to do with
 	/// 	the data
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
 	error_t sendData(MumbleConnection_t connection, MumbleUserID_t *users, size_t userCount, const char *data, size_t dataLength,
