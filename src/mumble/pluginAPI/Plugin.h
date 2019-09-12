@@ -96,7 +96,7 @@ extern "C" {
 	/// 
 	/// Example (check if FEATURE_POSITIONAL shall be deactivated):
 	/// @code
-	/// if ((features & FEATURE_POSITIONAL) == FEATURE_POSITIONAL) {
+	/// if (features & FEATURE_POSITIONAL) {
 	/// 	// positional shall be deactivated
 	/// };
 	/// @endcode
