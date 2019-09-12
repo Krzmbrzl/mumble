@@ -175,8 +175,7 @@ struct MumbleAPI {
 	/// Requests Mumble to set the local user's transmission mode to the specified one.
 	///
 	/// @param transmissionMode The requested transmission mode
-	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
-	/// 	may be accessed
+	/// @returns The error code. If everything went well, STATUS_OK will be returned.
 	error_t (*requestLocalUserTransmissionMode)(TransmissionMode_t transmissionMode);
 
 	/// Requests Mumble to move the given user into the given channel
@@ -186,8 +185,7 @@ struct MumbleAPI {
 	/// @param channelID The ID of the channel to move the user to
 	/// @param password The password of the target channel (encoded as a C-string). Pass NULL if the target channel does not require a
 	/// 	password for entering
-	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
-	/// 	may be accessed
+	/// @returns The error code. If everything went well, STATUS_OK will be returned.
 	error_t (*requestUserMove)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID, const char *password);
 
 
