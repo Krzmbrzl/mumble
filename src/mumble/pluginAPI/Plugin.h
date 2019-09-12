@@ -129,13 +129,13 @@ extern "C" {
 	/// @param[out] avatar_pos A float-array of size 3 representing the cartesian position of the player/avatar in the ingame world.
 	/// 	One unit represents one meter of distance.
 	/// @param[out] avatar_front A float-array of size 3 representing the cartesian direction-vector of the player/avatar ingame (where it
-	/// 	is facing). One unit represents one meter of distance.
+	/// 	is facing).
 	/// @param[out] avatar_axis A float-array of size 3 representing the vector pointing from the toes of the character to its head. One
 	/// 	unit represents one meter of distance.
 	/// @param[out] camera_pos A float-array of size 3 representing the cartesian position of the camera in the ingame world.
 	/// 	One unit represents one meter of distance.
 	/// @param[out] camera_front A float-array of size 3 representing the cartesian direction-vector of the camera ingame (where it
-	/// 	is facing). One unit represents one meter of distance.
+	/// 	is facing).
 	/// @param[out] camera_axis A float-array of size 3 representing a vector from the bottom of the camera to its top. One unit
 	/// 	represents one meter of distance.
 	/// @param[out] context A pointer to where the pointer to a C-encoded string storing the context of the provided positional data
