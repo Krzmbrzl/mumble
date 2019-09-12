@@ -156,7 +156,7 @@ extern "C" {
 
 
 
-	// -------- Callback functions -----------
+	// -------- EventHandlers / Callback functions -----------
 
 	/// Called when connecting to a server.
 	///
