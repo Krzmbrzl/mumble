@@ -192,7 +192,7 @@ struct MumbleAPI {
 
 	// -------- Find functions --------
 	
-	/// Fills in the information about a user with the specified name, if such a user exists.
+	/// Fills in the information about a user with the specified name, if such a user exists. The search is case-sensitive.
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param userName The respective user's name
@@ -201,7 +201,7 @@ struct MumbleAPI {
 	/// 	be accessed.
 	error_t (*findUserByName)(MumbleConnection_t connection, const char *userName, MumbleUserID_t *userID);
 
-	/// Fills in the information about a channel with the specified name, if such a channel exists.
+	/// Fills in the information about a channel with the specified name, if such a channel exists. The search is case-sensitive.
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param channelName The respective channel's name
