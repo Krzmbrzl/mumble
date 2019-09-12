@@ -182,7 +182,7 @@ extern "C" {
 			MumbleChannelID_t newChannelID);
 
 	/// Called whenever a user leaves a channel.
-	/// This function will also be called when the user disconnects from the server.
+	/// This includes a client disconnecting from the server as this will also lead to the user not being in that channel anymore.
 	///
 	/// @param connection The ID of the server-connection this event is connected to
 	/// @param userID The ID of the user that left the channel
