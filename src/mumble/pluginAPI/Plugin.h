@@ -89,7 +89,7 @@ extern "C" {
 	/// together.
 	///
 	/// @returns The feature set of this plugin
-	PLUGIN_EXPORT uint16_t getPluginFeatures();
+	PLUGIN_EXPORT uint32_t getPluginFeatures();
 
 	/// Requests this plugin to deactivate the given (sub)set of provided features.
 	/// If this is not possible, the features that can't be deactivated shall be returned by this function.
