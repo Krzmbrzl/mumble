@@ -114,7 +114,9 @@ struct MumbleAPI {
 	/// 	may be accessed
 	error_t (*getChannelName)(MumbleConnection_t connection, MumbleChannelID_t channelID, const char **channelName);
 
-	/// Gets an array of all users that are currently connected to the provided server.
+	/// Gets an array of all users that are currently connected to the provided server. Passing a nullptr as any of the out-parameter
+	/// will prevent that property to be set/allocated. If you are only interested in the user count you can thus pass nullptr as the
+	/// users parameter and save time on allocating + freeing the channels-array while still getting the size out.
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param[out] users A pointer to where the pointer of the allocated array shall be written. The
@@ -125,7 +127,9 @@ struct MumbleAPI {
 	/// 	may be accessed
 	error_t (*getAllUsers)(MumbleConnection_t connection, MumbleUserID_t **users, size_t *userCount);
 
-	/// Gets an array of all channels on the provided server.
+	/// Gets an array of all channels on the provided server. Passing a nullptr as any of the out-parameter will prevent
+	/// that property to be set/allocated. If you are only interested in the channel count you can thus pass nullptr as the
+	/// channels parameter and save time on allocating + freeing the channels-array while still getting the size out.
 	///
 	/// @param connection The ID of the server-connection to use as a context
 	/// @param[out] channels A pointer to where the pointer of the allocated array shall be written. The
