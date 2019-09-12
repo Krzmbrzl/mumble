@@ -199,40 +199,47 @@ extern "C" {
 
 	/// Called whenever there is audio input.
 	///
-	/// @param inputPCM A pointer to a short-array holding the pulse-code-modulation (PCM) representing the audio input.
-	/// @param inputSize The size of the input-array
+	/// @param inputPCM A pointer to a short-array holding the pulse-code-modulation (PCM) representing the audio input. Its length
+	/// 	is sampleCount * channelCount.
+	/// @param sampleCount The amount of sample points per channel
+	/// @param channelCount The amount of channels in the audio
 	/// @param isSpeech A boolean flag indicating whether Mumble considers the input as part of speech (instead of background noise)
 	/// @returns Whether this callback has modified the audio input-array
-	PLUGIN_EXPORT bool onAudioInput(short *inputPCM, uint32_t inputSize, bool isSpeech);
+	PLUGIN_EXPORT bool onAudioInput(short *inputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech);
 
 	/// Called whenever Mumble fetches data from an active audio source (could be a voice packet or a playing sample).
 	/// The provided audio buffer is the raw buffer without any processing applied to it yet.
 	///
-	/// @param outputPCM A pointer to a float-array holding the pulse-code-modulation (PCM) representing the audio output
-	/// @param sampleCount How many samples (array-entries) there are in the provided output
+	/// @param outputPCM A pointer to a float-array holding the pulse-code-modulation (PCM) representing the audio output. Its length
+	/// 	is sampleCount * channelCount.
+	/// @param sampleCount The amount of sample points per channel
+	/// @param channelCount The amount of channels in the audio
 	/// @param isSpeech Whether this audio belongs to a received voice packet (and will thus (most likely) contain speech)
 	/// @param userID If isSpeech is true, this contains the ID of the user this voice packet belongs to. If isSpeech is false,
 	/// 	the content of this parameter is unspecified and should not be accessed
 	/// @returns Whether this callback has modified the audio output-array
-	PLUGIN_EXPORT bool onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, bool isSpeech, MumbleUserID_t userID);
+	PLUGIN_EXPORT bool onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, MumbleUserID_t userID);
 
 	/// Called whenever Mumble has processed the data from an active audio source (could be a voice packet or a playing sample).
 	/// Processing contains things like applying positional audio effects (if enabled) and/or volume adjustments.
 	///
-	/// @param outputPCM A pointer to a float-array holding the pulse-code-modulation (PCM) representing the audio output
-	/// @param sampleCount How many samples (array-entries) there are in the provided output
+	/// @param outputPCM A pointer to a float-array holding the pulse-code-modulation (PCM) representing the audio output. Its length
+	/// 	is sampleCount * channelCount.
+	/// @param sampleCount The amount of sample points per channel
+	/// @param channelCount The amount of channels in the audio
 	/// @param isSpeech Whether this audio belongs to a received voice packet (and will thus (most likely) contain speech)
 	/// @param userID If isSpeech is true, this contains the ID of the user this voice packet belongs to. If isSpeech is false,
 	/// 	the content of this parameter is unspecified and should not be accessed
 	/// @returns Whether this callback has modified the audio output-array
-	PLUGIN_EXPORT bool onAudioSourceProcessed(float *outputPCM, uint32_ sampleCount, bool isSpeech, MumbleUserID_t userID);
+	PLUGIN_EXPORT bool onAudioSourceProcessed(float *outputPCM, uint32_ sampleCount, uint16_t channelCount, bool isSpeech, MumbleUserID_t userID);
 
 	/// Called whenever the fully mixed and processed audio is about to be handed to the audio backend (about to be played).
 	/// Note that this happens immediately before Mumble clips the audio buffer.
 	///
-	/// @param outputPCM A pointer to a float-array holding the pulse-code-modulation (PCM) representing the audio output
-	/// @param sampleCount How many samples (array-entries) there are for each channel
-	/// @param channelCount How many channels there are in the audio output
+	/// @param outputPCM A pointer to a float-array holding the pulse-code-modulation (PCM) representing the audio output. Its length
+	/// 	is sampleCount * channelCount.
+	/// @param sampleCount The amount of sample points per channel
+	/// @param channelCount The amount of channels in the audio
 	/// @returns Whether this callback has modified the audio output-array
 	PLUGIN_EXPORT bool onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, uint16_t channelCount);
 
