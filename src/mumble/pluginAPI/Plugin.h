@@ -234,7 +234,7 @@ extern "C" {
 	/// @param sampleCount How many samples (array-entries) there are for each channel
 	/// @param channelCount How many channels there are in the audio output
 	/// @returns Whether this callback has modified the audio output-array
-	PLUGIN_EXPORT bool onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, uint32_t channelCount);
+	PLUGIN_EXPORT bool onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, uint16_t channelCount);
 
 	/// Called whenever data has been received that has been sent by a plugin. This data should only be processed by the
 	/// intended plugin. For this reason a dataID is provided that should be used to determine whether the data is intended
