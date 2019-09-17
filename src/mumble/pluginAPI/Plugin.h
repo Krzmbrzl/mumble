@@ -58,7 +58,7 @@ extern "C" {
 	/// Mumble will decide whether this plugin is loadable or not based on the return value of this function.
 	///
 	/// @return The respective API Version
-	PLUGIN_EXPORT Version_t getApiVersion();
+	PLUGIN_EXPORT Version_t getAPIVersion();
 
 	/// Gets the name of the plugin author(s). The plugin has to guarantee that the returned pointer will still be valid. The string will
 	/// be copied for further usage though.
