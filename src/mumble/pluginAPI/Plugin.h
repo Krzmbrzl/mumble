@@ -231,7 +231,7 @@ extern "C" {
 	/// @param userID If isSpeech is true, this contains the ID of the user this voice packet belongs to. If isSpeech is false,
 	/// 	the content of this parameter is unspecified and should not be accessed
 	/// @returns Whether this callback has modified the audio output-array
-	PLUGIN_EXPORT bool onAudioSourceProcessed(float *outputPCM, uint32_ sampleCount, uint16_t channelCount, bool isSpeech, MumbleUserID_t userID);
+	PLUGIN_EXPORT bool onAudioSourceProcessed(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, MumbleUserID_t userID);
 
 	/// Called whenever the fully mixed and processed audio is about to be handed to the audio backend (about to be played).
 	/// Note that this happens immediately before Mumble clips the audio buffer.
