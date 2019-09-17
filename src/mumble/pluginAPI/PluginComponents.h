@@ -61,7 +61,7 @@ typedef struct Version Version_t;
 typedef int32_t MumbleConnection_t;
 typedef uint32_t MumbleUserID_t;
 typedef int32_t MumbleChannelID_t;
-typedef enum ErrorCode error_t;
+typedef enum ErrorCode MumbleError_t;
 
 
 struct MumbleAPI {
@@ -71,7 +71,7 @@ struct MumbleAPI {
 	///
 	/// @param pointer The pointer to free
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	error_t (*freeMemory)(void *pointer);
+	MumbleError_t (*freeMemory)(void *pointer);
 
 
 	
@@ -82,7 +82,7 @@ struct MumbleAPI {
 	/// @param[out] connection A pointer to the memory location the ID should be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then it is valid to access the
 	/// 	value of the provided pointer
-	error_t (*getActiveServerConnection)(MumbleConnection_t *connection);
+	MumbleError_t (*getActiveServerConnection)(MumbleConnection_t *connection);
 
 	/// Fills in the information about the local user.
 	///
@@ -90,7 +90,7 @@ struct MumbleAPI {
 	/// @param[out] userID A pointer to the memory the user's ID shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getLocalUserID)(MumbleConnection_t connection, MumbleUserID_t *userID);
+	MumbleError_t (*getLocalUserID)(MumbleConnection_t connection, MumbleUserID_t *userID);
 
 	/// Fills in the information about the given user's name.
 	///
@@ -101,7 +101,7 @@ struct MumbleAPI {
 	/// 	allocated if this function returns STATUS_OK.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getUserName)(MumbleConnection_t connection, MumbleUserID_t userID, const char **userName);
+	MumbleError_t (*getUserName)(MumbleConnection_t connection, MumbleUserID_t userID, const char **userName);
 
 	/// Fills in the information about the given channel's name.
 	///
@@ -112,7 +112,7 @@ struct MumbleAPI {
 	/// 	allocated if this function returns STATUS_OK.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getChannelName)(MumbleConnection_t connection, MumbleChannelID_t channelID, const char **channelName);
+	MumbleError_t (*getChannelName)(MumbleConnection_t connection, MumbleChannelID_t channelID, const char **channelName);
 
 	/// Gets an array of all users that are currently connected to the provided server. Passing a nullptr as any of the out-parameter
 	/// will prevent that property to be set/allocated. If you are only interested in the user count you can thus pass nullptr as the
@@ -125,7 +125,7 @@ struct MumbleAPI {
 	/// @param[out] userCount A pointer to where the size of the allocated user-array shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getAllUsers)(MumbleConnection_t connection, MumbleUserID_t **users, size_t *userCount);
+	MumbleError_t (*getAllUsers)(MumbleConnection_t connection, MumbleUserID_t **users, size_t *userCount);
 
 	/// Gets an array of all channels on the provided server. Passing a nullptr as any of the out-parameter will prevent
 	/// that property to be set/allocated. If you are only interested in the channel count you can thus pass nullptr as the
@@ -138,7 +138,7 @@ struct MumbleAPI {
 	/// @param[out] channelCount A pointer to where the size of the allocated channel-array shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getAllChannels)(MumbleConnection_t connection, MumbleChannelID_t **channels, size_t *channelCount);
+	MumbleError_t (*getAllChannels)(MumbleConnection_t connection, MumbleChannelID_t **channels, size_t *channelCount);
 
 	/// Gets the ID of the channel the given user is currently connected to.
 	///
@@ -147,7 +147,7 @@ struct MumbleAPI {
 	/// @param[out] A pointer to where the ID of the channel shall be written
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getChannelOfUser)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t *channel);
+	MumbleError_t (*getChannelOfUser)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t *channel);
 
 	/// Gets an array of all users in the specified channel.
 	///
@@ -159,14 +159,14 @@ struct MumbleAPI {
 	/// @param[out] userCount A pointer to where the size of the allocated user-array shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getUsersInChannel)(MumbleConnection_t connection, MumbleChannelID_t channelID, MumbleUserID_t **userList, size_t *userCount);
+	MumbleError_t (*getUsersInChannel)(MumbleConnection_t connection, MumbleChannelID_t channelID, MumbleUserID_t **userList, size_t *userCount);
 
 	/// Gets the current transmission mode of the local user.
 	///
 	/// @param[out] transmissionMode A pointer to where the transmission mode shall be written.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	error_t (*getLocalUserTransmissionMode)(TransmissionMode_t *transmissionMode);
+	MumbleError_t (*getLocalUserTransmissionMode)(TransmissionMode_t *transmissionMode);
 
 
 
@@ -176,7 +176,7 @@ struct MumbleAPI {
 	///
 	/// @param transmissionMode The requested transmission mode
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	error_t (*requestLocalUserTransmissionMode)(TransmissionMode_t transmissionMode);
+	MumbleError_t (*requestLocalUserTransmissionMode)(TransmissionMode_t transmissionMode);
 
 	/// Requests Mumble to move the given user into the given channel
 	///
@@ -186,7 +186,7 @@ struct MumbleAPI {
 	/// @param password The password of the target channel (encoded as a C-string). Pass NULL if the target channel does not require a
 	/// 	password for entering
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	error_t (*requestUserMove)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID, const char *password);
+	MumbleError_t (*requestUserMove)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID, const char *password);
 
 
 
@@ -199,7 +199,7 @@ struct MumbleAPI {
 	/// @param[out] userID A pointer to the memory the user's ID shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer may
 	/// 	be accessed.
-	error_t (*findUserByName)(MumbleConnection_t connection, const char *userName, MumbleUserID_t *userID);
+	MumbleError_t (*findUserByName)(MumbleConnection_t connection, const char *userName, MumbleUserID_t *userID);
 
 	/// Fills in the information about a channel with the specified name, if such a channel exists. The search is case-sensitive.
 	///
@@ -208,7 +208,7 @@ struct MumbleAPI {
 	/// @param[out] channelID A pointer to the memory the channel's ID shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer may
 	/// 	be accessed.
-	error_t (*findChannelByName)(MumbleConnection_t connection, const char *channelName, MumbleChannelID_t *channelID);
+	MumbleError_t (*findChannelByName)(MumbleConnection_t connection, const char *channelName, MumbleChannelID_t *channelID);
 
 
 
@@ -226,7 +226,7 @@ struct MumbleAPI {
 	/// @param dataID The ID of the sent data. This has to be used by the receiving plugin(s) to figure out what to do with
 	/// 	the data
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	error_t sendData(MumbleConnection_t connection, MumbleUserID_t *users, size_t userCount, const char *data, size_t dataLength,
+	MumbleError_t sendData(MumbleConnection_t connection, MumbleUserID_t *users, size_t userCount, const char *data, size_t dataLength,
 			const char *dataID);
 };
 
