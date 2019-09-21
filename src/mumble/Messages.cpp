@@ -21,7 +21,6 @@
 #include "Log.h"
 #include "MainWindow.h"
 #include "Overlay.h"
-#include "Plugins.h"
 #include "ServerHandler.h"
 #include "User.h"
 #include "UserEdit.h"
@@ -33,6 +32,7 @@
 #include "Utils.h"
 #include "ChannelListener.h"
 #include "TalkingUI.h"
+#include "PluginManager.h"
 
 // We define a global macro called 'g'. This can lead to issues when included code uses 'g' as a type or parameter name (like protobuf 3.7 does). As such, for now, we have to make this our last include.
 #include "Global.h"
@@ -196,6 +196,8 @@ void MainWindow::msgServerSync(const MumbleProto::ServerSync &msg) {
 			ChannelListener::setListenerLocalVolumeAdjustment(it.key(), it.value());
 		}
 	});
+
+	emit serverSynchronized();
 }
 
 /// This message is being received when the server informs this client about server configuration details. This contains
@@ -1167,5 +1169,22 @@ void MainWindow::msgSuggestConfig(const MumbleProto::SuggestConfig &msg) {
 			g.l->log(Log::Warning, tr("The server requests Push-to-Talk be enabled."));
 		else
 			g.l->log(Log::Warning, tr("The server requests Push-to-Talk be disabled."));
+	}
+}
+
+void MainWindow::msgPluginDataTransmission(const MumbleProto::PluginDataTransmission &msg) {
+	// Another client's plugin has sent us some data. Verify the necessary parts are there and delegate it to the
+	// PluginManager
+	
+	if (!msg.has_sendersession() || !msg.has_data() || !msg.has_dataid()) {
+		// if the message contains no sender session, no data or no ID for the data, it is of no use to us and we discard it
+		return;
+	}
+
+	const ClientUser *sender = ClientUser::get(msg.sendersession());
+	const std::string &data = msg.data();
+
+	if (sender) {
+		g.pluginManager->on_receiveData(sender, data.c_str(), data.size(), msg.dataid().c_str());
 	}
 }
