@@ -3,7 +3,7 @@
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
 
-#include "Plugins.h"
+#include "PluginConfig.h"
 
 #include "Log.h"
 #include "MainWindow.h"
@@ -14,13 +14,10 @@
 #include "MumbleApplication.h"
 #include "ManualPlugin.h"
 #include "Utils.h"
+#include "PluginManager.h"
 
 #include <QtCore/QLibrary>
 #include <QtCore/QUrlQuery>
-
-#ifdef Q_OS_WIN
-# include <QtCore/QTemporaryFile>
-#endif
 
 #include <QtWidgets/QMessageBox>
 #include <QtXml/QDomDocument>
@@ -40,27 +37,6 @@ static ConfigWidget *PluginConfigDialogNew(Settings &st) {
 }
 
 static ConfigRegistrar registrar(5000, PluginConfigDialogNew);
-
-struct PluginInfo {
-	bool locked;
-	bool enabled;
-	QLibrary lib;
-	QString filename;
-	QString description;
-	QString shortname;
-	MumblePlugin *p;
-	MumblePlugin2 *p2;
-	MumblePluginQt *pqt;
-	PluginInfo();
-};
-
-PluginInfo::PluginInfo() {
-	locked = false;
-	enabled = false;
-	p = NULL;
-	p2 = NULL;
-	pqt = NULL;
-}
 
 struct PluginFetchMeta {
 	QString hash;
@@ -98,121 +74,132 @@ void PluginConfig::load(const Settings &r) {
 }
 
 void PluginConfig::save() const {
-	QReadLocker lock(&g.p->qrwlPlugins);
-
 	s.bTransmitPosition = qcbTransmit->isChecked();
-	s.qmPositionalAudioPlugins.clear();
+	s.qhPluginSettings.clear();
+
+	if (!s.bTransmitPosition) {
+		// Make sure that if posData is currently running, it gets reset
+		// The setting will prevent the system from reactivating
+		g.pluginManager->unlinkPositionalData();
+	}
 
 	QList<QTreeWidgetItem *> list = qtwPlugins->findItems(QString(), Qt::MatchContains);
 	foreach(QTreeWidgetItem *i, list) {
-		bool enabled = (i->checkState(1) == Qt::Checked);
+		bool enable = (i->checkState(1) == Qt::Checked);
+		bool positionalDataEnabled = (i->checkState(2) == Qt::Checked);
 
-		PluginInfo *pi = pluginForItem(i);
-		if (pi) {
-			s.qmPositionalAudioPlugins.insert(pi->filename, enabled);
-			pi->enabled = enabled;
+		const QSharedPointer<const Plugin> plugin = pluginForItem(i);
+		if (plugin) {
+			// insert plugin to settings
+			s.qhPluginSettings.insert(plugin->getFilePath(), { enable, positionalDataEnabled });
+
+			g.pluginManager->enablePositionalDataFor(plugin->getID(), positionalDataEnabled);
+
+			if (enable) {
+				g.pluginManager->loadPlugin(plugin->getID());
+
+				// potentially deactivate plugin features
+				// A plugin's feature is considered to be enabled by default after loading. Thus we only need to
+				// deactivate the ones we don't want
+				uint32_t featuresToDeactivate = FEATURE_NONE;
+				const uint32_t pluginFeatures = plugin->getFeatures();
+
+				if (!positionalDataEnabled && (pluginFeatures & FEATURE_POSITIONAL)) {
+					// deactivate this feature only if it is available in the first place
+					featuresToDeactivate |= FEATURE_POSITIONAL;
+				}
+
+				if (featuresToDeactivate != FEATURE_NONE) {
+					uint32_t remainingFeatures = g.pluginManager->deactivateFeaturesFor(plugin->getID(), featuresToDeactivate);
+
+					if (remainingFeatures != FEATURE_NONE) {
+						g.l->log(Log::Warning, QString::fromUtf8("Unable to deactivate all requested features for plugin ") + plugin->getName());
+					}
+				}
+			} else {
+				g.pluginManager->unloadPlugin(plugin->getID());
+			}
 		}
 	}
 }
 
-PluginInfo *PluginConfig::pluginForItem(QTreeWidgetItem *i) const {
+const QSharedPointer<const Plugin> PluginConfig::pluginForItem(QTreeWidgetItem *i) const {
 	if (i) {
-		foreach(PluginInfo *pi, g.p->qlPlugins) {
-			if (pi->filename == i->data(0, Qt::UserRole).toString())
-				return pi;
-		}
+		return g.pluginManager->getPlugin(i->data(0, Qt::UserRole).toUInt());
 	}
-	return NULL;
+
+	return QSharedPointer<const Plugin>();
 }
 
 void PluginConfig::on_qpbConfig_clicked() {
-	PluginInfo *pi;
-	{
-		QReadLocker lock(&g.p->qrwlPlugins);
-		pi = pluginForItem(qtwPlugins->currentItem());
-	}
+	const QSharedPointer<const Plugin> plugin = pluginForItem(qtwPlugins->currentItem());
 
-	if (! pi)
-		return;
-
-	if (pi->pqt && pi->pqt->config) {
-		pi->pqt->config(this);
-	} else if (pi->p->config) {
-		pi->p->config(0);
-	} else {
-		QMessageBox::information(this, QLatin1String("Mumble"), tr("Plugin has no configure function."), QMessageBox::Ok, QMessageBox::NoButton);
+	if (plugin) {
+		if (!plugin->showConfigDialog(this)) {
+			// if the plugin doesn't support showing such a dialog, we'll show a default one
+			QMessageBox::information(this, QLatin1String("Mumble"), tr("Plugin has no configure function."), QMessageBox::Ok, QMessageBox::NoButton);
+		}
 	}
 }
 
 void PluginConfig::on_qpbAbout_clicked() {
-	PluginInfo *pi;
-	{
-		QReadLocker lock(&g.p->qrwlPlugins);
-		pi = pluginForItem(qtwPlugins->currentItem());
-	}
+	const QSharedPointer<const Plugin> plugin = pluginForItem(qtwPlugins->currentItem());
 
-	if (! pi)
-		return;
-
-	if (pi->pqt && pi->pqt->about) {
-		pi->pqt->about(this);
-	} else if (pi->p->about) {
-		pi->p->about(0);
-	} else {
-		QMessageBox::information(this, QLatin1String("Mumble"), tr("Plugin has no about function."), QMessageBox::Ok, QMessageBox::NoButton);
+	if (plugin) {
+		if (!plugin->showAboutDialog(this)) {
+			// if the plugin doesn't support showing such a dialog, we'll show a default one
+			QMessageBox::information(this, QLatin1String("Mumble"), tr("Plugin has no about function."), QMessageBox::Ok, QMessageBox::NoButton);
+		}
 	}
 }
 
 void PluginConfig::on_qpbReload_clicked() {
-	g.p->rescanPlugins();
+	g.pluginManager->rescanPlugins();
 	refillPluginList();
 }
 
 void PluginConfig::refillPluginList() {
-	QReadLocker lock(&g.p->qrwlPlugins);
 	qtwPlugins->clear();
 
-	foreach(PluginInfo *pi, g.p->qlPlugins) {
+	// get plugins already sorted according to their name
+	const QVector<QSharedPointer<const Plugin> > plugins = g.pluginManager->getPlugins(true);
+
+	foreach(const QSharedPointer<const Plugin> currentPlugin, plugins) {
 		QTreeWidgetItem *i = new QTreeWidgetItem(qtwPlugins);
 		i->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
-		i->setCheckState(1, pi->enabled ? Qt::Checked : Qt::Unchecked);
-		i->setText(0, pi->description);
-		if (pi->p->longdesc)
-			i->setToolTip(0, QString::fromStdWString(pi->p->longdesc()).toHtmlEscaped());
-		i->setData(0, Qt::UserRole, pi->filename);
+		i->setCheckState(1, currentPlugin->isLoaded() ? Qt::Checked : Qt::Unchecked);
+		
+		if (currentPlugin->getFeatures() & FEATURE_POSITIONAL) {
+			i->setCheckState(2, currentPlugin->isPositionalDataEnabled() ? Qt::Checked : Qt::Unchecked);
+			i->setToolTip(2, QString::fromUtf8("Whether the positional audio feature of this plugin should be enabled"));
+		} else {
+			i->setToolTip(2, QString::fromUtf8("This plugin does not provide support for positional audio"));
+		}
+
+		i->setText(0, currentPlugin->getName());
+		i->setToolTip(0, currentPlugin->getDescription().toHtmlEscaped());
+		i->setToolTip(1, QString::fromUtf8("Whether this plugin should be enabled"));
+		i->setData(0, Qt::UserRole, currentPlugin->getID());
 	}
+
 	qtwPlugins->setCurrentItem(qtwPlugins->topLevelItem(0));
 	on_qtwPlugins_currentItemChanged(qtwPlugins->topLevelItem(0), NULL);
 }
 
 void PluginConfig::on_qtwPlugins_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *) {
-	QReadLocker lock(&g.p->qrwlPlugins);
+	const QSharedPointer<const Plugin> plugin = pluginForItem(current);
 
-	PluginInfo *pi=pluginForItem(current);
-	if (pi) {
-		bool showAbout = false;
-		if (pi->p->about) {
-			showAbout = true;
-		}
-		if (pi->pqt && pi->pqt->about) {
-			showAbout = true;
-		}
-		qpbAbout->setEnabled(showAbout);
+	if (plugin) {
+		qpbAbout->setEnabled(plugin->providesAboutDialog());
 
-		bool showConfig = false;
-		if (pi->p->config) {
-			showConfig = true;
-		}
-		if (pi->pqt && pi->pqt->config) {
-			showConfig = true;
-		}
-		qpbConfig->setEnabled(showConfig);
+		qpbConfig->setEnabled(plugin->providesConfigDialog());
 	} else {
 		qpbAbout->setEnabled(false);
 		qpbConfig->setEnabled(false);
 	}
 }
 
+/*
 Plugins::Plugins(QObject *p) : QObject(p) {
 	QTimer *timer=new QTimer(this);
 	timer->setObjectName(QLatin1String("Timer"));
@@ -781,3 +768,4 @@ void Plugins::fetchedPAPluginDL(QByteArray data, QUrl url) {
 	if (rescan)
 		rescanPlugins();
 }
+*/

@@ -100,7 +100,12 @@ HEADERS *= BanEditor.h \
     UserModel.h \
     Audio.h \
     ConfigDialog.h \
-    Plugins.h \
+    PluginConfig.h \
+	Plugin.h \
+	LegacyPlugin.h \
+	PluginManager.h \
+	PositionalData.h \
+	MumbleAPI.h \
     PTTButtonWidget.h \
     LookConfig.h \
     Overlay.h \
@@ -145,7 +150,8 @@ HEADERS *= BanEditor.h \
     Screen.h \
     SvgIcon.h \
     Markdown.h \
-    TalkingUI.h
+    TalkingUI.h \
+    ../ProcessResolver.h
 
 SOURCES *= BanEditor.cpp \
     ACLEditor.cpp \
@@ -172,7 +178,12 @@ SOURCES *= BanEditor.cpp \
     UserModel.cpp \
     Audio.cpp \
     ConfigDialog.cpp \
-    Plugins.cpp \
+    PluginConfig.cpp \
+	Plugin.cpp \
+	LegacyPlugin.cpp \
+	PluginManager.cpp \
+	PositionalData.cpp \
+	MumbleAPI.cpp \
     PTTButtonWidget.cpp \
     LookConfig.cpp \
     OverlayClient.cpp \
@@ -218,7 +229,8 @@ SOURCES *= BanEditor.cpp \
     Screen.cpp \
     SvgIcon.cpp \
     Markdown.cpp \
-    TalkingUI.cpp
+    TalkingUI.cpp \
+    ../ProcessResolver.cpp
 
 CONFIG(qtspeech) {
   SOURCES *= TextToSpeech.cpp
@@ -239,7 +251,7 @@ FORMS *= ConfigDialog.ui \
     ConnectDialogEdit.ui \
     BanEditor.ui \
     ACLEditor.ui \
-    Plugins.ui \
+    PluginConfig.ui \
     PTTButtonWidget.ui \
     Overlay.ui \
     OverlayEditor.ui \
@@ -270,6 +282,7 @@ PRECOMPILED_HEADER = mumble_pch.hpp
 INCLUDEPATH *= ../../3rdparty/qqbonjour-src
 INCLUDEPATH *= ../../3rdparty/smallft-src
 INCLUDEPATH *= widgets
+INCLUDEPATH *= ../../plugins
 
 CONFIG(static) {
   # Ensure that static Mumble.app on Mac OS X
@@ -769,6 +782,16 @@ CONFIG(static_qt_plugins) {
   # Icon engines are special; they don't get their lib directory
   # included automatically by mkspecs/features/qt.prf
   LIBS *= -L$$[QT_INSTALL_PLUGINS]/iconengines
+}
+
+# On FreeBSD we need the util library for src/ProcessResolver.cpp to work
+freebsd {
+	LIBS *= -lutil
+}
+
+# On any other BSD we need the kvm library for src/ProcessResolver.cpp to work
+!freebsd:bsd {
+	LIBS *= -lkvm
 }
 
 lrel.output = ${QMAKE_FILE_BASE}.qm

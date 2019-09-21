@@ -12,7 +12,6 @@
 #include "Cert.h"
 #include "Database.h"
 #include "Log.h"
-#include "Plugins.h"
 #include "LogEmitter.h"
 #include "DeveloperConsole.h"
 #include "LCD.h"
@@ -37,6 +36,7 @@
 #include "License.h"
 #include "EnvUtils.h"
 #include "TalkingUI.h"
+#include "PluginManager.h"
 
 #include <QtCore/QLibraryInfo>
 #include <QtCore/QProcess>
@@ -434,6 +434,9 @@ int main(int argc, char **argv) {
 	// Initialize bonjour
 	g.bc = new BonjourClient();
 #endif
+	
+	// PluginManager
+	g.pluginManager = new PluginManager();
 
 	g.o = new Overlay();
 	g.o->setActive(g.s.os.bEnable);
@@ -461,6 +464,10 @@ int main(int argc, char **argv) {
 	g.l = new Log();
 	g.l->processDeferredLogs();
 
+	// as this function might call Log::log() which needs the MainWindow to exist, we have to call it here after it has been
+	// initialized
+	g.pluginManager->rescanPlugins();
+
 #ifdef Q_OS_WIN
 	// Set mumble_mw_hwnd in os_win.cpp.
 	// Used by APIs in ASIOInput and GlobalShortcut_win that require a HWND.
@@ -476,10 +483,6 @@ int main(int argc, char **argv) {
 	SocketRPC *srpc = new SocketRPC(QLatin1String("Mumble"));
 
 	g.l->log(Log::Information, MainWindow::tr("Welcome to Mumble."));
-
-	// Plugins
-	g.p = new Plugins(NULL);
-	g.p->rescanPlugins();
 
 	Audio::start();
 	g.mw->onChangeMute();
@@ -555,7 +558,7 @@ int main(int argc, char **argv) {
 	g.mw->msgBox(MainWindow::tr("Skipping version check in debug mode."));
 #endif
 	if (g.s.bPluginCheck) {
-		g.p->checkUpdates();
+		g.pluginManager->checkForPluginUpdates();
 	}
 
 	if (url.isValid()) {
@@ -590,19 +593,22 @@ int main(int argc, char **argv) {
 
 	delete srpc;
 
+	delete g.talkingUI;
+	// Delete the MainWindow before the ServerHandler gets reset in order to allow all callbacks
+	// trggered by this deletion to still access the ServerHandler (atm all these callbacks are in PluginManager.cpp)
+	delete g.mw;
+
 	g.sh.reset();
+
 	while (sh && ! sh.unique())
 		QThread::yieldCurrentThread();
 	sh.reset();
-
-	delete g.talkingUI;
-	delete g.mw;
 
 	delete g.nam;
 	delete g.lcd;
 
 	delete g.db;
-	delete g.p;
+	delete g.pluginManager;
 	delete g.l;
 
 #ifdef USE_BONJOUR

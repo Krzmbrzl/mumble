@@ -275,6 +275,8 @@ Settings::Settings() {
 	qRegisterMetaType<ShortcutTarget> ("ShortcutTarget");
 	qRegisterMetaTypeStreamOperators<ShortcutTarget> ("ShortcutTarget");
 	qRegisterMetaType<QVariant> ("QVariant");
+	qRegisterMetaType<PluginSetting>("PluginSetting");
+	qRegisterMetaTypeStreamOperators<PluginSetting>("PluginSetting");
 
 	atTransmit = VAD;
 	bTransmitPosition = false;
@@ -889,9 +891,14 @@ void Settings::load(QSettings* settings_ptr) {
 	}
 	settings_ptr->endGroup();
 
-	settings_ptr->beginGroup(QLatin1String("audio/plugins"));
-	foreach(const QString &d, settings_ptr->childKeys()) {
-		qmPositionalAudioPlugins.insert(d, settings_ptr->value(d, true).toBool());
+	// Plugins
+	settings_ptr->beginGroup(QLatin1String("plugins"));
+	foreach(const QString &savePath, settings_ptr->childKeys()) {
+		// Path separators have been converted to NULL-chars
+		QString pluginPath = savePath;
+		pluginPath.replace(QChar::Null, QDir::separator());
+
+		qhPluginSettings.insert(pluginPath, settings_ptr->value(savePath).value<PluginSetting>());
 	}
 	settings_ptr->endGroup();
 
@@ -1230,18 +1237,33 @@ void Settings::save() {
 			settings_ptr->remove(d);
 	}
 	settings_ptr->endGroup();
+	
+	// Plugins
+	settings_ptr->beginGroup(QLatin1String("plugins"));
+	foreach(const QString &pluginPath, qhPluginSettings.keys()) {
+		// replace slashes with NULL-chars in order to not confuse the settings system with additional slashes
+		QString savePath = pluginPath;
+		savePath.replace(QDir::separator(), QChar::Null);
 
-	settings_ptr->beginGroup(QLatin1String("audio/plugins"));
-	foreach(const QString &d, qmPositionalAudioPlugins.keys()) {
-		bool v = qmPositionalAudioPlugins.value(d);
-		if (!v)
-			settings_ptr->setValue(d, v);
-		else
-			settings_ptr->remove(d);
+		settings_ptr->setValue(savePath, QVariant::fromValue(qhPluginSettings.value(pluginPath)));
 	}
 	settings_ptr->endGroup();
 
 	settings_ptr->beginGroup(QLatin1String("overlay"));
 	os.save(settings_ptr);
 	settings_ptr->endGroup();
+}
+
+QDataStream& operator>>(QDataStream &arch, PluginSetting &setting) {
+	arch >> setting.enabled;
+	arch >> setting.positionalDataEnabled;
+
+	return arch;
+}
+
+QDataStream& operator<<(QDataStream &arch, const PluginSetting &setting) {
+	arch << setting.enabled;
+	arch << setting.positionalDataEnabled;
+
+	return arch;
 }

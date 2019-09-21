@@ -27,7 +27,7 @@
 #include "Net.h"
 #include "NetworkConfig.h"
 #include "OverlayClient.h"
-#include "Plugins.h"
+#include "PluginManager.h"
 #include "PTTButtonWidget.h"
 #include "RichTextEditor.h"
 #include "ServerHandler.h"
@@ -186,6 +186,8 @@ MainWindow::MainWindow(QWidget *p) : QMainWindow(p) {
 #ifdef NO_UPDATE_CHECK
 	delete qaHelpVersionCheck;
 #endif
+
+	QObject::connect(this, SIGNAL(serverSynchronized()), g.pluginManager, SLOT(on_serverSynchronized()));
 }
 
 void MainWindow::createActions() {
@@ -848,6 +850,9 @@ static void recreateServerHandler() {
 	g.mw->connect(sh.get(), SIGNAL(error(QAbstractSocket::SocketError, QString)), g.mw, SLOT(resolverError(QAbstractSocket::SocketError, QString)));
 
 	QObject::connect(sh.get(), &ServerHandler::disconnected, g.talkingUI, &TalkingUI::on_serverDisconnected);
+
+	g.pluginManager->connect(sh.get(), SIGNAL(connected()), g.pluginManager, SLOT(on_serverConnected()), Qt::DirectConnection);
+	g.pluginManager->connect(sh.get(), SIGNAL(disconnected(QAbstractSocket::SocketError, QString)), g.pluginManager, SLOT(on_serverDisconnected()), Qt::DirectConnection);
 }
 
 void MainWindow::openUrl(const QUrl &url) {
@@ -2342,7 +2347,7 @@ void MainWindow::userStateChanged() {
 	if (g.s.bStateInTray) {
 		updateTrayIcon();
 	}
-	
+
 	ClientUser *user = ClientUser::get(g.uiSession);
 	if (user == NULL) {
 		g.bAttenuateOthers = false;
@@ -2470,7 +2475,8 @@ void MainWindow::on_qaAudioStats_triggered() {
 }
 
 void MainWindow::on_qaAudioUnlink_triggered() {
-	g.p->bUnlink = true;
+	// g.p->bUnlink = true;
+	g.pluginManager->unlinkPositionalData();
 }
 
 void MainWindow::on_qaConfigDialog_triggered() {

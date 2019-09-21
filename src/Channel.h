@@ -98,6 +98,10 @@ class Channel : public QObject {
 		QSet<Channel *> allChildren();
 
 		operator QString() const;
+
+	signals:
+		void channelEntered(const Channel *newChannel, const Channel *prevChannel,  const User *user);
+		void channelExited(const Channel *channel, const User *user);
 };
 
 #endif
