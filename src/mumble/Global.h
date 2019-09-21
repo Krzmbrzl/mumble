@@ -22,7 +22,7 @@ class AudioInput;
 class AudioOutput;
 class Database;
 class Log;
-class Plugins;
+class PluginManager;
 class QSettings;
 class Overlay;
 class LCD;
@@ -51,7 +51,8 @@ public:
 	 */
 	Database *db;
 	Log *l;
-	Plugins *p;
+	/// A pointer to the PluginManager that is used in this session
+	PluginManager *pluginManager;
 	QSettings *qs;
 	Overlay *o;
 	LCD *lcd;
@@ -137,6 +138,9 @@ const int MUMBLE_EXIT_CODE_RESTART = 64738;
 // parameter named 'g', that will generate a warning even if the class header
 // is included long before this definition.
 
-#define g (*Global::g_global_struct)
+#endif
 
+// move the macro definition outside the header guard in order to allow it to be defined on a second include
+#ifndef g
+	#define g (*Global::g_global_struct)
 #endif
