@@ -8,6 +8,7 @@
 #include "Channel.h"
 #include "ServerHandler.h"
 #include "Settings.h"
+#include "Log.h"
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
@@ -426,6 +427,18 @@ namespace API {
 		}
 	}
 
+	MumbleError_t PLUGIN_CALLING_CONVENTION log_v_1_0_x(const char *prefix, const char *message) {
+		if (g.l) {
+			g.l->log(Log::PluginMessage,
+				QString::fromUtf8("<b>%1:</b> %2").arg(QString::fromUtf8(prefix).toHtmlEscaped()).arg(QString::fromUtf8(message).toHtmlEscaped())
+			);
+
+			return STATUS_OK;
+		} else {
+			return EC_LOGGER_NOT_AVAILABLE;
+		}
+	}
+
 	MumbleAPI getMumbleAPI_v_1_0_x() {
 		return { freeMemory_v_1_0_x,
 			getActiveServerConnection_v_1_0_x,
@@ -442,7 +455,8 @@ namespace API {
 			requestMicrophoneActivationOverwrite_v_1_0_x,
 			findUserByName_v_1_0_x,
 			findChannelByName_v_1_0_x,
-			sendData_v_1_0_x
+			sendData_v_1_0_x,
+			log_v_1_0_x
 		};
 	}
 

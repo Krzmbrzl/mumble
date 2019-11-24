@@ -53,6 +53,8 @@ MumbleError_t init() {
 
 void shutdown() {
 	pluginLog("Shutdown plugin");
+
+	mumAPI.log("testPlugin", "Shutdown");
 }
 
 const char* getName() {
@@ -75,6 +77,8 @@ void registerAPIFunctions(MumbleAPI api) {
 	mumAPI = api;
 
 	pluginLog("Registered Mumble's API functions");
+
+	mumAPI.log("testPlugin", "Received API functions");
 }
 
 
