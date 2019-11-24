@@ -595,6 +595,7 @@ int main(int argc, char **argv) {
 	// Delete the MainWindow before the ServerHandler gets reset in order to allow all callbacks
 	// trggered by this deletion to still access the ServerHandler (atm all these callbacks are in PluginManager.cpp)
 	delete g.mw;
+	g.mw = nullptr; // Make it clear to any destruction code, that MainWindow no longer exists
 
 	g.sh.reset();
 
@@ -606,8 +607,10 @@ int main(int argc, char **argv) {
 	delete g.lcd;
 
 	delete g.db;
-	delete g.pluginManager;
 	delete g.l;
+	g.l = nullptr; // Make it clear to any destruction code that Log no longer exists
+
+	delete g.pluginManager;
 
 #ifdef USE_BONJOUR
 	delete g.bc;
