@@ -114,6 +114,7 @@ void Plugin::resolveFunctionPointers() {
 		this->apiFnc.onUserRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleUserID_t)>(lib.resolve("onUserRemoved"));
 		this->apiFnc.onChannelAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleChannelID_t)>(lib.resolve("onChannelAdded"));
 		this->apiFnc.onChannelRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleChannelID_t)>(lib.resolve("onChannelRemoved"));
+		this->apiFnc.onChannelRenamed = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleChannelID_t)>(lib.resolve("onChannelRenamed"));
 
 		// If positional audio is to be supported, all three corresponding functions have to be implemented
 		// For PA it is all or nothing
@@ -556,6 +557,16 @@ void Plugin::onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t c
 
 	if (this->apiFnc.onChannelRemoved) {
 		this->apiFnc.onChannelRemoved(connection, channelID);
+	}
+}
+
+void Plugin::onChannelRenamed(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+	PluginReadLocker lock(&this->pluginLock);
+
+	assertPluginLoaded(this);
+
+	if (this->apiFnc.onChannelRenamed) {
+		this->apiFnc.onChannelRenamed(connection, channelID);
 	}
 }
 

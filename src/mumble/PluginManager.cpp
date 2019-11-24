@@ -679,6 +679,20 @@ void PluginManager::on_channelRemoved(MumbleChannelID_t channelID) const {
 	});
 }
 
+void PluginManager::on_channelRenamed(int channelID) const {
+#ifdef MUMBLE_PLUGIN_DEBUG
+	qDebug() << "PluginManager: Renamed channel with ID" << channelID;
+#endif
+
+	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+
+	this->foreachPlugin([channelID, connectionID](Plugin& plugin) {
+		if (plugin.isLoaded()) {
+			plugin.onChannelRenamed(connectionID, channelID);
+		};
+	});
+}
+
 void PluginManager::on_syncPositionalData() {
 	// fetch positional data
 	if (this->fetchPositionalData()) {

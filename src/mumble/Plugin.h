@@ -54,6 +54,7 @@ struct PluginAPIFunctions {
 		void          (PLUGIN_CALLING_CONVENTION *onUserRemoved)(MumbleConnection_t connection, MumbleUserID_t userID);
 		void          (PLUGIN_CALLING_CONVENTION *onChannelAdded)(MumbleConnection_t connection, MumbleChannelID_t channelID);
 		void          (PLUGIN_CALLING_CONVENTION *onChannelRemoved)(MumbleConnection_t connection, MumbleChannelID_t channelID);
+		void          (PLUGIN_CALLING_CONVENTION *onChannelRenamed)(MumbleConnection_t connection, MumbleChannelID_t channelID);
 };
 
 
@@ -332,6 +333,12 @@ class Plugin : public QObject {
 		/// @param connection An object used to identify the current connection
 		/// @param channelID The ID of the channel that has been removed
 		virtual void onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t channelID);
+		/// Called when a channel gets renamed. This also applies when a new channel is created (thus assigning it an initial name is
+		/// also considered renaming).
+		///
+		/// @param connection An object used to identify the current connection
+		/// @param channelID The ID of the channel that has been renamed
+		virtual void onChannelRenamed(MumbleConnection_t connection, MumbleChannelID_t channelID);
 
 		/// @returns Whether this plugin provides an about-dialog
 		virtual bool providesAboutDialog() const;

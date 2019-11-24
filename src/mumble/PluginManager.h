@@ -237,6 +237,10 @@ class PluginManager : public QObject {
 		/// 
 		/// @param channelID The ID of the removed channel
 		void on_channelRemoved(int channelID) const;
+		/// Slot that gets called when a channel is renamed. It will delegate it to the respective plugin callbacks.
+		///
+		/// @param channelID The ID of the renamed channel
+		void on_channelRenamed(int channelID) const;
 		/// Slot that gets called whenever the positional data should be synchronized with the server. Before it does that, it tries to
 		/// fetch new data.
 		void on_syncPositionalData();

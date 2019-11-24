@@ -282,6 +282,13 @@ extern "C" {
 	/// @param channelID The ID of the channel that has been removed
 	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t channelID);
 
+	/// Called when a channel gets renamed. This also applies when a new channel is created (thus assigning it an initial name is also
+	/// considered renaming).
+	///
+	/// @param connection An object used to identify the current connection
+	/// @param channelID The ID of the channel that has been renamed
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelRenamed(MumbleConnection_t connection, MumbleChannelID_t channelID);
+
 
 #ifdef __cplusplus
 }
