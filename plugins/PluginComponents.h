@@ -51,7 +51,9 @@ enum ErrorCode {
 	EC_CHANNEL_NOT_FOUND,
 	EC_CONNECTION_NOT_FOUND,
 	EC_UNKNOWN_TRANSMISSION_MODE,
-	EC_LOGGER_NOT_AVAILABLE
+	EC_LOGGER_NOT_AVAILABLE,
+	EC_AUDIO_NOT_AVAILABLE,
+	EC_INVALID_SAMPLE
 };
 
 enum PositionalDataErrorCode {
@@ -290,6 +292,13 @@ struct MumbleAPI {
 	/// @param message The message to log
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
 	MumbleError_t (PLUGIN_CALLING_CONVENTION *log)(const char *prefix, const char *message);
+
+	/// Plays the provided sample. It uses libsndfile as a backend so the respective file format needs to be supported by it
+	/// in order for this to work out (see http://www.mega-nerd.com/libsndfile/).
+	///
+	/// @param samplePath The path to the sample that shall be played (UTF-8 encoded)
+	/// @returns The error code. If everything went well, STATUS_OK will be returned.
+	MumbleError_t (PLUGIN_CALLING_CONVENTION *playSample)(const char *samplePath);
 };
 
 
