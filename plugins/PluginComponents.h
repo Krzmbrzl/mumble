@@ -215,7 +215,9 @@ struct MumbleAPI {
 
 	// -------- Request functions --------
 	
-	/// Requests Mumble to set the local user's transmission mode to the specified one.
+	/// Requests Mumble to set the local user's transmission mode to the specified one. If you only need to temporarily set
+	/// the transmission mode to continous, use requestMicrophoneActivationOverwrite instead as this saves you the work of
+	/// restoring the previous state afterwards.
 	///
 	/// @param transmissionMode The requested transmission mode
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
