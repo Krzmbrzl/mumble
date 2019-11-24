@@ -193,6 +193,11 @@ class UserModel : public QAbstractItemModel {
 		void recheckLinks();
 		void updateOverlay() const;
 		void toggleChannelFiltered(Channel *c);
+	signals:
+		void userAdded(unsigned int userSessionID);
+		void userRemoved(unsigned int userSessionID);
+		void channelAdded(int channelID);
+		void channelRemoved(int channelID);
 };
 
 #endif

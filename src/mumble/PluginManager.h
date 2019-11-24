@@ -221,6 +221,22 @@ class PluginManager : public QObject {
 		/// Slot that gets called after the local client has finished synchronizing with the server. It will delegate it to the respective
 		/// plugin callback.
 		void on_serverSynchronized() const;
+		/// Slot that gets called when a new user is added to the user model. It will delegate it to the respective plugin callbacks.
+		/// 
+		/// @param userID The ID of the added user
+		void on_userAdded(unsigned int userID) const;
+		/// Slot that gets called when a user is removed from the user model. It will delegate it to the respective plugin callbacks.
+		/// 
+		/// @param userID The ID of the removed user
+		void on_userRemoved(unsigned int userID) const;
+		/// Slot that gets called when a new channel is added to the user model. It will delegate it to the respective plugin callbacks.
+		/// 
+		/// @param channelID The ID of the added channel
+		void on_channelAdded(int channelID) const;
+		/// Slot that gets called when a channel is removed from the user model. It will delegate it to the respective plugin callbacks.
+		/// 
+		/// @param channelID The ID of the removed channel
+		void on_channelRemoved(int channelID) const;
 		/// Slot that gets called whenever the positional data should be synchronized with the server. Before it does that, it tries to
 		/// fetch new data.
 		void on_syncPositionalData();
