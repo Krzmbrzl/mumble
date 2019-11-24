@@ -19,6 +19,7 @@
 #include "NetworkConfig.h"
 #include "Utils.h"
 #include "VoiceRecorder.h"
+#include "MumbleAPI.h"
 
 #ifdef USE_RNNOISE
 extern "C" {
@@ -898,7 +899,7 @@ void AudioInput::encodeAudioFrame() {
 		iHoldFrames = 0;
 	}
 
-	if (g.s.atTransmit == Settings::Continuous) {
+	if (g.s.atTransmit == Settings::Continuous || API::PluginData::get().overwriteMicrophoneActivation.load())
 		// Continous transmission is enabled
 		bIsSpeech = true;
 	} else if (g.s.atTransmit == Settings::PushToTalk) {

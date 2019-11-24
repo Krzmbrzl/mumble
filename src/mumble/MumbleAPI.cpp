@@ -346,6 +346,12 @@ namespace API {
 		return STATUS_OK;
 	}
 
+	MumbleError_t PLUGIN_CALLING_CONVENTION requestMicrophoneActivationOverwrite_v_1_0_x(bool activate) {
+		PluginData::get().overwriteMicrophoneActivation.store(activate);
+
+		return STATUS_OK;
+	}
+
 	MumbleError_t PLUGIN_CALLING_CONVENTION findUserByName_v_1_0_x(MumbleConnection_t connection, const char *userName, MumbleUserID_t *userID) {
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
@@ -434,6 +440,7 @@ namespace API {
 			getLocalUserTransmissionMode_v_1_0_x,
 			requestLocalUserTransmissionMode_v_1_0_x,
 			requestUserMove_v_1_0_x,
+			requestMicrophoneActivationOverwrite_v_1_0_x,
 			findUserByName_v_1_0_x,
 			findChannelByName_v_1_0_x,
 			sendData_v_1_0_x
@@ -455,5 +462,19 @@ namespace API {
 		// There appears to be no API for the provided version
 		throw std::invalid_argument(std::string("No API functions for API version v") + std::to_string(apiVersion.major) + "."
 				+ std::to_string(apiVersion.minor) + ".x");
+	}
+
+
+	// Implementation of PluginData
+	PluginData::PluginData() : overwriteMicrophoneActivation(false) {
+	}
+	
+	PluginData::~PluginData() {
+	}
+
+	PluginData& PluginData::get() {
+		static PluginData *instance = new PluginData();
+
+		return *instance;
 	}
 }; // namespace API
