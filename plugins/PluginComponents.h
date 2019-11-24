@@ -50,7 +50,8 @@ enum ErrorCode {
 	EC_USER_NOT_FOUND,
 	EC_CHANNEL_NOT_FOUND,
 	EC_CONNECTION_NOT_FOUND,
-	EC_UNKNOWN_TRANSMISSION_MODE
+	EC_UNKNOWN_TRANSMISSION_MODE,
+	EC_LOGGER_NOT_AVAILABLE
 };
 
 enum PositionalDataErrorCode {
@@ -281,6 +282,14 @@ struct MumbleAPI {
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
 	MumbleError_t (PLUGIN_CALLING_CONVENTION *sendData)(MumbleConnection_t connection, MumbleUserID_t *users, size_t userCount, const char *data, size_t dataLength,
 			const char *dataID);
+
+	/// Logs the given message (typically to Mumble's console). All passed strings have to be UTF-8 encoded.
+	///
+	/// @param prefix The prefix of the message indicating where it came from. Typically this should be the plugin's name (or a short version thereof
+	/// 	if the plugin name is rather long).
+	/// @param message The message to log
+	/// @returns The error code. If everything went well, STATUS_OK will be returned.
+	MumbleError_t (PLUGIN_CALLING_CONVENTION *log)(const char *prefix, const char *message);
 };
 
 
