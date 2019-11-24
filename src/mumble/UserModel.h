@@ -198,6 +198,7 @@ class UserModel : public QAbstractItemModel {
 		void userRemoved(unsigned int userSessionID);
 		void channelAdded(int channelID);
 		void channelRemoved(int channelID);
+		void channelRenamed(int channelID);
 };
 
 #endif

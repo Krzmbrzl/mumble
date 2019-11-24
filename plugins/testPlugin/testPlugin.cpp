@@ -323,3 +323,7 @@ void onChannelAdded(MumbleConnection_t connection, MumbleChannelID_t channelID) 
 void onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t channelID) {
 	pLog() << "Removed channel with ID " << channelID << " (ServerConnection: " << connection << ")" << std::endl;
 }
+
+void onChannelRenamed(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+	pLog() << "Renamed channel with ID " << channelID << " (ServerConnection: " << connection << ")" << std::endl;
+}

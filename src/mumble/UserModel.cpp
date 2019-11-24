@@ -1207,6 +1207,8 @@ void UserModel::renameChannel(Channel *c, const QString &name) {
 
 		moveItem(pi, pi, item);
 	}
+
+	emit channelRenamed(c->iId);
 }
 
 void UserModel::repositionChannel(Channel *c, const int position) {
