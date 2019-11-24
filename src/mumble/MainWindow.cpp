@@ -298,6 +298,12 @@ void MainWindow::setupGui()  {
 	qtvUsers->setRowHidden(0, QModelIndex(), true);
 	qtvUsers->ensurePolished();
 
+	// connect slots to PluginManager
+	QObject::connect(pmModel, SIGNAL(userAdded(unsigned int)), g.pluginManager, SLOT(on_userAdded(unsigned int)));
+	QObject::connect(pmModel, SIGNAL(userRemoved(unsigned int)), g.pluginManager, SLOT(on_userRemoved(unsigned int)));
+	QObject::connect(pmModel, SIGNAL(channelAdded(int)), g.pluginManager, SLOT(on_channelAdded(int)));
+	QObject::connect(pmModel, SIGNAL(channelRemoved(int)), g.pluginManager, SLOT(on_channelRemoved(int)));
+
 	qaAudioMute->setChecked(g.s.bMute);
 	qaAudioDeaf->setChecked(g.s.bDeaf);
 #ifdef USE_NO_TTS

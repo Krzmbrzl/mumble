@@ -307,3 +307,19 @@ bool onReceiveData(MumbleConnection_t connection, MumbleUserID_t sender, const c
 	// This function returns whether it has processed the data (preventing further plugins from seeing it)
 	return false;
 }
+
+void onUserAdded(MumbleConnection_t connection, MumbleUserID_t userID) {
+	pLog() << "Added user with ID " << userID << " (ServerConnection: " << connection << ")" << std::endl;
+}
+
+void onUserRemoved(MumbleConnection_t connection, MumbleUserID_t userID) {
+	pLog() << "Removed user with ID " << userID << " (ServerConnection: " << connection << ")" << std::endl;
+}
+
+void onChannelAdded(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+	pLog() << "Added channel with ID " << channelID << " (ServerConnection: " << connection << ")" << std::endl;
+}
+
+void onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+	pLog() << "Removed channel with ID " << channelID << " (ServerConnection: " << connection << ")" << std::endl;
+}

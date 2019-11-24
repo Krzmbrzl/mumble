@@ -623,6 +623,62 @@ void PluginManager::on_serverSynchronized() const {
 	});
 }
 
+void PluginManager::on_userAdded(MumbleUserID_t userID) const {
+#ifdef MUMBLE_PLUGIN_DEBUG
+	qDebug() << "PluginManager: Added user with ID" << userID;
+#endif
+
+	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+
+	this->foreachPlugin([userID, connectionID](Plugin& plugin) {
+		if (plugin.isLoaded()) {
+			plugin.onUserAdded(connectionID, userID);
+		};
+	});
+}
+
+void PluginManager::on_userRemoved(MumbleUserID_t userID) const {
+#ifdef MUMBLE_PLUGIN_DEBUG
+	qDebug() << "PluginManager: Removed user with ID" << userID;
+#endif
+
+	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+
+	this->foreachPlugin([userID, connectionID](Plugin& plugin) {
+		if (plugin.isLoaded()) {
+			plugin.onUserRemoved(connectionID, userID);
+		};
+	});
+}
+
+void PluginManager::on_channelAdded(MumbleChannelID_t channelID) const {
+#ifdef MUMBLE_PLUGIN_DEBUG
+	qDebug() << "PluginManager: Added channel with ID" << channel->channelID;
+#endif
+
+	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+
+	this->foreachPlugin([channelID, connectionID](Plugin& plugin) {
+		if (plugin.isLoaded()) {
+			plugin.onChannelAdded(connectionID, channelID);
+		};
+	});
+}
+
+void PluginManager::on_channelRemoved(MumbleChannelID_t channelID) const {
+#ifdef MUMBLE_PLUGIN_DEBUG
+	qDebug() << "PluginManager: Removed channel with ID" << channelID;
+#endif
+
+	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+
+	this->foreachPlugin([channelID, connectionID](Plugin& plugin) {
+		if (plugin.isLoaded()) {
+			plugin.onChannelRemoved(connectionID, channelID);
+		};
+	});
+}
+
 void PluginManager::on_syncPositionalData() {
 	// fetch positional data
 	if (this->fetchPositionalData()) {

@@ -249,6 +249,39 @@ extern "C" {
 	PLUGIN_EXPORT bool PLUGIN_CALLING_CONVENTION onReceiveData(MumbleConnection_t connection, MumbleUserID_t sender, const char *data, size_t dataLength,
 			const char *dataID);
 
+	/// Called when a new user gets added to the user model. This is the case when that new user freshly connects to the server the
+	/// local user is on but also when the local user connects to a server other clients are already connected to (in this case this
+	/// method will be called for every client already on that server).
+	///
+	/// @param connection An object used to identify the current connection
+	/// @param userID The ID of the user that has been added
+
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onUserAdded(MumbleConnection_t connection, MumbleUserID_t userID);
+
+	/// Called when a user gets removed from the user model. This is the case when that user disconnects from the server the
+	/// local user is on but also when the local user disconnects from a server other clients are connected to (in this case this
+	/// method will be called for every client on that server).
+	///
+	/// @param connection An object used to identify the current connection
+	/// @param userID The ID of the user that has been removed
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onUserRemoved(MumbleConnection_t connection, MumbleUserID_t userID);
+
+	/// Called when a new channel gets added to the user model. This is the case when a new channel is created on the server the local
+	/// user is on but also when the local user connects to a server that contains channels other than the root-channel (in this case
+	/// this method will be called for ever non-root channel on that server).
+	///
+	/// @param connection An object used to identify the current connection
+	/// @param channelID The ID of the channel that has been added
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelAdded(MumbleConnection_t connection, MumbleChannelID_t channelID);
+
+	/// Called when a channel gets removed from the user model. This is the case when a channel is removed on the server the local
+	/// user is on but also when the local user disconnects from a server that contains channels other than the root-channel (in this case
+	/// this method will be called for ever non-root channel on that server).
+	///
+	/// @param connection An object used to identify the current connection
+	/// @param channelID The ID of the channel that has been removed
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t channelID);
+
 
 #ifdef __cplusplus
 }

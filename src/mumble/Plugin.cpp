@@ -110,6 +110,10 @@ void Plugin::resolveFunctionPointers() {
 		this->apiFnc.onAudioSourceFetched = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t, bool, MumbleUserID_t)>(lib.resolve("onAudioSourceFetched"));
 		this->apiFnc.onAudioOutputAboutToPlay = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t)>(lib.resolve("onAudioOutputAboutToPlay"));
 		this->apiFnc.onServerSynchronized = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t)>(lib.resolve("onServerSynchronized"));
+		this->apiFnc.onUserAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleUserID_t)>(lib.resolve("onUserAdded"));
+		this->apiFnc.onUserRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleUserID_t)>(lib.resolve("onUserRemoved"));
+		this->apiFnc.onChannelAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleChannelID_t)>(lib.resolve("onChannelAdded"));
+		this->apiFnc.onChannelRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleChannelID_t)>(lib.resolve("onChannelRemoved"));
 
 		// If positional audio is to be supported, all three corresponding functions have to be implemented
 		// For PA it is all or nothing
@@ -512,6 +516,46 @@ void Plugin::onServerSynchronized(MumbleConnection_t connection) {
 
 	if (this->apiFnc.onServerSynchronized) {
 		this->apiFnc.onServerSynchronized(connection);
+	}
+}
+
+void Plugin::onUserAdded(MumbleConnection_t connection, MumbleUserID_t userID) {
+	PluginReadLocker lock(&this->pluginLock);
+
+	assertPluginLoaded(this);
+
+	if (this->apiFnc.onUserAdded) {
+		this->apiFnc.onUserAdded(connection, userID);
+	}
+}
+
+void Plugin::onUserRemoved(MumbleConnection_t connection, MumbleUserID_t userID) {
+	PluginReadLocker lock(&this->pluginLock);
+
+	assertPluginLoaded(this);
+
+	if (this->apiFnc.onUserRemoved) {
+		this->apiFnc.onUserRemoved(connection, userID);
+	}
+}
+
+void Plugin::onChannelAdded(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+	PluginReadLocker lock(&this->pluginLock);
+
+	assertPluginLoaded(this);
+
+	if (this->apiFnc.onChannelAdded) {
+		this->apiFnc.onChannelAdded(connection, channelID);
+	}
+}
+
+void Plugin::onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+	PluginReadLocker lock(&this->pluginLock);
+
+	assertPluginLoaded(this);
+
+	if (this->apiFnc.onChannelRemoved) {
+		this->apiFnc.onChannelRemoved(connection, channelID);
 	}
 }
 
