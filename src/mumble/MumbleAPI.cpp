@@ -407,7 +407,6 @@ namespace API {
 			return EC_CONNECTION_NOT_FOUND;
 		}
 
-		// TODO: Implement plugin-messages
 		MumbleProto::PluginDataTransmission mpdt;
 		mpdt.set_sendersession(g.uiSession);
 
