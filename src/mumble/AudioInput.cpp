@@ -899,7 +899,7 @@ void AudioInput::encodeAudioFrame() {
 		iHoldFrames = 0;
 	}
 
-	if (g.s.atTransmit == Settings::Continuous || API::PluginData::get().overwriteMicrophoneActivation.load())
+	if (g.s.atTransmit == Settings::Continuous || API::PluginData::get().overwriteMicrophoneActivation.load()) {
 		// Continous transmission is enabled
 		bIsSpeech = true;
 	} else if (g.s.atTransmit == Settings::PushToTalk) {
