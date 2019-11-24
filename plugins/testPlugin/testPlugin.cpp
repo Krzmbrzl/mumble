@@ -213,7 +213,7 @@ void onServerSynchronized(MumbleConnection_t connection) {
 	if (mumAPI.sendData(activeConnection, &localUser, 1, "Just a test", 12, "testMsg") == STATUS_OK) {
 		pluginLog("Successfully sent plugin message");
 	} else {
-		pluginLog("Failed at sening message");
+		pluginLog("Failed at sending message");
 	}
 }
 
