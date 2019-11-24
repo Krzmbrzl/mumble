@@ -231,6 +231,14 @@ struct MumbleAPI {
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
 	MumbleError_t (PLUGIN_CALLING_CONVENTION *requestUserMove)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID, const char *password);
 
+	/// Requests Mumble to overwrite the microphone activation so that the microphone is always on (same as if the user had chosen
+	/// the continous transmission mode). If a plugin requests this overwrite, it is responsible for deactivating the overwrite again
+	/// once it is no longer required
+	///
+	/// @param activate Whether to activate the overwrite (false deactivates an existing overwrite)
+	/// @returns The error code. If everything went well, STATUS_OK will be returned.
+	MumbleError_t (PLUGIN_CALLING_CONVENTION *requestMicrophoneActivationOvewrite)(bool activate);
+
 
 
 	// -------- Find functions --------
