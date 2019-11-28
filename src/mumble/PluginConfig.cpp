@@ -91,34 +91,38 @@ void PluginConfig::save() const {
 		const QSharedPointer<const Plugin> plugin = pluginForItem(i);
 		if (plugin) {
 			// insert plugin to settings
-			s.qhPluginSettings.insert(plugin->getFilePath(), { enable, positionalDataEnabled });
-
 			g.pluginManager->enablePositionalDataFor(plugin->getID(), positionalDataEnabled);
 
 			if (enable) {
-				g.pluginManager->loadPlugin(plugin->getID());
+				if (g.pluginManager->loadPlugin(plugin->getID())) {
+					// potentially deactivate plugin features
+					// A plugin's feature is considered to be enabled by default after loading. Thus we only need to
+					// deactivate the ones we don't want
+					uint32_t featuresToDeactivate = FEATURE_NONE;
+					const uint32_t pluginFeatures = plugin->getFeatures();
 
-				// potentially deactivate plugin features
-				// A plugin's feature is considered to be enabled by default after loading. Thus we only need to
-				// deactivate the ones we don't want
-				uint32_t featuresToDeactivate = FEATURE_NONE;
-				const uint32_t pluginFeatures = plugin->getFeatures();
-
-				if (!positionalDataEnabled && (pluginFeatures & FEATURE_POSITIONAL)) {
-					// deactivate this feature only if it is available in the first place
-					featuresToDeactivate |= FEATURE_POSITIONAL;
-				}
-
-				if (featuresToDeactivate != FEATURE_NONE) {
-					uint32_t remainingFeatures = g.pluginManager->deactivateFeaturesFor(plugin->getID(), featuresToDeactivate);
-
-					if (remainingFeatures != FEATURE_NONE) {
-						g.l->log(Log::Warning, QString::fromUtf8("Unable to deactivate all requested features for plugin ") + plugin->getName());
+					if (!positionalDataEnabled && (pluginFeatures & FEATURE_POSITIONAL)) {
+						// deactivate this feature only if it is available in the first place
+						featuresToDeactivate |= FEATURE_POSITIONAL;
 					}
+
+					if (featuresToDeactivate != FEATURE_NONE) {
+						uint32_t remainingFeatures = g.pluginManager->deactivateFeaturesFor(plugin->getID(), featuresToDeactivate);
+
+						if (remainingFeatures != FEATURE_NONE) {
+							g.l->log(Log::Warning, QString::fromUtf8("Unable to deactivate all requested features for plugin ") + plugin->getName());
+						}
+					}
+				} else {
+					// loading failed
+					enable = false;
+					g.l->log(Log::Warning, QString::fromUtf8("Unable to load plugin ") + plugin->getName());
 				}
 			} else {
 				g.pluginManager->unloadPlugin(plugin->getID());
 			}
+
+			s.qhPluginSettings.insert(plugin->getFilePath(), { enable, positionalDataEnabled });
 		}
 	}
 }
