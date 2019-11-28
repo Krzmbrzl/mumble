@@ -377,7 +377,7 @@ const QVector<QSharedPointer<const Plugin> > PluginManager::getPlugins(bool sort
 	return pluginList;
 }
 
-void PluginManager::loadPlugin(uint32_t pluginID) const {
+bool PluginManager::loadPlugin(uint32_t pluginID) const {
 	QReadLocker lock(&this->pluginCollectionLock);
 
 	QSharedPointer<Plugin> plugin = pluginHashMap.value(pluginID);
@@ -388,6 +388,8 @@ void PluginManager::loadPlugin(uint32_t pluginID) const {
 				MumbleAPI api = API::getMumbleAPI(plugin->getAPIVersion());
 
 				plugin->registerAPIFunctions(api);
+
+				return true;
 			} catch (const std::invalid_argument& e) {
 				// The API version could not be obtained -> this is an invalid plugin that shouldn't have been loaded in the first place
 #ifdef QT_DEBUG
@@ -400,6 +402,8 @@ void PluginManager::loadPlugin(uint32_t pluginID) const {
 			}
 		}
 	}
+
+	return false;
 }
 
 void PluginManager::unloadPlugin(uint32_t pluginID) const {

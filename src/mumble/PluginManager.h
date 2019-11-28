@@ -155,7 +155,8 @@ class PluginManager : public QObject {
 		/// Loads the plugin with the given ID. Loading means initializing the plugin.
 		///
 		/// @param pluginID The ID of the plugin to load
-		void loadPlugin(uint32_t pluginID) const;
+		/// @returns Whether the plugin could be successfully loaded
+		bool loadPlugin(uint32_t pluginID) const;
 		/// Unloads the plugin with the given ID. Unloading means shutting the pluign down.
 		///
 		/// @param pluginID The ID of the plugin to unload
