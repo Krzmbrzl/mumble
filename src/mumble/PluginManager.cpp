@@ -80,6 +80,13 @@ PluginManager::~PluginManager() {
 #endif
 }
 
+/// Emits a log about a plugin with the given name having lost link (positional audio)
+///
+/// @param pluginName The name of the plugin that lost link
+void reportLostLink(const QString& pluginName) {
+		g.l->log(Log::Information, QString::fromUtf8("%1 lost link").arg(pluginName.toHtmlEscaped()));
+}
+
 void PluginManager::clearPlugins() {
 	QWriteLocker lock(&this->pluginCollectionLock);
 
@@ -116,6 +123,8 @@ bool PluginManager::selectActivePositionalDataPlugin() {
 				case PDEC_OK:
 					// the plugin is ready to provide positional data
 					this->activePositionalDataPlugin = currentPlugin;
+
+					g.l->log(Log::Information, QString::fromUtf8("%1 linked").arg(currentPlugin->getName().toHtmlEscaped()));
 
 					return true;
 
@@ -307,6 +316,8 @@ bool PluginManager::fetchPositionalData() {
 		// Shut the currently active plugin down and set a new one (if available)
 		this->activePositionalDataPlugin->shutdownPositionalData();
 
+		reportLostLink(this->activePositionalDataPlugin->getName());
+
 		// unlock the read-lock in order to allow selectActivePositionaldataPlugin to gain a write-lock
 		activePluginLock.unlock();
 
@@ -323,7 +334,9 @@ void PluginManager::unlinkPositionalData() {
 		// Shut the plugin down
 		this->activePositionalDataPlugin->shutdown();
 
-		// Set the pointer to NULL
+		reportLostLink(this->activePositionalDataPlugin->getName());
+
+		// Set the pointer to nullptr
 		this->activePositionalDataPlugin = QSharedPointer<Plugin>();
 	}
 }
