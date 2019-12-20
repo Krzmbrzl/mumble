@@ -72,6 +72,7 @@ class PluginError : public std::runtime_error {
 class PluginReadLocker {
 	protected:
 		QReadWriteLock *lock;
+		bool unlocked;
 	public:
 		/// Constructor of the PluginReadLocker. If the passed lock-pointer is not nullptr, the constructor will
 		/// already lock the provided lock.

@@ -581,7 +581,7 @@ bool Plugin::providesConfigDialog() const {
 
 
 /////////////////// Implementation of the PluginReadLocker /////////////////////////
-PluginReadLocker::PluginReadLocker(QReadWriteLock *lock) : lock(lock) {
+PluginReadLocker::PluginReadLocker(QReadWriteLock *lock) : lock(lock), unlocked(false) {
 	this->relock();
 }
 
@@ -590,6 +590,8 @@ void PluginReadLocker::unlock() {
 		// do nothgin for nullptr
 		return;
 	}
+
+	this->unlocked = true;
 
 	this->lock->unlock();
 }
@@ -614,12 +616,14 @@ void PluginReadLocker::relock() {
 			this->lock->lockForRead();
 		}
 	}
+
+	this->unlocked = false;
 }
 
 PluginReadLocker::~PluginReadLocker() {
-	if (lock) {
+	if (this->lock && !this->unlocked) {
 		// unlock the lock if it isn't nullptr
-		lock->unlock();
+		this->lock->unlock();
 	}
 }
 
