@@ -76,7 +76,7 @@ float Vector3D::norm() const {
 }
 
 float Vector3D::dotProduct(const Vector3D& other) const {
-	return this->x * other.x + this->y + other.y + this->z + other.z;
+	return this->x * other.x + this->y * other.y + this->z * other.z;
 }
 
 Vector3D Vector3D::crossProduct(const Vector3D& other) const {
