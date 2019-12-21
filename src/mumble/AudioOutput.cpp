@@ -457,7 +457,7 @@ bool AudioOutput::mix(void *outbuff, unsigned int nsamp) {
 						azimuth = atan2f(cameraDir.z, cameraDir.x);
 					}
 
-					float inclination = acosf(cameraDir.y - static_cast<float>(M_PI) / 2.0f);
+					float inclination = acosf(cameraDir.y) - static_cast<float>(M_PI) / 2.0f;
 
 					cameraDir.x = sinf(inclination) * cosf(azimuth);
 					cameraDir.y = cosf(inclination);
