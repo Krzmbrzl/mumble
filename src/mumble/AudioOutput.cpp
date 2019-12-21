@@ -438,7 +438,7 @@ bool AudioOutput::mix(void *outbuff, unsigned int nsamp) {
 
 			Vector3D cameraAxis = g.pluginManager->getPositionalData().getCameraAxis();
 
-			// Front vector is dominant; if it's zero we presume all is zero.
+			// Direction vector is dominant; if it's zero we presume all is zero.
 
 			if (!cameraDir.isZero()) {
 				cameraDir.normalize();
@@ -554,7 +554,6 @@ bool AudioOutput::mix(void *outbuff, unsigned int nsamp) {
 				float len = connectionVec.norm();
 
 				if (len > 0.0f) {
-
 					// don't use normalize-func in order to save the re-computation of the vector's length
 					connectionVec.x /= len;
 					connectionVec.y /= len;
