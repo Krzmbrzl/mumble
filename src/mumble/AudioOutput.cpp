@@ -554,14 +554,14 @@ bool AudioOutput::mix(void *outbuff, unsigned int nsamp) {
 				float len = connectionVec.norm();
 
 				if (len > 0.0f) {
-					// don't use normalize-func in order to save the re-computation of the vector's length
+					// Don't use normalize-func in order to save the re-computation of the vector's length
 					connectionVec.x /= len;
 					connectionVec.y /= len;
 					connectionVec.z /= len;
 				}
 				/*
 								qWarning("Voice pos: %f %f %f", aop->fPos[0], aop->fPos[1], aop->fPos[2]);
-								qWarning("Voice dir: %f %f %f", dir[0], dir[1], dir[2]);
+								qWarning("Voice dir: %f %f %f", connectionVec.x, connectionVec.y, connectionVec.z);
 				*/
 				if (! aop->pfVolume) {
 					aop->pfVolume = new float[nchan];
