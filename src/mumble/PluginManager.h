@@ -12,6 +12,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QMutex>
 #ifdef Q_OS_WIN
+	#define NOMINMAX
 	#include <windows.h>
 #endif
 #include "Plugin.h"
