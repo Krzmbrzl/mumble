@@ -732,7 +732,7 @@ void PluginManager::on_syncPositionalData() {
 
 				if (this->sentData.context != this->positionalData.context) {
 					this->sentData.context = this->positionalData.context;
-					mpus.set_plugin_context(this->sentData.context.toUtf8().constData());
+					mpus.set_plugin_context(this->sentData.context.toUtf8().constData(), this->sentData.context.size());
 				}
 				if (this->sentData.identity != this->positionalData.identity) {
 					this->sentData.identity = this->positionalData.identity;
