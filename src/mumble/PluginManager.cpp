@@ -3,6 +3,8 @@
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
 
+#include  <limits>
+
 #include "PluginManager.h"
 #include "LegacyPlugin.h"
 #include <QtCore/QReadLocker>
@@ -322,6 +324,18 @@ bool PluginManager::fetchPositionalData() {
 		activePluginLock.unlock();
 
 		this->selectActivePositionalDataPlugin();
+	} else {
+		// If the return-status doesn't indicate an error, we can assume that positional data is available
+		// The remaining problematic case is, if the player is exactly at position (0,0,0) as this is used as an indicator for the
+		// absence of positional data in the mix() function in AudioOutput.cpp
+		// Thus we have to make sure that this position is never set if positional data is actually available.
+		// We solve this problem by shifting the player a minimal amount on the z-axis
+		if (this->positionalData.playerPos == Position3D(0.0f, 0.0f, 0.0f)) {
+			this->positionalData.playerPos = {0.0f, 0.0f, std::numeric_limits<float>::min()};
+		}
+		if (this->positionalData.cameraPos == Position3D(0.0f, 0.0f, 0.0f)) {
+			this->positionalData.cameraPos = {0.0f, 0.0f, std::numeric_limits<float>::min()};
+		}
 	}
 
 	return retStatus;
@@ -373,7 +387,7 @@ const QVector<QSharedPointer<const Plugin> > PluginManager::getPlugins(bool sort
 		// sort keys so that the corresponding Plugins are in alphabetical order based on their name
 		std::sort(ids.begin(), ids.end(), [this](uint32_t first, uint32_t second) {
 			return QString::compare(this->pluginHashMap.value(first)->getName(), this->pluginHashMap.value(second)->getName(),
-					Qt::CaseInsensitive) <= 0;
+				Qt::CaseInsensitive) <= 0;
 		});
 
 		foreach(uint32_t currentID, ids) {
@@ -421,7 +435,7 @@ bool PluginManager::loadPlugin(uint32_t pluginID) const {
 
 void PluginManager::unloadPlugin(uint32_t pluginID) const {
 	QReadLocker lock(&this->pluginCollectionLock);
-	
+
 	QSharedPointer<Plugin> plugin = pluginHashMap.value(pluginID);
 
 	if (plugin) {
