@@ -42,7 +42,7 @@ class LegacyPlugin : public Plugin {
 				Vector3D& cameraAxis, QString& context, QString& identity) Q_DECL_OVERRIDE;
 		virtual void shutdownPositionalData() Q_DECL_OVERRIDE;
 		virtual uint32_t getFeatures() const Q_DECL_OVERRIDE;
-		virtual Version_t getAPIVersion() const Q_DECL_OVERRIDE;
+		virtual version_t getAPIVersion() const Q_DECL_OVERRIDE;
 
 		// functions for checking which underlying plugin functions are implemented
 		virtual bool providesAboutDialog() const Q_DECL_OVERRIDE;

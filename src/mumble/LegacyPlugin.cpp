@@ -221,7 +221,7 @@ bool LegacyPlugin::providesConfigDialog() const {
 	return this->mumPlug->config || (this->mumPlugQt && this->mumPlugQt->config);
 }
 
-Version_t LegacyPlugin::getAPIVersion() const {
+version_t LegacyPlugin::getAPIVersion() const {
 	// Legacy plugins are always on most recent API as they don't use it in any case -> no need to perform
 	// backwards compatibility stuff
 	return MUMBLE_PLUGIN_API_VERSION;

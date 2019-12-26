@@ -28,7 +28,7 @@ extern "C" {
 	/// Gets called right after loading the plugin in order to let the plugin initialize.
 	///
 	/// @returns The status of the initialization. If everything went fine, return STATUS_OK
-	PLUGIN_EXPORT MumbleError_t PLUGIN_CALLING_CONVENTION init();
+	PLUGIN_EXPORT mumble_error_t PLUGIN_CALLING_CONVENTION init();
 	
 	/// Gets called when unloading the plugin in order to allow it to clean up after itself.
 	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION shutdown();
@@ -40,7 +40,7 @@ extern "C" {
 	/// @param mumbleVersion The Version of the Mumble client
 	/// @param mumbleAPIVersion The Version of the plugin-API the Mumble client runs with
 	/// @param minimalExpectedAPIVersion The minimal Version the Mumble clients expects this plugin to meet in order to load it
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION setMumbleInfo(Version_t mumbleVersion, Version_t mumbleAPIVersion, Version_t minimalExpectedAPIVersion);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION setMumbleInfo(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion);
 
 	// functions for general plugin info
 	
@@ -53,13 +53,13 @@ extern "C" {
 	/// Gets the Version of this plugin
 	///
 	/// @returns The plugin's version
-	PLUGIN_EXPORT Version_t PLUGIN_CALLING_CONVENTION getVersion();
+	PLUGIN_EXPORT version_t PLUGIN_CALLING_CONVENTION getVersion();
 
 	/// Gets the Version of the plugin-API this plugin intends to use.
 	/// Mumble will decide whether this plugin is loadable or not based on the return value of this function.
 	///
 	/// @return The respective API Version
-	PLUGIN_EXPORT Version_t PLUGIN_CALLING_CONVENTION getAPIVersion();
+	PLUGIN_EXPORT version_t PLUGIN_CALLING_CONVENTION getAPIVersion();
 
 	/// Gets the name of the plugin author(s). The plugin has to guarantee that the returned pointer will still be valid. The string will
 	/// be copied for further usage though.
@@ -162,17 +162,17 @@ extern "C" {
 	/// Called when connecting to a server.
 	///
 	/// @param connection The ID of the newly established server-connection
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onServerConnected(MumbleConnection_t connection);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onServerConnected(mumble_connection_t connection);
 
 	/// Called when disconnecting from a server.
 	///
 	/// @param connection The ID of the server-connection that has been terminated
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onServerDisconnected(MumbleConnection_t connection);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onServerDisconnected(mumble_connection_t connection);
 
 	/// Called when the client has finished synchronizing with the server
 	///
 	/// @param connection The ID of the server-connection that has been terminated
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onServerSynchronized(MumbleConnection_t connection);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onServerSynchronized(mumble_connection_t connection);
 
 	/// Called whenever any user on the server enters a channel
 	/// This function will also be called when freshly connecting to a server as each user on that
@@ -184,8 +184,8 @@ extern "C" {
 	/// 	freshly connected to the server) or the channel isn't available because of any other reason.
 	/// @param newChannelID The ID of the channel the user has entered. If the ID is negative, the new channel could not be retrieved. This means
 	/// 	that the ID is invalid.
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelEntered(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t previousChannelID,
-			MumbleChannelID_t newChannelID);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelEntered(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t previousChannelID,
+			mumble_channelid_t newChannelID);
 
 	/// Called whenever a user leaves a channel.
 	/// This includes a client disconnecting from the server as this will also lead to the user not being in that channel anymore.
@@ -194,14 +194,14 @@ extern "C" {
 	/// @param userID The ID of the user that left the channel
 	/// @param channelID The ID of the channel the user left. If the ID is negative, the channel could not be retrieved. This means that the ID is
 	/// 	invalid.
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelExited(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelExited(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID);
 
 	/// Called when any user changes his/her talking state.
 	///
 	/// @param connection The ID of the server-connection this event is connected to
 	/// @param userID The ID of the user whose talking state has been changed
 	/// @param talkingState The new TalkingState the user has switched to.
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onUserTalkingStateChanged(MumbleConnection_t connection, MumbleUserID_t userID, TalkingState_t talkingState);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onUserTalkingStateChanged(mumble_connection_t connection, mumble_userid_t userID, talking_state_t talkingState);
 
 	/// Called whenever there is audio input.
 	///
@@ -224,7 +224,7 @@ extern "C" {
 	/// @param userID If isSpeech is true, this contains the ID of the user this voice packet belongs to. If isSpeech is false,
 	/// 	the content of this parameter is unspecified and should not be accessed
 	/// @returns Whether this callback has modified the audio output-array
-	PLUGIN_EXPORT bool PLUGIN_CALLING_CONVENTION onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, MumbleUserID_t userID);
+	PLUGIN_EXPORT bool PLUGIN_CALLING_CONVENTION onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, mumble_userid_t userID);
 
 	/// Called whenever the fully mixed and processed audio is about to be handed to the audio backend (about to be played).
 	/// Note that this happens immediately before Mumble clips the audio buffer.
@@ -246,7 +246,7 @@ extern "C" {
 	/// @param dataLength The length of data
 	/// @param dataID The ID of this data
 	/// @return Whether the given data has been processed by this plugin
-	PLUGIN_EXPORT bool PLUGIN_CALLING_CONVENTION onReceiveData(MumbleConnection_t connection, MumbleUserID_t sender, const char *data, size_t dataLength,
+	PLUGIN_EXPORT bool PLUGIN_CALLING_CONVENTION onReceiveData(mumble_connection_t connection, mumble_userid_t sender, const char *data, size_t dataLength,
 			const char *dataID);
 
 	/// Called when a new user gets added to the user model. This is the case when that new user freshly connects to the server the
@@ -256,7 +256,7 @@ extern "C" {
 	/// @param connection An object used to identify the current connection
 	/// @param userID The ID of the user that has been added
 
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onUserAdded(MumbleConnection_t connection, MumbleUserID_t userID);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onUserAdded(mumble_connection_t connection, mumble_userid_t userID);
 
 	/// Called when a user gets removed from the user model. This is the case when that user disconnects from the server the
 	/// local user is on but also when the local user disconnects from a server other clients are connected to (in this case this
@@ -264,7 +264,7 @@ extern "C" {
 	///
 	/// @param connection An object used to identify the current connection
 	/// @param userID The ID of the user that has been removed
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onUserRemoved(MumbleConnection_t connection, MumbleUserID_t userID);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onUserRemoved(mumble_connection_t connection, mumble_userid_t userID);
 
 	/// Called when a new channel gets added to the user model. This is the case when a new channel is created on the server the local
 	/// user is on but also when the local user connects to a server that contains channels other than the root-channel (in this case
@@ -272,7 +272,7 @@ extern "C" {
 	///
 	/// @param connection An object used to identify the current connection
 	/// @param channelID The ID of the channel that has been added
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelAdded(MumbleConnection_t connection, MumbleChannelID_t channelID);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelAdded(mumble_connection_t connection, mumble_channelid_t channelID);
 
 	/// Called when a channel gets removed from the user model. This is the case when a channel is removed on the server the local
 	/// user is on but also when the local user disconnects from a server that contains channels other than the root-channel (in this case
@@ -280,14 +280,14 @@ extern "C" {
 	///
 	/// @param connection An object used to identify the current connection
 	/// @param channelID The ID of the channel that has been removed
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t channelID);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelRemoved(mumble_connection_t connection, mumble_channelid_t channelID);
 
 	/// Called when a channel gets renamed. This also applies when a new channel is created (thus assigning it an initial name is also
 	/// considered renaming).
 	///
 	/// @param connection An object used to identify the current connection
 	/// @param channelID The ID of the channel that has been renamed
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelRenamed(MumbleConnection_t connection, MumbleChannelID_t channelID);
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID);
 
 
 #ifdef __cplusplus

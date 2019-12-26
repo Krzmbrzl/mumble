@@ -71,43 +71,43 @@ struct Version {
 	int32_t minor;
 	int32_t patch;
 #ifdef __cpluspluf
-	bool operator<(const Version_t& other) const {
+	bool operator<(const version_t& other) const {
 		return this->major <= other.major && this->minor <= other.minor && this->patch < other.patch;
 	}
 
-	bool operator>(const Version_t& other) const {
+	bool operator>(const version_t& other) const {
 		return this->major >= other.major && this->minor >= other.minor && this->patch > other.patch;
 	}
 
-	bool operator>=(const Version_t& other) const {
+	bool operator>=(const version_t& other) const {
 		return this->major >= other.major && this->minor >= other.minor && this->patch >= other.patch;
 	}
 
-	bool operator<=(const Version_t& other) const {
+	bool operator<=(const version_t& other) const {
 		return this->major <= other.major && this->minor <= other.minor && this->patch <= other.patch;
 	}
 
-	bool operator==(const Version_t& other) const {
+	bool operator==(const version_t& other) const {
 		return this->major == other.major && this->minor == other.minor && this->patch == other.patch;
 	}
 #endif
 };
 
 
-typedef enum TalkingState TalkingState_t;
-typedef enum TransmissionMode TransmissionMode_t;
-typedef struct Version Version_t;
-typedef int32_t MumbleConnection_t;
-typedef uint32_t MumbleUserID_t;
-typedef int32_t MumbleChannelID_t;
-typedef enum ErrorCode MumbleError_t;
+typedef enum TalkingState talking_state_t;
+typedef enum TransmissionMode transmission_mode_t;
+typedef struct Version version_t;
+typedef int32_t mumble_connection_t;
+typedef uint32_t mumble_userid_t;
+typedef int32_t mumble_channelid_t;
+typedef enum ErrorCode mumble_error_t;
 
 
 // API version
 const int32_t MUMBLE_PLUGIN_API_MAJOR = 1;
 const int32_t MUMBLE_PLUGIN_API_MINOR = 0;
 const int32_t MUMBLE_PLUGIN_API_PATCH = 0;
-const Version_t MUMBLE_PLUGIN_API_VERSION = { MUMBLE_PLUGIN_API_MAJOR, MUMBLE_PLUGIN_API_MINOR, MUMBLE_PLUGIN_API_PATCH };
+const version_t MUMBLE_PLUGIN_API_VERSION = { MUMBLE_PLUGIN_API_MAJOR, MUMBLE_PLUGIN_API_MINOR, MUMBLE_PLUGIN_API_PATCH };
 
 
 struct MumbleAPI {
@@ -117,7 +117,7 @@ struct MumbleAPI {
 	///
 	/// @param pointer The pointer to free
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *freeMemory)(void *pointer);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *freeMemory)(void *pointer);
 
 
 	
@@ -128,7 +128,7 @@ struct MumbleAPI {
 	/// @param[out] connection A pointer to the memory location the ID should be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then it is valid to access the
 	/// 	value of the provided pointer
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *getActiveServerConnection)(MumbleConnection_t *connection);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *getActiveServerConnection)(mumble_connection_t *connection);
 
 	/// Fills in the information about the local user.
 	///
@@ -136,7 +136,7 @@ struct MumbleAPI {
 	/// @param[out] userID A pointer to the memory the user's ID shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *getLocalUserID)(MumbleConnection_t connection, MumbleUserID_t *userID);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *getLocalUserID)(mumble_connection_t connection, mumble_userid_t *userID);
 
 	/// Fills in the information about the given user's name.
 	///
@@ -147,7 +147,7 @@ struct MumbleAPI {
 	/// 	allocated if this function returns STATUS_OK.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *getUserName)(MumbleConnection_t connection, MumbleUserID_t userID, char **userName);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *getUserName)(mumble_connection_t connection, mumble_userid_t userID, char **userName);
 
 	/// Fills in the information about the given channel's name.
 	///
@@ -158,7 +158,7 @@ struct MumbleAPI {
 	/// 	allocated if this function returns STATUS_OK.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *getChannelName)(MumbleConnection_t connection, MumbleChannelID_t channelID, char **channelName);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *getChannelName)(mumble_connection_t connection, mumble_channelid_t channelID, char **channelName);
 
 	/// Gets an array of all users that are currently connected to the provided server. Passing a nullptr as any of the out-parameter
 	/// will prevent that property to be set/allocated. If you are only interested in the user count you can thus pass nullptr as the
@@ -171,7 +171,7 @@ struct MumbleAPI {
 	/// @param[out] userCount A pointer to where the size of the allocated user-array shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *getAllUsers)(MumbleConnection_t connection, MumbleUserID_t **users, size_t *userCount);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *getAllUsers)(mumble_connection_t connection, mumble_userid_t **users, size_t *userCount);
 
 	/// Gets an array of all channels on the provided server. Passing a nullptr as any of the out-parameter will prevent
 	/// that property to be set/allocated. If you are only interested in the channel count you can thus pass nullptr as the
@@ -184,7 +184,7 @@ struct MumbleAPI {
 	/// @param[out] channelCount A pointer to where the size of the allocated channel-array shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *getAllChannels)(MumbleConnection_t connection, MumbleChannelID_t **channels, size_t *channelCount);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *getAllChannels)(mumble_connection_t connection, mumble_channelid_t **channels, size_t *channelCount);
 
 	/// Gets the ID of the channel the given user is currently connected to.
 	///
@@ -193,7 +193,7 @@ struct MumbleAPI {
 	/// @param[out] A pointer to where the ID of the channel shall be written
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *getChannelOfUser)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t *channel);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *getChannelOfUser)(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t *channel);
 
 	/// Gets an array of all users in the specified channel.
 	///
@@ -205,14 +205,14 @@ struct MumbleAPI {
 	/// @param[out] userCount A pointer to where the size of the allocated user-array shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *getUsersInChannel)(MumbleConnection_t connection, MumbleChannelID_t channelID, MumbleUserID_t **userList, size_t *userCount);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *getUsersInChannel)(mumble_connection_t connection, mumble_channelid_t channelID, mumble_userid_t **userList, size_t *userCount);
 
 	/// Gets the current transmission mode of the local user.
 	///
 	/// @param[out] transmissionMode A pointer to where the transmission mode shall be written.
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer
 	/// 	may be accessed
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *getLocalUserTransmissionMode)(TransmissionMode_t *transmissionMode);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *getLocalUserTransmissionMode)(transmission_mode_t *transmissionMode);
 
 
 
@@ -224,7 +224,7 @@ struct MumbleAPI {
 	///
 	/// @param transmissionMode The requested transmission mode
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *requestLocalUserTransmissionMode)(TransmissionMode_t transmissionMode);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *requestLocalUserTransmissionMode)(transmission_mode_t transmissionMode);
 
 	/// Requests Mumble to move the given user into the given channel
 	///
@@ -234,7 +234,7 @@ struct MumbleAPI {
 	/// @param password The password of the target channel (encoded as a C-string). Pass NULL if the target channel does not require a
 	/// 	password for entering
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *requestUserMove)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID, const char *password);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *requestUserMove)(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID, const char *password);
 
 	/// Requests Mumble to overwrite the microphone activation so that the microphone is always on (same as if the user had chosen
 	/// the continous transmission mode). If a plugin requests this overwrite, it is responsible for deactivating the overwrite again
@@ -242,7 +242,7 @@ struct MumbleAPI {
 	///
 	/// @param activate Whether to activate the overwrite (false deactivates an existing overwrite)
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *requestMicrophoneActivationOvewrite)(bool activate);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *requestMicrophoneActivationOvewrite)(bool activate);
 
 
 
@@ -255,7 +255,7 @@ struct MumbleAPI {
 	/// @param[out] userID A pointer to the memory the user's ID shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer may
 	/// 	be accessed.
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *findUserByName)(MumbleConnection_t connection, const char *userName, MumbleUserID_t *userID);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *findUserByName)(mumble_connection_t connection, const char *userName, mumble_userid_t *userID);
 
 	/// Fills in the information about a channel with the specified name, if such a channel exists. The search is case-sensitive.
 	///
@@ -264,7 +264,7 @@ struct MumbleAPI {
 	/// @param[out] channelID A pointer to the memory the channel's ID shall be written to
 	/// @returns The error code. If everything went well, STATUS_OK will be returned. Only then the passed pointer may
 	/// 	be accessed.
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *findChannelByName)(MumbleConnection_t connection, const char *channelName, MumbleChannelID_t *channelID);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *findChannelByName)(mumble_connection_t connection, const char *channelName, mumble_channelid_t *channelID);
 
 
 
@@ -282,7 +282,7 @@ struct MumbleAPI {
 	/// @param dataID The ID of the sent data. This has to be used by the receiving plugin(s) to figure out what to do with
 	/// 	the data
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *sendData)(MumbleConnection_t connection, MumbleUserID_t *users, size_t userCount, const char *data, size_t dataLength,
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *sendData)(mumble_connection_t connection, mumble_userid_t *users, size_t userCount, const char *data, size_t dataLength,
 			const char *dataID);
 
 	/// Logs the given message (typically to Mumble's console). All passed strings have to be UTF-8 encoded.
@@ -291,14 +291,14 @@ struct MumbleAPI {
 	/// 	if the plugin name is rather long).
 	/// @param message The message to log
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *log)(const char *prefix, const char *message);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *log)(const char *prefix, const char *message);
 
 	/// Plays the provided sample. It uses libsndfile as a backend so the respective file format needs to be supported by it
 	/// in order for this to work out (see http://www.mega-nerd.com/libsndfile/).
 	///
 	/// @param samplePath The path to the sample that shall be played (UTF-8 encoded)
 	/// @returns The error code. If everything went well, STATUS_OK will be returned.
-	MumbleError_t (PLUGIN_CALLING_CONVENTION *playSample)(const char *samplePath);
+	mumble_error_t (PLUGIN_CALLING_CONVENTION *playSample)(const char *samplePath);
 };
 
 

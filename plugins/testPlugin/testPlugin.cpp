@@ -22,7 +22,7 @@ void pluginLog(T log) {
 	pLog() << log << std::endl;
 }
 
-std::ostream& operator<<(std::ostream& stream, const Version_t version) {
+std::ostream& operator<<(std::ostream& stream, const version_t version) {
 	stream << "v" << version.major << "." << version.minor << "." << version.patch;
 	return stream;
 }
@@ -35,14 +35,14 @@ std::ostream& operator<<(std::ostream& stream, const Version_t version) {
 //////////////////////////////////////////////////////////////
 
 MumbleAPI mumAPI;
-MumbleConnection_t activeConnection;
+mumble_connection_t activeConnection;
 
 //////////////////////////////////////////////////////////////
 //////////////////// OBLIGATORY FUNCTIONS ////////////////////
 //////////////////////////////////////////////////////////////
 // All of the following function must be implemented in order for Mumble to load the plugin
 
-MumbleError_t init() {
+mumble_error_t init() {
 	pluginLog("Initialized plugin");
 
 	// STATUS_OK is a macro set to the appropriate status flag (ErrorCode)
@@ -65,7 +65,7 @@ const char* getName() {
 	return "TestPlugin";
 }
 
-Version_t getAPIVersion() {
+version_t getAPIVersion() {
 	// MUMBLE_PLUGIN_API_VERSION will always contain the API version of the used header file (the one used to build
 	// this plugin against). Thus you should always return that here in order to no have to worry about it.
 	return MUMBLE_PLUGIN_API_VERSION;
@@ -88,14 +88,14 @@ void registerAPIFunctions(MumbleAPI api) {
 // The implementation of below functions is optional. If you don't need them, don't include them in your
 // plugin
 
-void setMumbleInfo(Version_t mumbleVersion, Version_t mumbleAPIVersion, Version_t minimalExpectedAPIVersion) {
+void setMumbleInfo(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion) {
 	// this function will always be the first one to be called. Even before init()
 	// In here you can get info about the Mumble version this plugin is about to run in.
 	pLog() << "Mumble version: " << mumbleVersion << "; Mumble API-Version: " << mumbleAPIVersion << "; Minimal expected API-Version: "
 		<< minimalExpectedAPIVersion << std::endl;
 }
 
-Version_t getVersion() {
+version_t getVersion() {
 	// Mumble uses semantic versioning (see https://semver.org/)
 	// { major, minor, patch }
 	return { 1, 0, 0 };
@@ -171,24 +171,24 @@ void shutdownPositionalData() {
 	pluginLog("Shutting down positional data");
 }
 
-void onServerConnected(MumbleConnection_t connection) {
+void onServerConnected(mumble_connection_t connection) {
 	activeConnection = connection;
 
 	pLog() << "Established server-connection with ID " << connection << std::endl;
 }
 
-void onServerDisconnected(MumbleConnection_t connection) {
+void onServerDisconnected(mumble_connection_t connection) {
 	activeConnection = -1;
 
 	pLog() << "Disconnected from server-connection with ID " << connection << std::endl;
 }
 
-void onServerSynchronized(MumbleConnection_t connection) {
+void onServerSynchronized(mumble_connection_t connection) {
 	// The client has finished synchronizing with the server. Thus we can now obtain a list of all users on this server
 	pLog() << "Server has finished synchronizing (ServerConnection: " << connection << ")" << std::endl ;
 
 	size_t userCount;
-	MumbleUserID_t *userIDs;
+	mumble_userid_t *userIDs;
 
 	if (mumAPI.getAllUsers(activeConnection, &userIDs, &userCount) != STATUS_OK) {
 		pluginLog("[ERROR]: Can't obtain user list");
@@ -208,7 +208,7 @@ void onServerSynchronized(MumbleConnection_t connection) {
 
 	mumAPI.freeMemory(userIDs);
 
-	MumbleUserID_t localUser;
+	mumble_userid_t localUser;
 	if (mumAPI.getLocalUserID(activeConnection, &localUser) != STATUS_OK) {
 		pluginLog("Failed to retrieve local user ID");
 		return;
@@ -221,7 +221,7 @@ void onServerSynchronized(MumbleConnection_t connection) {
 	}
 }
 
-void onChannelEntered(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t previousChannelID, MumbleChannelID_t newChannelID) {
+void onChannelEntered(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t previousChannelID, mumble_channelid_t newChannelID) {
 	std::ostream& stream = pLog() << "User with ID " << userID << " entered channel with ID " << newChannelID << ".";
 
 	// negative ID means that there was no previous channel (e.g. because the user just connected)
@@ -232,11 +232,11 @@ void onChannelEntered(MumbleConnection_t connection, MumbleUserID_t userID, Mumb
 	stream << " (ServerConnection: " << connection << ")" << std::endl;
 }
 
-void onChannelExited(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID) {
+void onChannelExited(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID) {
 	pLog() << "User with ID " << userID << " has left channel with ID " << channelID << ". (ServerConnection: " << connection << ")" << std::endl;
 }
 
-void onUserTalkingStateChanged(MumbleConnection_t connection, MumbleUserID_t userID, TalkingState_t talkingState) {
+void onUserTalkingStateChanged(mumble_connection_t connection, mumble_userid_t userID, talking_state_t talkingState) {
 	std::ostream& stream = pLog() << "User with ID " << userID << " changed his talking state to ";
 
 	// The possible values are contained in the TalkingState enum inside PluginComponent.h
@@ -274,7 +274,7 @@ bool onAudioInput(short *inputPCM, uint32_t sampleCount, uint16_t channelCount, 
 	return false;
 }
 
-bool onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, MumbleUserID_t userID) {
+bool onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, mumble_userid_t userID) {
 	std::ostream& stream = pLog() << "Audio output source with " << channelCount << " channels and " << sampleCount << " samples per channel fetched.";
 
 	if (isSpeech) {
@@ -300,7 +300,7 @@ bool onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, uint16_t c
 	return false;
 }
 
-bool onReceiveData(MumbleConnection_t connection, MumbleUserID_t sender, const char *data, size_t dataLength, const char *dataID) {
+bool onReceiveData(mumble_connection_t connection, mumble_userid_t sender, const char *data, size_t dataLength, const char *dataID) {
 	pLog() << "Received data with ID \"" << dataID << "\" from user with ID " << sender << ". Its length is " << dataLength
 		<< ". (ServerConnection:" << connection << ")" << std::endl;
 
@@ -312,22 +312,22 @@ bool onReceiveData(MumbleConnection_t connection, MumbleUserID_t sender, const c
 	return false;
 }
 
-void onUserAdded(MumbleConnection_t connection, MumbleUserID_t userID) {
+void onUserAdded(mumble_connection_t connection, mumble_userid_t userID) {
 	pLog() << "Added user with ID " << userID << " (ServerConnection: " << connection << ")" << std::endl;
 }
 
-void onUserRemoved(MumbleConnection_t connection, MumbleUserID_t userID) {
+void onUserRemoved(mumble_connection_t connection, mumble_userid_t userID) {
 	pLog() << "Removed user with ID " << userID << " (ServerConnection: " << connection << ")" << std::endl;
 }
 
-void onChannelAdded(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+void onChannelAdded(mumble_connection_t connection, mumble_channelid_t channelID) {
 	pLog() << "Added channel with ID " << channelID << " (ServerConnection: " << connection << ")" << std::endl;
 }
 
-void onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+void onChannelRemoved(mumble_connection_t connection, mumble_channelid_t channelID) {
 	pLog() << "Removed channel with ID " << channelID << " (ServerConnection: " << connection << ")" << std::endl;
 }
 
-void onChannelRenamed(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+void onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID) {
 	pLog() << "Renamed channel with ID " << channelID << " (ServerConnection: " << connection << ")" << std::endl;
 }
