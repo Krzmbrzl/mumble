@@ -468,7 +468,7 @@ void PluginManager::foreachPlugin(std::function<void(Plugin&)> pluginProcessor) 
 }
 
 void PluginManager::on_serverConnected() const {
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 #ifdef MUMBLE_PLUGIN_DEBUG
 	qDebug("PluginManager: Connected to a server with connection ID %d", connectionID);
@@ -482,7 +482,7 @@ void PluginManager::on_serverConnected() const {
 }
 
 void PluginManager::on_serverDisconnected() const {
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 #ifdef MUMBLE_PLUGIN_DEBUG
 	qDebug("PluginManager: Disconnected from a server with connection ID %d", connectionID);
@@ -505,7 +505,7 @@ void PluginManager::on_channelEntered(const Channel *newChannel, const Channel *
 		return;
 	}
 
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 	this->foreachPlugin([user, newChannel, prevChannel, connectionID](Plugin& plugin) {
 		if (plugin.isLoaded()) {
@@ -519,7 +519,7 @@ void PluginManager::on_channelExited(const Channel *channel, const User *user) c
 	qDebug() << "PluginManager: User" << user->qsName <<  "left channel" << channel->qsName << "- ID:" << channel->iId;
 #endif
 
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 	this->foreachPlugin([user, channel, connectionID](Plugin& plugin) {
 		if (plugin.isLoaded()) {
@@ -555,7 +555,7 @@ void PluginManager::on_userTalkingStateChanged() const {
 
 	if (user) {
 		// Convert Mumble's talking state to the TalkingState used in the API
-		TalkingState_t ts;
+		talking_state_t ts;
 
 		switch(user->tsState) {
 			case Settings::TalkState::Passive:
@@ -579,7 +579,7 @@ void PluginManager::on_userTalkingStateChanged() const {
 			return;
 		}
 
-		const MumbleConnection_t connectionID = g.sh->getConnectionID();
+		const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 		foreachPlugin([user, ts, connectionID](Plugin& plugin) {
 			if (plugin.isLoaded()) {
@@ -631,7 +631,7 @@ void PluginManager::on_receiveData(const ClientUser *sender, const char *data, s
 	qDebug() << "PluginManager: Data with ID" << dataID << "and length" << dataLength << "received. Sender-ID:" << sender->uiSession;
 #endif
 
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 	this->foreachPlugin([sender, data, dataLength, dataID, connectionID](Plugin& plugin) {
 		if (plugin.isLoaded()) {
@@ -645,7 +645,7 @@ void PluginManager::on_serverSynchronized() const {
 	qDebug() << "PluginManager: Server synchronized";
 #endif
 
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 	this->foreachPlugin([connectionID](Plugin& plugin) {
 		if (plugin.isLoaded()) {
@@ -654,12 +654,12 @@ void PluginManager::on_serverSynchronized() const {
 	});
 }
 
-void PluginManager::on_userAdded(MumbleUserID_t userID) const {
+void PluginManager::on_userAdded(mumble_userid_t userID) const {
 #ifdef MUMBLE_PLUGIN_DEBUG
 	qDebug() << "PluginManager: Added user with ID" << userID;
 #endif
 
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 	this->foreachPlugin([userID, connectionID](Plugin& plugin) {
 		if (plugin.isLoaded()) {
@@ -668,12 +668,12 @@ void PluginManager::on_userAdded(MumbleUserID_t userID) const {
 	});
 }
 
-void PluginManager::on_userRemoved(MumbleUserID_t userID) const {
+void PluginManager::on_userRemoved(mumble_userid_t userID) const {
 #ifdef MUMBLE_PLUGIN_DEBUG
 	qDebug() << "PluginManager: Removed user with ID" << userID;
 #endif
 
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 	this->foreachPlugin([userID, connectionID](Plugin& plugin) {
 		if (plugin.isLoaded()) {
@@ -682,12 +682,12 @@ void PluginManager::on_userRemoved(MumbleUserID_t userID) const {
 	});
 }
 
-void PluginManager::on_channelAdded(MumbleChannelID_t channelID) const {
+void PluginManager::on_channelAdded(mumble_channelid_t channelID) const {
 #ifdef MUMBLE_PLUGIN_DEBUG
 	qDebug() << "PluginManager: Added channel with ID" << channel->channelID;
 #endif
 
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 	this->foreachPlugin([channelID, connectionID](Plugin& plugin) {
 		if (plugin.isLoaded()) {
@@ -696,12 +696,12 @@ void PluginManager::on_channelAdded(MumbleChannelID_t channelID) const {
 	});
 }
 
-void PluginManager::on_channelRemoved(MumbleChannelID_t channelID) const {
+void PluginManager::on_channelRemoved(mumble_channelid_t channelID) const {
 #ifdef MUMBLE_PLUGIN_DEBUG
 	qDebug() << "PluginManager: Removed channel with ID" << channelID;
 #endif
 
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 	this->foreachPlugin([channelID, connectionID](Plugin& plugin) {
 		if (plugin.isLoaded()) {
@@ -715,7 +715,7 @@ void PluginManager::on_channelRenamed(int channelID) const {
 	qDebug() << "PluginManager: Renamed channel with ID" << channelID;
 #endif
 
-	const MumbleConnection_t connectionID = g.sh->getConnectionID();
+	const mumble_connection_t connectionID = g.sh->getConnectionID();
 
 	this->foreachPlugin([channelID, connectionID](Plugin& plugin) {
 		if (plugin.isLoaded()) {

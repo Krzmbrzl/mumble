@@ -16,7 +16,7 @@ namespace API {
 	/// @returns The struct containing the function pointers to the respective API functions
 	///
 	/// @throws std::invalid_argument if there is no set of API functions for the requested API version
-	MumbleAPI getMumbleAPI(const Version_t& apiVersion);
+	MumbleAPI getMumbleAPI(const version_t& apiVersion);
 
 	/// A class holding non-permanent data set by plugins. Non-permanent means that this data
 	/// will not be stored between restarts.

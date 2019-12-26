@@ -65,10 +65,10 @@ void Plugin::resolveFunctionPointers() {
 		// the missing ones
 		
 		// resolve the mandatory functions first
-		this->apiFnc.init = reinterpret_cast<MumbleError_t (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("init"));
+		this->apiFnc.init = reinterpret_cast<mumble_error_t (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("init"));
 		this->apiFnc.shutdown = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("shutdown"));
 		this->apiFnc.getName = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getName"));
-		this->apiFnc.getAPIVersion = reinterpret_cast<Version_t (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getAPIVersion"));
+		this->apiFnc.getAPIVersion = reinterpret_cast<version_t (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getAPIVersion"));
 		this->apiFnc.registerAPIFunctions = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleAPI)>(lib.resolve("registerAPIFunctions"));
 
 		// validate that all those functions are available in the loaded lib
@@ -90,8 +90,8 @@ void Plugin::resolveFunctionPointers() {
 		}
 
 		// The mandatory functions are there, now see if any optional functions are implemented as well
-		this->apiFnc.setMumbleInfo = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(Version_t, Version_t, Version_t)>(lib.resolve("setMumbleInfo"));
-		this->apiFnc.getVersion = reinterpret_cast<Version_t (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getVersion"));
+		this->apiFnc.setMumbleInfo = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(version_t, version_t, version_t)>(lib.resolve("setMumbleInfo"));
+		this->apiFnc.getVersion = reinterpret_cast<version_t (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getVersion"));
 		this->apiFnc.getAuthor = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getAuthor"));
 		this->apiFnc.getDescription = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getDescription"));
 		this->apiFnc.registerPluginID = reinterpret_cast<void  (PLUGIN_CALLING_CONVENTION *)(uint32_t)>(lib.resolve("registerPluginID"));
@@ -100,21 +100,21 @@ void Plugin::resolveFunctionPointers() {
 		this->apiFnc.initPositionalData = reinterpret_cast<uint8_t (PLUGIN_CALLING_CONVENTION *)(const char**, const uint64_t *, size_t)>(lib.resolve("initPositionalData"));
 		this->apiFnc.fetchPositionalData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, float*, float*, float*, float*, float*, const char**, const char**)>(lib.resolve("fetchPositionalData"));
 		this->apiFnc.shutdownPositionalData = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("shutdownPositionalData"));
-		this->apiFnc.onServerConnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t)>(lib.resolve("onServerConnected"));
-		this->apiFnc.onServerDisconnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t)>(lib.resolve("onServerDisconnected"));
-		this->apiFnc.onChannelEntered = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleUserID_t, MumbleChannelID_t, MumbleChannelID_t)>(lib.resolve("onChannelEntered"));
-		this->apiFnc.onChannelExited = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleUserID_t, MumbleChannelID_t)>(lib.resolve("onChannelExited"));
-		this->apiFnc.onUserTalkingStateChanged = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleUserID_t, TalkingState_t)>(lib.resolve("onUserTalkingStateChanged"));
-		this->apiFnc.onReceiveData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleUserID_t, const char*, size_t, const char*)>(lib.resolve("onReceiveData"));
+		this->apiFnc.onServerConnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(lib.resolve("onServerConnected"));
+		this->apiFnc.onServerDisconnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(lib.resolve("onServerDisconnected"));
+		this->apiFnc.onChannelEntered = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, mumble_channelid_t, mumble_channelid_t)>(lib.resolve("onChannelEntered"));
+		this->apiFnc.onChannelExited = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, mumble_channelid_t)>(lib.resolve("onChannelExited"));
+		this->apiFnc.onUserTalkingStateChanged = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, talking_state_t)>(lib.resolve("onUserTalkingStateChanged"));
+		this->apiFnc.onReceiveData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, const char*, size_t, const char*)>(lib.resolve("onReceiveData"));
 		this->apiFnc.onAudioInput = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(short*, uint32_t, uint16_t, bool)>(lib.resolve("onAudioInput"));
-		this->apiFnc.onAudioSourceFetched = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t, bool, MumbleUserID_t)>(lib.resolve("onAudioSourceFetched"));
+		this->apiFnc.onAudioSourceFetched = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t, bool, mumble_userid_t)>(lib.resolve("onAudioSourceFetched"));
 		this->apiFnc.onAudioOutputAboutToPlay = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t)>(lib.resolve("onAudioOutputAboutToPlay"));
-		this->apiFnc.onServerSynchronized = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t)>(lib.resolve("onServerSynchronized"));
-		this->apiFnc.onUserAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleUserID_t)>(lib.resolve("onUserAdded"));
-		this->apiFnc.onUserRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleUserID_t)>(lib.resolve("onUserRemoved"));
-		this->apiFnc.onChannelAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleChannelID_t)>(lib.resolve("onChannelAdded"));
-		this->apiFnc.onChannelRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleChannelID_t)>(lib.resolve("onChannelRemoved"));
-		this->apiFnc.onChannelRenamed = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleConnection_t, MumbleChannelID_t)>(lib.resolve("onChannelRenamed"));
+		this->apiFnc.onServerSynchronized = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(lib.resolve("onServerSynchronized"));
+		this->apiFnc.onUserAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t)>(lib.resolve("onUserAdded"));
+		this->apiFnc.onUserRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t)>(lib.resolve("onUserRemoved"));
+		this->apiFnc.onChannelAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelAdded"));
+		this->apiFnc.onChannelRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelRemoved"));
+		this->apiFnc.onChannelRenamed = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelRenamed"));
 
 		// If positional audio is to be supported, all three corresponding functions have to be implemented
 		// For PA it is all or nothing
@@ -182,7 +182,7 @@ bool Plugin::isPositionalDataActive() const {
 	return this->positionalDataIsActive;
 }
 
-MumbleError_t Plugin::init() {
+mumble_error_t Plugin::init() {
 	QWriteLocker lock(&this->pluginLock);
 
 	if (this->pluginIsLoaded) {
@@ -198,7 +198,7 @@ MumbleError_t Plugin::init() {
 	// Require API version 1.0.0 as the minimal supported one
 	this->setMumbleInfo({ mumbleMajor, mumbleMinor, mumblePatch }, MUMBLE_PLUGIN_API_VERSION, { 1, 0, 0 });
 
-	MumbleError_t retStatus;
+	mumble_error_t retStatus;
 	if (this->apiFnc.init) {
 		retStatus = this->apiFnc.init();
 	} else {
@@ -245,7 +245,7 @@ QString Plugin::getName() const {
 	}
 }
 
-Version_t Plugin::getAPIVersion() const {
+version_t Plugin::getAPIVersion() const {
 	PluginReadLocker lock(&this->pluginLock);
 
 	if (this->apiFnc.getAPIVersion) {
@@ -265,7 +265,7 @@ void Plugin::registerAPIFunctions(MumbleAPI api) {
 	}
 }
 
-void Plugin::setMumbleInfo(Version_t mumbleVersion, Version_t mumbleAPIVersion, Version_t minimalExpectedAPIVersion) {
+void Plugin::setMumbleInfo(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	if (this->apiFnc.setMumbleInfo) {
@@ -273,7 +273,7 @@ void Plugin::setMumbleInfo(Version_t mumbleVersion, Version_t mumbleAPIVersion, 
 	}
 }
 
-Version_t Plugin::getVersion() const {
+version_t Plugin::getVersion() const {
 	PluginReadLocker lock(&this->pluginLock);
 
 	if (this->apiFnc.getVersion) {
@@ -411,7 +411,7 @@ void Plugin::shutdownPositionalData() {
 	}
 }
 
-void Plugin::onServerConnected(MumbleConnection_t connection) {
+void Plugin::onServerConnected(mumble_connection_t connection) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -421,7 +421,7 @@ void Plugin::onServerConnected(MumbleConnection_t connection) {
 	}
 }
 
-void Plugin::onServerDisconnected(MumbleConnection_t connection) {
+void Plugin::onServerDisconnected(mumble_connection_t connection) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -431,8 +431,8 @@ void Plugin::onServerDisconnected(MumbleConnection_t connection) {
 	}
 }
 
-void Plugin::onChannelEntered(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t previousChannelID,
-		MumbleChannelID_t newChannelID) {
+void Plugin::onChannelEntered(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t previousChannelID,
+		mumble_channelid_t newChannelID) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -442,7 +442,7 @@ void Plugin::onChannelEntered(MumbleConnection_t connection, MumbleUserID_t user
 	}
 }
 
-void Plugin::onChannelExited(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID) {
+void Plugin::onChannelExited(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -452,7 +452,7 @@ void Plugin::onChannelExited(MumbleConnection_t connection, MumbleUserID_t userI
 	}
 }
 
-void Plugin::onUserTalkingStateChanged(MumbleConnection_t connection, MumbleUserID_t userID, TalkingState_t talkingState) {
+void Plugin::onUserTalkingStateChanged(mumble_connection_t connection, mumble_userid_t userID, talking_state_t talkingState) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -462,7 +462,7 @@ void Plugin::onUserTalkingStateChanged(MumbleConnection_t connection, MumbleUser
 	}
 }
 
-bool Plugin::onReceiveData(MumbleConnection_t connection, MumbleUserID_t sender, const char *data, size_t dataLength, const char *dataID) {
+bool Plugin::onReceiveData(mumble_connection_t connection, mumble_userid_t sender, const char *data, size_t dataLength, const char *dataID) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -486,7 +486,7 @@ bool Plugin::onAudioInput(short *inputPCM, uint32_t sampleCount, uint16_t channe
 	}
 }
 
-bool Plugin::onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, MumbleUserID_t userID) {
+bool Plugin::onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, mumble_userid_t userID) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -510,7 +510,7 @@ bool Plugin::onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, ui
 	}
 }
 
-void Plugin::onServerSynchronized(MumbleConnection_t connection) {
+void Plugin::onServerSynchronized(mumble_connection_t connection) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -520,7 +520,7 @@ void Plugin::onServerSynchronized(MumbleConnection_t connection) {
 	}
 }
 
-void Plugin::onUserAdded(MumbleConnection_t connection, MumbleUserID_t userID) {
+void Plugin::onUserAdded(mumble_connection_t connection, mumble_userid_t userID) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -530,7 +530,7 @@ void Plugin::onUserAdded(MumbleConnection_t connection, MumbleUserID_t userID) {
 	}
 }
 
-void Plugin::onUserRemoved(MumbleConnection_t connection, MumbleUserID_t userID) {
+void Plugin::onUserRemoved(mumble_connection_t connection, mumble_userid_t userID) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -540,7 +540,7 @@ void Plugin::onUserRemoved(MumbleConnection_t connection, MumbleUserID_t userID)
 	}
 }
 
-void Plugin::onChannelAdded(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+void Plugin::onChannelAdded(mumble_connection_t connection, mumble_channelid_t channelID) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -550,7 +550,7 @@ void Plugin::onChannelAdded(MumbleConnection_t connection, MumbleChannelID_t cha
 	}
 }
 
-void Plugin::onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+void Plugin::onChannelRemoved(mumble_connection_t connection, mumble_channelid_t channelID) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
@@ -560,7 +560,7 @@ void Plugin::onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t c
 	}
 }
 
-void Plugin::onChannelRenamed(MumbleConnection_t connection, MumbleChannelID_t channelID) {
+void Plugin::onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);

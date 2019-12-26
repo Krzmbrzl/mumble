@@ -18,15 +18,15 @@
 /// A struct for holding the function pointers to the functions inside the plugin's library
 /// For the documentation of those functions, see the plugin's header file (the one used when developing a plugin)
 struct PluginAPIFunctions {
-		MumbleError_t (PLUGIN_CALLING_CONVENTION *init)();
+		mumble_error_t (PLUGIN_CALLING_CONVENTION *init)();
 		void          (PLUGIN_CALLING_CONVENTION *shutdown)();
 		const char*   (PLUGIN_CALLING_CONVENTION *getName)();
-		Version_t     (PLUGIN_CALLING_CONVENTION *getAPIVersion)();
+		version_t     (PLUGIN_CALLING_CONVENTION *getAPIVersion)();
 		void          (PLUGIN_CALLING_CONVENTION *registerAPIFunctions)(MumbleAPI api);
 
 		// Further utility functions the plugin may implement
-		void          (PLUGIN_CALLING_CONVENTION *setMumbleInfo)(Version_t mumbleVersion, Version_t mumbleAPIVersion, Version_t minimalExpectedAPIVersion);
-		Version_t     (PLUGIN_CALLING_CONVENTION *getVersion)();
+		void          (PLUGIN_CALLING_CONVENTION *setMumbleInfo)(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion);
+		version_t     (PLUGIN_CALLING_CONVENTION *getVersion)();
 		const char*   (PLUGIN_CALLING_CONVENTION *getAuthor)();
 		const char*   (PLUGIN_CALLING_CONVENTION *getDescription)();
 		void          (PLUGIN_CALLING_CONVENTION *registerPluginID)(uint32_t id);
@@ -40,21 +40,21 @@ struct PluginAPIFunctions {
 		void          (PLUGIN_CALLING_CONVENTION *shutdownPositionalData)();
 		
 		// Callback functions and EventHandlers
-		void          (PLUGIN_CALLING_CONVENTION *onServerConnected)(MumbleConnection_t connection);
-		void          (PLUGIN_CALLING_CONVENTION *onServerDisconnected)(MumbleConnection_t connection);
-		void          (PLUGIN_CALLING_CONVENTION *onChannelEntered)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t previousChannelID, MumbleChannelID_t newChannelID);
-		void          (PLUGIN_CALLING_CONVENTION *onChannelExited)(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID);
-		void          (PLUGIN_CALLING_CONVENTION *onUserTalkingStateChanged)(MumbleConnection_t connection, MumbleUserID_t userID, TalkingState_t talkingState);
-		bool          (PLUGIN_CALLING_CONVENTION *onReceiveData)(MumbleConnection_t connection, MumbleUserID_t sender, const char *data, size_t dataLength, const char *dataID);
+		void          (PLUGIN_CALLING_CONVENTION *onServerConnected)(mumble_connection_t connection);
+		void          (PLUGIN_CALLING_CONVENTION *onServerDisconnected)(mumble_connection_t connection);
+		void          (PLUGIN_CALLING_CONVENTION *onChannelEntered)(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t previousChannelID, mumble_channelid_t newChannelID);
+		void          (PLUGIN_CALLING_CONVENTION *onChannelExited)(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID);
+		void          (PLUGIN_CALLING_CONVENTION *onUserTalkingStateChanged)(mumble_connection_t connection, mumble_userid_t userID, talking_state_t talkingState);
+		bool          (PLUGIN_CALLING_CONVENTION *onReceiveData)(mumble_connection_t connection, mumble_userid_t sender, const char *data, size_t dataLength, const char *dataID);
 		bool          (PLUGIN_CALLING_CONVENTION *onAudioInput)(short *inputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech);
-		bool          (PLUGIN_CALLING_CONVENTION *onAudioSourceFetched)(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, MumbleUserID_t userID);
+		bool          (PLUGIN_CALLING_CONVENTION *onAudioSourceFetched)(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, mumble_userid_t userID);
 		bool          (PLUGIN_CALLING_CONVENTION *onAudioOutputAboutToPlay)(float *outputPCM, uint32_t sampleCount, uint16_t channelCount);
-		void          (PLUGIN_CALLING_CONVENTION *onServerSynchronized)(MumbleConnection_t connection);
-		void          (PLUGIN_CALLING_CONVENTION *onUserAdded)(MumbleConnection_t connection, MumbleUserID_t userID);
-		void          (PLUGIN_CALLING_CONVENTION *onUserRemoved)(MumbleConnection_t connection, MumbleUserID_t userID);
-		void          (PLUGIN_CALLING_CONVENTION *onChannelAdded)(MumbleConnection_t connection, MumbleChannelID_t channelID);
-		void          (PLUGIN_CALLING_CONVENTION *onChannelRemoved)(MumbleConnection_t connection, MumbleChannelID_t channelID);
-		void          (PLUGIN_CALLING_CONVENTION *onChannelRenamed)(MumbleConnection_t connection, MumbleChannelID_t channelID);
+		void          (PLUGIN_CALLING_CONVENTION *onServerSynchronized)(mumble_connection_t connection);
+		void          (PLUGIN_CALLING_CONVENTION *onUserAdded)(mumble_connection_t connection, mumble_userid_t userID);
+		void          (PLUGIN_CALLING_CONVENTION *onUserRemoved)(mumble_connection_t connection, mumble_userid_t userID);
+		void          (PLUGIN_CALLING_CONVENTION *onChannelAdded)(mumble_connection_t connection, mumble_channelid_t channelID);
+		void          (PLUGIN_CALLING_CONVENTION *onChannelRemoved)(mumble_connection_t connection, mumble_channelid_t channelID);
+		void          (PLUGIN_CALLING_CONVENTION *onChannelRenamed)(mumble_connection_t connection, mumble_channelid_t channelID);
 };
 
 
@@ -180,13 +180,13 @@ class Plugin : public QObject {
 		}
 
 		/// Initializes this plugin
-		virtual MumbleError_t init();
+		virtual mumble_error_t init();
 		/// Shuts this plugin down
 		virtual void shutdown();
 		/// @returns The name of this plugin
 		virtual QString getName() const;
 		/// @returns The API version this plugin intends to use
-		virtual Version_t getAPIVersion() const;
+		virtual version_t getAPIVersion() const;
 		/// Delegates the struct of API function pointers to the plugin backend
 		///
 		/// @param api The respective MumbleAPI struct
@@ -197,9 +197,9 @@ class Plugin : public QObject {
 		/// @param mumbleVersion The version of the Mumble client
 		/// @param mumbleAPIVersion The API version used by the Mumble client
 		/// @param minimalExpectedAPIVersion The minimal API version expected to be used by the plugin backend
-		virtual void setMumbleInfo(Version_t mumbleVersion, Version_t mumbleAPIVersion, Version_t minimalExpectedAPIVersion);
+		virtual void setMumbleInfo(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion);
 		/// @returns The version of this plugin
-		virtual Version_t getVersion() const;
+		virtual version_t getVersion() const;
 		/// @returns The author of this plugin
 		virtual QString getAuthor() const;
 		/// @returns The plugin's description
@@ -244,31 +244,31 @@ class Plugin : public QObject {
 		/// Called to indicate that the client has connected to a server
 		///
 		/// @param connection An object used to identify the current connection
-		virtual void onServerConnected(MumbleConnection_t connection);
+		virtual void onServerConnected(mumble_connection_t connection);
 		/// Called to indicate that the client disconnected from a server
 		///
 		/// @param connection An object used to identify the connection that has been disconnected
-		virtual void onServerDisconnected(MumbleConnection_t connection);
+		virtual void onServerDisconnected(mumble_connection_t connection);
 		/// Called to indicate that a user has switched its channel
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param userID The ID of the user that switched channel
 		/// @param previousChannelID The ID of the channel the user came from (-1 if there is no previous channel)
 		/// æparam newChannelID The ID of the channel the user has switched to
-		virtual void onChannelEntered(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t previousChannelID,
-				MumbleChannelID_t newChannelID);
+		virtual void onChannelEntered(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t previousChannelID,
+				mumble_channelid_t newChannelID);
 		/// Called to indicate that a user exited a channel.
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param userID The ID of the user that switched channel
 		/// @param channelID The ID of the channel the user exited
-		virtual void onChannelExited(MumbleConnection_t connection, MumbleUserID_t userID, MumbleChannelID_t channelID);
+		virtual void onChannelExited(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID);
 		/// Called to indicate that a user has changed its talking state
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param userID The ID of the user that switched channel
 		/// @param talkingState The new talking state of the user
-		virtual void onUserTalkingStateChanged(MumbleConnection_t connection, MumbleUserID_t userID, TalkingState_t talkingState);
+		virtual void onUserTalkingStateChanged(mumble_connection_t connection, mumble_userid_t userID, talking_state_t talkingState);
 		/// Called to indicate that a data packet has been received
 		///
 		/// @param connection An object used to identify the current connection
@@ -277,7 +277,7 @@ class Plugin : public QObject {
 		/// @param dataLength The length of the data array
 		/// @param datID The ID of the data used to determine whether this plugin handles this data or not
 		/// @returns Whether this plugin handled the data
-		virtual bool onReceiveData(MumbleConnection_t connection, MumbleUserID_t sender, const char *data, size_t dataLength, const char *dataID);
+		virtual bool onReceiveData(mumble_connection_t connection, mumble_userid_t sender, const char *data, size_t dataLength, const char *dataID);
 		/// Called to indicate that there is audio input
 		///
 		/// @param inputPCM A pointer to a short array representing the input PCM
@@ -294,7 +294,7 @@ class Plugin : public QObject {
 		/// @param isSpeech Whether Mumble considers the output as speech
 		/// @param userID The ID of the user responsible for the output (only relevant if isSpeech == true)
 		/// @returns Whether this pluign has modified the audio
-		virtual bool onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, MumbleUserID_t userID);
+		virtual bool onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, mumble_userid_t userID);
 		/// Called to indicate that audio is about to be played
 		///
 		/// @param outputPCM A pointer to a short array representing the output PCM
@@ -305,41 +305,41 @@ class Plugin : public QObject {
 		/// Called when the server has synchronized with the client
 		///
 		/// @param connection An object used to identify the current connection
-		virtual void onServerSynchronized(MumbleConnection_t connection);
+		virtual void onServerSynchronized(mumble_connection_t connection);
 		/// Called when a new user gets added to the user model. This is the case when that new user freshly connects to the server the
 		/// local user is on but also when the local user connects to a server other clients are already connected to (in this case this
 		/// method will be called for every client already on that server).
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param userID The ID of the user that has been added
-		virtual void onUserAdded(MumbleConnection_t connection, MumbleUserID_t userID);
+		virtual void onUserAdded(mumble_connection_t connection, mumble_userid_t userID);
 		/// Called when a user gets removed from the user model. This is the case when that user disconnects from the server the
 		/// local user is on but also when the local user disconnects from a server other clients are connected to (in this case this
 		/// method will be called for every client on that server).
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param userID The ID of the user that has been removed
-		virtual void onUserRemoved(MumbleConnection_t connection, MumbleUserID_t userID);
+		virtual void onUserRemoved(mumble_connection_t connection, mumble_userid_t userID);
 		/// Called when a new channel gets added to the user model. This is the case when a new channel is created on the server the local
 		/// user is on but also when the local user connects to a server that contains channels other than the root-channel (in this case
 		/// this method will be called for ever non-root channel on that server).
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param channelID The ID of the channel that has been added
-		virtual void onChannelAdded(MumbleConnection_t connection, MumbleChannelID_t channelID);
+		virtual void onChannelAdded(mumble_connection_t connection, mumble_channelid_t channelID);
 		/// Called when a channel gets removed from the user model. This is the case when a channel is removed on the server the local
 		/// user is on but also when the local user disconnects from a server that contains channels other than the root-channel (in this case
 		/// this method will be called for ever non-root channel on that server).
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param channelID The ID of the channel that has been removed
-		virtual void onChannelRemoved(MumbleConnection_t connection, MumbleChannelID_t channelID);
+		virtual void onChannelRemoved(mumble_connection_t connection, mumble_channelid_t channelID);
 		/// Called when a channel gets renamed. This also applies when a new channel is created (thus assigning it an initial name is
 		/// also considered renaming).
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param channelID The ID of the channel that has been renamed
-		virtual void onChannelRenamed(MumbleConnection_t connection, MumbleChannelID_t channelID);
+		virtual void onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID);
 
 		/// @returns Whether this plugin provides an about-dialog
 		virtual bool providesAboutDialog() const;
