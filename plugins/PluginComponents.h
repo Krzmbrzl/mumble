@@ -7,6 +7,11 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <string>
+
+#ifdef QT_VERSION
+	#include <QString>
+#endif
 
 #if defined(_MSC_VER)
 	#define PLUGIN_CALLING_CONVENTION __cdecl
@@ -91,6 +96,16 @@ struct Version {
 	bool operator==(const Version& other) const {
 		return this->major == other.major && this->minor == other.minor && this->patch == other.patch;
 	}
+
+	operator std::string() const {
+		return std::string("v") + std::to_string(this->major) + std::to_string(this->minor) + std::to_string(this->patch);
+	}
+
+#ifdef QT_VERSION
+	operator QString() const {
+		return QString::fromLatin1("v%0.%1.%2").arg(this->major).arg(this->minor).arg(this->patch);
+	}
+#endif
 #endif
 };
 
