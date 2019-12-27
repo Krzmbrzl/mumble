@@ -70,24 +70,24 @@ struct Version {
 	int32_t major;
 	int32_t minor;
 	int32_t patch;
-#ifdef __cpluspluf
-	bool operator<(const version_t& other) const {
+#ifdef __cplusplus
+	bool operator<(const Version& other) const {
 		return this->major <= other.major && this->minor <= other.minor && this->patch < other.patch;
 	}
 
-	bool operator>(const version_t& other) const {
+	bool operator>(const Version& other) const {
 		return this->major >= other.major && this->minor >= other.minor && this->patch > other.patch;
 	}
 
-	bool operator>=(const version_t& other) const {
+	bool operator>=(const Version& other) const {
 		return this->major >= other.major && this->minor >= other.minor && this->patch >= other.patch;
 	}
 
-	bool operator<=(const version_t& other) const {
+	bool operator<=(const Version& other) const {
 		return this->major <= other.major && this->minor <= other.minor && this->patch <= other.patch;
 	}
 
-	bool operator==(const version_t& other) const {
+	bool operator==(const Version& other) const {
 		return this->major == other.major && this->minor == other.minor && this->patch == other.patch;
 	}
 #endif
