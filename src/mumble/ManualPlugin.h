@@ -14,7 +14,8 @@
 #include "ui_ManualPlugin.h"
 #include "LegacyPlugin.h"
 
-#include "../../plugins/mumble_plugin.h"
+#define MUMBLE_ALLOW_DEPRECATED_LEGACY_PLUGIN_API
+#include "../../plugins/mumble_legacy_plugin.h"
 
 /// A built-in plugin allowing for manually placing the "players" in a UI
 class Manual : public QDialog, public Ui::Manual {

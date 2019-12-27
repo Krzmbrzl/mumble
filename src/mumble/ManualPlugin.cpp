@@ -15,7 +15,8 @@
 
 #include <float.h>
 
-#include "../../plugins/mumble_plugin.h"
+#define MUMBLE_ALLOW_DEPRECATED_LEGACY_PLUGIN_API
+#include "../../plugins/mumble_legacy_plugin.h"
 
 static QPointer<Manual> mDlg = NULL;
 static bool bLinkable = false;
