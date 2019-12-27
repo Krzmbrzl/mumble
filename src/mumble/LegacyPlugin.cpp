@@ -11,7 +11,14 @@
 #include <codecvt>
 #include <locale>
 
-LegacyPlugin::LegacyPlugin(QString path, bool isBuiltIn, QObject *p) : Plugin(path, isBuiltIn, p), name(), description(), mumPlug(0),
+#include <QRegularExpression>
+
+
+/// A regular expression used to extract the version from the legacy plugin's description
+static const QRegularExpression versionRegEx(QString::fromLatin1("(?:v)?(?:ersion)?[ \\t]*(\\d+)\\.(\\d+)(?:\\.(\\d+))?"), QRegularExpression::CaseInsensitiveOption);
+
+
+LegacyPlugin::LegacyPlugin(QString path, bool isBuiltIn, QObject *p) : Plugin(path, isBuiltIn, p), name(), description(), version(VERSION_UNKNOWN), mumPlug(0),
 	mumPlug2(0), mumPlugQt(0) {
 }
 
@@ -28,6 +35,26 @@ bool LegacyPlugin::doInitialize() {
 		// always only be returned by the longdesc function (The description member is actually just the name with some version
 		// info)
 		this->description = QString::fromStdWString(this->mumPlug->longdesc());
+		// The version field in the MumblePlugin2 struct is the positional-audio-plugin-API version and not the version
+		// of the plugin itself. This information is not provided for legacy plugins.
+		// Most of them however provide information about the version of the game they support. Thus we will try to parse the
+		// description and extract this version using it for the plugin's version as well.
+		// Some plugins have the version in the actual description field of the old API (see above comment why these aren't the same)
+		// sp we will use a combination of both to search for the version. If multiple version(-like) strings are found, the last one
+		// will be used.
+		QString matchContent = this->description + QChar::Null + QString::fromStdWString(this->mumPlug->description);
+		QRegularExpressionMatchIterator matchIt = versionRegEx.globalMatch(matchContent);
+
+		// Only consider the last match
+		QRegularExpressionMatch match;
+		while (matchIt.hasNext()) {
+			match = matchIt.next();
+		}
+
+		if (match.hasMatch()) {
+			// Store version
+			this->version = { match.captured(1).toInt(), match.captured(2).toInt(), match.captured(3).toInt() };	
+		}
 
 		return true;
 	} else {
@@ -207,6 +234,10 @@ void LegacyPlugin::shutdownPositionalData() {
 
 uint32_t LegacyPlugin::getFeatures() const {
 	return FEATURE_POSITIONAL;
+}
+
+version_t LegacyPlugin::getVersion() const {
+	return this->version;
 }
 
 bool LegacyPlugin::providesAboutDialog() const {
