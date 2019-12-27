@@ -279,7 +279,7 @@ version_t Plugin::getVersion() const {
 	if (this->apiFnc.getVersion) {
 		return this->apiFnc.getVersion();
 	} else {
-		return {0, 0, 0};
+		return VERSION_UNKNOWN;
 	}
 }
 
