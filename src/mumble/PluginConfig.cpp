@@ -9,7 +9,6 @@
 #include "MainWindow.h"
 #include "Message.h"
 #include "ServerHandler.h"
-#include "../../plugins/mumble_plugin.h"
 #include "WebFetch.h"
 #include "MumbleApplication.h"
 #include "ManualPlugin.h"

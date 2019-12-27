@@ -7,9 +7,11 @@
 #define MUMBLE_MUMBLE_LEGACY_PLUGIN_H_
 
 #include "Plugin.h"
-#include "mumble_plugin.h"
 #include <QtCore/QString>
 #include <string>
+
+#define MUMBLE_ALLOW_DEPRECATED_LEGACY_PLUGIN_API
+#include "mumble_legacy_plugin.h"
 
 class LegacyPlugin : public Plugin {
 	friend class Plugin; // needed in order for Plugin::createNew to access LegacyPlugin::doInitialize()
