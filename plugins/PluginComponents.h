@@ -18,6 +18,7 @@
 
 
 #define STATUS_OK EC_OK
+#define VERSION_UNKNOWN Version({0,0,0})
 
 enum PluginFeature {
 	/// None of the below
