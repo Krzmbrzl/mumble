@@ -20,6 +20,7 @@ class LegacyPlugin : public Plugin {
 	protected:
 		QString name;
 		QString description;
+		version_t version;
 		MumblePlugin *mumPlug;
 		MumblePlugin2 *mumPlug2;
 		MumblePluginQt *mumPlugQt;
@@ -43,6 +44,8 @@ class LegacyPlugin : public Plugin {
 		virtual void shutdownPositionalData() Q_DECL_OVERRIDE;
 		virtual uint32_t getFeatures() const Q_DECL_OVERRIDE;
 		virtual version_t getAPIVersion() const Q_DECL_OVERRIDE;
+
+		virtual version_t getVersion() const Q_DECL_OVERRIDE;
 
 		// functions for checking which underlying plugin functions are implemented
 		virtual bool providesAboutDialog() const Q_DECL_OVERRIDE;
