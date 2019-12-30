@@ -22,3 +22,6 @@
 [submodule "themes/Mumble"]
 	path = themes/Mumble
 	url = https://github.com/mumble-voip/mumble-theme.git
+[submodule "3rdparty/quazip"]
+	path = 3rdparty/quazip
+	url = https://github.com/stachenov/quazip.git

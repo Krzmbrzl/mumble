@@ -162,6 +162,8 @@ class Plugin : public QObject {
 		/// @tparam Ts The types of the contructor arguments
 		/// @param args A list of args passed to the contructor of the plugin object
 		/// @returns A pointer to the allocated plugin
+		///
+		/// @throws PluginError if the plugin could not be loaded
 		template<typename T, typename ... Ts>
 		static T* createNew(Ts&&...args) {
 			static_assert(std::is_base_of<Plugin, T>::value, "The Plugin::create() can only be used to instantiate objects of base-type Plugin");
