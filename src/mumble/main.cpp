@@ -53,6 +53,10 @@
 # include <shellapi.h> // For CommandLineToArgvW()
 #endif
 
+#ifndef NO_PLUGIN_INSTALLER
+# include "PluginInstaller.h"
+#endif
+
 // We define a global macro called 'g'. This can lead to issues when included code uses 'g' as a type or parameter name (like protobuf 3.7 does). As such, for now, we have to make this our last include.
 #include "Global.h"
 
@@ -138,6 +142,7 @@ int main(int argc, char **argv) {
 	bool bRpcMode = false;
 	QString rpcCommand;
 	QUrl url;
+	QStringList pluginsToBeInstalled;
 	if (a.arguments().count() > 1) {
 		QStringList args = a.arguments();
 		for (int i = 1; i < args.count(); ++i) {
@@ -147,11 +152,13 @@ int main(int argc, char **argv) {
 #endif
 			) {
 				QString helpMessage = MainWindow::tr(
-					"Usage: mumble [options] [<url>]\n"
+					"Usage: mumble [options] [<url> | <plugin_list>]\n"
 					"\n"
 					"<url> specifies a URL to connect to after startup instead of showing\n"
 					"the connection window, and has the following form:\n"
 					"mumble://[<username>[:<password>]@]<host>[:<port>][/<channel>[/<subchannel>...]][?version=<x.y.z>]\n"
+					"\n"
+					"<plugin_list> is a list of plugin files that shall be installed"
 					"\n"
 					"The version query parameter has to be set in order to invoke the\n"
 					"correct client version. It currently defaults to 1.2.0.\n"
@@ -240,8 +247,14 @@ int main(int argc, char **argv) {
 #endif
 					return 1;
 				}
+			} else if (args.at(i) == QLatin1String("-install-plugin") || args.at(i) == QLatin1String("--install-plugin")) {
 			} else {
-				if (!bRpcMode) {
+#ifndef NO_PLUGIN_INSTALLER
+				if (PluginInstaller::canBePluginFile(args.at(i))) {
+					pluginsToBeInstalled << args.at(i);
+				} else {
+#endif
+					if (!bRpcMode) {
 					QUrl u = QUrl::fromEncoded(args.at(i).toUtf8());
 					if (u.isValid() && (u.scheme() == QLatin1String("mumble"))) {
 						url = u;
@@ -252,6 +265,9 @@ int main(int argc, char **argv) {
 						}
 					}
 				}
+#ifndef NO_PLUGIN_INSTALLER
+				}
+#endif
 			}
 		}
 	}
@@ -415,6 +431,25 @@ int main(int argc, char **argv) {
 	} else if (qttranslator.load(QLatin1String(":/qtbase_") + locale)) {
 		a.installTranslator(&qttranslator);
 	}
+
+#ifndef NO_PLUGIN_INSTALLER
+	if (!pluginsToBeInstalled.isEmpty()) {
+
+		foreach(QString currentPlugin, pluginsToBeInstalled) {
+
+			try {
+				PluginInstaller installer(currentPlugin);
+				installer.exec();
+			} catch(const PluginInstallException& e) {
+				qCritical() << qUtf8Printable(e.getMessage());
+			}
+
+		}
+
+		return 0;
+	}
+#endif
+
 	
 	// Initialize proxy settings
 	NetworkConfig::SetupProxy();

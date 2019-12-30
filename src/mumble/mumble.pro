@@ -298,6 +298,24 @@ CONFIG(static) {
   }
 }
 
+!CONFIG(no-plugin-installer) {
+	SOURCES *= PluginInstaller.cpp
+	HEADERS *= PluginInstaller.h
+
+	DEFINES *= QUAZIP_STATIC
+
+	INCLUDEPATH *= ../../3rdparty/quazip-src/quazip
+	INCLUDEPATH *= ../../3rdparty/zlib-src
+
+	LIBS *= -lquazip
+	LIBS *= -lz
+
+	FORMS *= PluginInstaller.ui
+} else {
+	message("Some test")
+	DEFINES *= NO_PLUGIN_INSTALLER
+}
+
 !CONFIG(no-manual-plugin) {
   SOURCES *= ManualPlugin.cpp
   HEADERS *= ManualPlugin.h

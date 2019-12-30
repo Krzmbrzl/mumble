@@ -26,5 +26,8 @@
 	path = themes/Mumble
 	url = https://github.com/mumble-voip/mumble-theme.git
 [submodule "3rdparty/quazip"]
-	path = 3rdparty/quazip
-	url = https://github.com/stachenov/quazip.git
+	path = 3rdparty/quazip-src
+	url = https://github.com/mumble-voip/quazip.git
+[submodule "3rdparty/zlib-src"]
+	path = 3rdparty/zlib-src
+	url = https://github.com/madler/zlib.git
