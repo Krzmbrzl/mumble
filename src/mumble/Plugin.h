@@ -181,6 +181,10 @@ class Plugin : public QObject {
 			return instancePtr;
 		}
 
+		// Note that most of the functions below aren't marked as const even though they could be. This is intentional
+		// in order to prevent anything but the PluginManager from accessing them. If you find yourself needing to call
+		// a non-const function on a const plugin, go look for a way to achieve what you want through the PluginManager.
+
 		/// Initializes this plugin
 		virtual mumble_error_t init();
 		/// Shuts this plugin down
