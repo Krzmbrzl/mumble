@@ -109,7 +109,7 @@ extern "C" {
 
 	
 	// -------- Positional Audio --------
-	// If this plugin wants to provide positional audio, all functiosn of this category have to be implemented
+	// If this plugin wants to provide positional audio, all functions of this category have to be implemented
 
 	/// Indicates that Mumble wants to use this plugin to request positional data. Therefore it should check whether it is currently
 	/// able to do so and allocate memory that is needed for that process.
