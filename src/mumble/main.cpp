@@ -472,6 +472,7 @@ int main(int argc, char **argv) {
 	
 	// PluginManager
 	g.pluginManager = new PluginManager();
+	g.pluginManager->rescanPlugins();
 
 	g.o = new Overlay();
 	g.o->setActive(g.s.os.bEnable);
@@ -496,10 +497,6 @@ int main(int argc, char **argv) {
 	// point, use Log::logOrDefer()
 	g.l = new Log();
 	g.l->processDeferredLogs();
-
-	// as this function might call Log::log() which needs the MainWindow to exist, we have to call it here after it has been
-	// initialized
-	g.pluginManager->rescanPlugins();
 
 #ifdef Q_OS_WIN
 	// Set mumble_mw_hwnd in os_win.cpp.
