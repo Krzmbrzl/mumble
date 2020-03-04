@@ -16,6 +16,7 @@
 #include <QtCore/QHash>
 #include <QtCore/QReadLocker>
 #include <QtCore/QString>
+#include <QtCore/QStringList>
 
 #include <cstring>
 #include <functional>
@@ -336,13 +337,14 @@ namespace API {
 			return EC_CHANNEL_NOT_FOUND;
 		}
 
-		// TODO: handle password-protected channels
-		// probably the easiest way to do so would be to silently add the given PW (if any) to the user's access tokens
-		Q_UNUSED(password);
-
 		if (channel != user->cChannel) {
 			// send move-request to the server only if the user is not in the channel already
-			g.sh->joinChannel(user->uiSession, channel->iId);
+			QStringList passwordList;
+			if (password) {
+				passwordList << QString::fromUtf8(password);
+			}
+
+			g.sh->joinChannel(user->uiSession, channel->iId, passwordList);
 		}
 
 		return STATUS_OK;
