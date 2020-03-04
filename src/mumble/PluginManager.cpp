@@ -199,7 +199,9 @@ void PluginManager::rescanPlugins() {
 					} catch(const PluginError& e) {
 						Q_UNUSED(e);
 						
-						g.l->log(Log::Warning, QString::fromUtf8("Non-plugin found in plugin directory: ") + currentInfo.absoluteFilePath());
+						// At the time this function is running the MainWindow is not necessarily created yet, so we can't use
+						// the normal Log::log function
+						Log::logOrDefer(Log::Warning, QString::fromUtf8("Non-plugin found in plugin directory: ") + currentInfo.absoluteFilePath());
 					}
 				}
 			}
@@ -215,7 +217,9 @@ void PluginManager::rescanPlugins() {
 			LOG_FOUND_BUILTIN(mp);
 #endif
 		} catch(const PluginError& e) {
-			g.l->log(Log::Warning, QString::fromUtf8("Failed at loading manual plugin: ") + QString::fromUtf8(e.what()));
+			// At the time this function is running the MainWindow is not necessarily created yet, so we can't use
+			// the normal Log::log function
+			Log::logOrDefer(Log::Warning, QString::fromUtf8("Failed at loading manual plugin: ") + QString::fromUtf8(e.what()));
 		}
 #endif
 	}
