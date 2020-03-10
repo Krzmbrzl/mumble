@@ -333,6 +333,7 @@ struct Settings {
 
 	bool bUpdateCheck;
 	bool bPluginCheck;
+	bool bPluginAutoUpdate;
 
 	// PTT Button window
 	bool bShowPTTButtonWindow;
