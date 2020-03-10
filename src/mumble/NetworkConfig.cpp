@@ -27,7 +27,8 @@ NetworkConfig::NetworkConfig(Settings &st) : ConfigWidget(st) {
 	setupUi(this);
 #ifdef NO_UPDATE_CHECK
 	qcbAutoUpdate->hide();
-	qcbPluginUpdate->hide();
+	qcbPluginUpdateCheck->hide();
+	qcbPluginAutoUpdate->hide();
 #endif
 }
 
@@ -67,7 +68,8 @@ void NetworkConfig::load(const Settings &r) {
 	loadCheckBox(qcbHideOS, s.bHideOS);
 
 	loadCheckBox(qcbAutoUpdate, r.bUpdateCheck);
-	loadCheckBox(qcbPluginUpdate, r.bPluginCheck);
+	loadCheckBox(qcbPluginUpdateCheck, r.bPluginCheck);
+	loadCheckBox(qcbPluginAutoUpdate, r.bPluginAutoUpdate);
 	loadCheckBox(qcbUsage, r.bUsage);
 }
 
@@ -85,9 +87,10 @@ void NetworkConfig::save() const {
 	s.qsProxyUsername = qleUsername->text();
 	s.qsProxyPassword = qlePassword->text();
 
-	s.bUpdateCheck=qcbAutoUpdate->isChecked();
-	s.bPluginCheck=qcbPluginUpdate->isChecked();
-	s.bUsage=qcbUsage->isChecked();
+	s.bUpdateCheck = qcbAutoUpdate->isChecked();
+	s.bPluginCheck = qcbPluginUpdateCheck->isChecked();
+	s.bPluginAutoUpdate = qcbPluginAutoUpdate->isChecked();
+	s.bUsage = qcbUsage->isChecked();
 }
 
 static QNetworkProxy::ProxyType local_to_qt_proxy(Settings::ProxyType pt) {

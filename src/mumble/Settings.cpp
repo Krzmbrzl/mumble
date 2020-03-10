@@ -332,6 +332,7 @@ Settings::Settings() {
 	bUpdateCheck = true;
 	bPluginCheck = true;
 #endif
+	bPluginAutoUpdate = false;
 
 	qsImagePath = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
 
@@ -794,6 +795,7 @@ void Settings::load(QSettings* settings_ptr) {
 #ifndef NO_UPDATE_CHECK
 	SAVELOAD(bUpdateCheck, "ui/updatecheck");
 	SAVELOAD(bPluginCheck, "ui/plugincheck");
+	SAVELOAD(bPluginAutoUpdate, "ui/pluginAutoUpdate");
 #endif
 	SAVELOAD(bHideInTray, "ui/hidetray");
 	SAVELOAD(bStateInTray, "ui/stateintray");
@@ -1137,8 +1139,12 @@ void Settings::save() {
 	SAVELOAD(qsUsername, "ui/username");
 	SAVELOAD(qsLastServer, "ui/server");
 	SAVELOAD(ssFilter, "ui/serverfilter");
+#ifndef NO_UPDATE_CHECK
+	// If this flag has been set, we don't load the following settings so we shouldn't overwrite them here either
 	SAVELOAD(bUpdateCheck, "ui/updatecheck");
 	SAVELOAD(bPluginCheck, "ui/plugincheck");
+	SAVELOAD(bPluginAutoUpdate, "ui/pluginAutoUpdate");
+#endif
 	SAVELOAD(bHideInTray, "ui/hidetray");
 	SAVELOAD(bStateInTray, "ui/stateintray");
 	SAVELOAD(bUsage, "ui/usage");
