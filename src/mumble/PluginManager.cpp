@@ -26,6 +26,8 @@
 #include "MumbleAPI.h"
 #include "PluginUpdater.h"
 
+#include <memory>
+
 #ifdef Q_OS_WIN
 	#include <tlhelp32.h>
 	#include <string>
@@ -116,19 +118,19 @@ bool PluginManager::selectActivePositionalDataPlugin() {
 	if (!g.s.bTransmitPosition) {
 		// According to the settings the position shall not be transmitted meaning that we don't have to select any plugin
 		// for positional data
-		this->activePositionalDataPlugin = QSharedPointer<Plugin>();
+		this->activePositionalDataPlugin = plugin_ptr_t();
 
 		return false;
 	}
 
 	ProcessResolver procRes(true);
 
-	QHash<uint32_t, QSharedPointer<Plugin>>::iterator it = this->pluginHashMap.begin();
+	QHash<plugin_id_t, plugin_ptr_t>::iterator it = this->pluginHashMap.begin();
 
 	// We assume that there is only one (enabled) plugin for the currently played game so we don't have to remember
 	// which plugin was active last
 	while (it != this->pluginHashMap.end()) {
-		QSharedPointer<Plugin> currentPlugin = it.value();
+		plugin_ptr_t currentPlugin = it.value();
 
 		if (currentPlugin->isPositionalDataEnabled() && currentPlugin->isLoaded()) {
 			// The const_cast is okay as it only removes the constness of the pointer itself. Since it is passed by value
@@ -158,7 +160,7 @@ bool PluginManager::selectActivePositionalDataPlugin() {
 		it++;
 	}
 
-	this->activePositionalDataPlugin = QSharedPointer<Plugin>();
+	this->activePositionalDataPlugin = plugin_ptr_t();
 
 	return false;
 }
@@ -190,7 +192,7 @@ void PluginManager::rescanPlugins() {
 				}
 				
 				try {
-					QSharedPointer<Plugin> p(Plugin::createNew<Plugin>(currentInfo.absoluteFilePath()));
+					plugin_ptr_t p(Plugin::createNew<Plugin>(currentInfo.absoluteFilePath()));
 
 #ifdef MUMBLE_PLUGIN_DEBUG
 					LOG_FOUND_PLUGIN(p, currentInfo.absoluteFilePath());
@@ -203,7 +205,7 @@ void PluginManager::rescanPlugins() {
 					// If an exception is thrown, this library does not represent a proper plugin
 					// Check if it might be a legacy plugin instead
 					try {
-						QSharedPointer<LegacyPlugin> lp(Plugin::createNew<LegacyPlugin>(currentInfo.absoluteFilePath()));
+						legacy_plugin_ptr_t lp(Plugin::createNew<LegacyPlugin>(currentInfo.absoluteFilePath()));
 						
 #ifdef MUMBLE_PLUGIN_DEBUG
 						LOG_FOUND_LEGACY_PLUGIN(lp, currentInfo.absoluteFilePath());
@@ -223,7 +225,7 @@ void PluginManager::rescanPlugins() {
 		// handle built-in plugins
 #ifdef USE_MANUAL_PLUGIN
 		try {
-			QSharedPointer<ManualPlugin> mp(Plugin::createNew<ManualPlugin>());
+			std::shared_ptr<ManualPlugin> mp(Plugin::createNew<ManualPlugin>());
 
 			this->pluginHashMap.insert(mp->getID(), mp);
 #ifdef MUMBLE_PLUGIN_DEBUG
@@ -248,9 +250,9 @@ void PluginManager::rescanPlugins() {
 		const PluginSetting setting = it.value();
 
 		// iterate over all loaded plugins to see if the current setting is applicable
-		QHash<uint32_t, QSharedPointer<Plugin>>::iterator pluginIt = this->pluginHashMap.begin();
+		QHash<plugin_id_t, plugin_ptr_t>::iterator pluginIt = this->pluginHashMap.begin();
 		while (pluginIt != this->pluginHashMap.end()) {
-			QSharedPointer<Plugin> plugin = pluginIt.value();
+			plugin_ptr_t plugin = pluginIt.value();
 
 			if (plugin->getFilePath() == pluginPath) {
 				if (setting.enabled) {
@@ -278,7 +280,7 @@ void PluginManager::rescanPlugins() {
 	}
 }
 
-const QSharedPointer<const Plugin> PluginManager::getPlugin(uint32_t pluginID) const {
+const_plugin_ptr_t PluginManager::getPlugin(plugin_id_t pluginID) const {
 	QReadLocker lock(&this->pluginCollectionLock);
 	
 	return this->pluginHashMap.value(pluginID);
@@ -368,7 +370,7 @@ void PluginManager::unlinkPositionalData() {
 		reportLostLink(this->activePositionalDataPlugin->getName());
 
 		// Set the pointer to nullptr
-		this->activePositionalDataPlugin = QSharedPointer<Plugin>();
+		this->activePositionalDataPlugin = plugin_ptr_t();
 	}
 }
 
@@ -382,32 +384,32 @@ const PositionalData& PluginManager::getPositionalData() const {
 	return this->positionalData;
 }
 
-void PluginManager::enablePositionalDataFor(uint32_t pluginID, bool enable) const {
+void PluginManager::enablePositionalDataFor(plugin_id_t pluginID, bool enable) const {
 	QReadLocker lock(&this->pluginCollectionLock);
 
-	QSharedPointer<Plugin> plugin = this->pluginHashMap.value(pluginID);
+	plugin_ptr_t plugin = this->pluginHashMap.value(pluginID);
 
 	if (plugin) {
 		plugin->enablePositionalData(enable);
 	}
 }
 
-const QVector<QSharedPointer<const Plugin> > PluginManager::getPlugins(bool sorted) const {
+const QVector<const_plugin_ptr_t > PluginManager::getPlugins(bool sorted) const {
 	QReadLocker lock(&this->pluginCollectionLock);
 
-	QVector<QSharedPointer<const Plugin>> pluginList;
+	QVector<const_plugin_ptr_t> pluginList;
 
-	QHash<uint32_t, QSharedPointer<Plugin>>::const_iterator it = this->pluginHashMap.constBegin();
+	QHash<plugin_id_t, plugin_ptr_t>::const_iterator it = this->pluginHashMap.constBegin();
 	if (sorted) {
-		QList<uint32_t> ids = this->pluginHashMap.keys();
+		QList<plugin_id_t> ids = this->pluginHashMap.keys();
 
 		// sort keys so that the corresponding Plugins are in alphabetical order based on their name
-		std::sort(ids.begin(), ids.end(), [this](uint32_t first, uint32_t second) {
+		std::sort(ids.begin(), ids.end(), [this](plugin_id_t first, plugin_id_t second) {
 			return QString::compare(this->pluginHashMap.value(first)->getName(), this->pluginHashMap.value(second)->getName(),
 				Qt::CaseInsensitive) <= 0;
 		});
 
-		foreach(uint32_t currentID, ids) {
+		foreach(plugin_id_t currentID, ids) {
 			pluginList.append(this->pluginHashMap.value(currentID));
 		}
 	} else {
@@ -421,10 +423,10 @@ const QVector<QSharedPointer<const Plugin> > PluginManager::getPlugins(bool sort
 	return pluginList;
 }
 
-bool PluginManager::loadPlugin(uint32_t pluginID) const {
+bool PluginManager::loadPlugin(plugin_id_t pluginID) const {
 	QReadLocker lock(&this->pluginCollectionLock);
 
-	QSharedPointer<Plugin> plugin = pluginHashMap.value(pluginID);
+	plugin_ptr_t plugin = pluginHashMap.value(pluginID);
 
 	if (plugin) {
 		if (plugin->init() == STATUS_OK) {
@@ -450,20 +452,20 @@ bool PluginManager::loadPlugin(uint32_t pluginID) const {
 	return false;
 }
 
-void PluginManager::unloadPlugin(uint32_t pluginID) const {
+void PluginManager::unloadPlugin(plugin_id_t pluginID) const {
 	QReadLocker lock(&this->pluginCollectionLock);
 
-	QSharedPointer<Plugin> plugin = pluginHashMap.value(pluginID);
+	plugin_ptr_t plugin = pluginHashMap.value(pluginID);
 
 	if (plugin) {
 		plugin->shutdown();
 	}
 }
 
-uint32_t  PluginManager::deactivateFeaturesFor(uint32_t pluginID, uint32_t features) const {
+uint32_t  PluginManager::deactivateFeaturesFor(plugin_id_t pluginID, uint32_t features) const {
 	QReadLocker lock(&this->pluginCollectionLock);
 
-	QSharedPointer<Plugin> plugin = pluginHashMap.value(pluginID);
+	plugin_ptr_t plugin = pluginHashMap.value(pluginID);
 
 	if (plugin) {
 		return plugin->deactivateFeatures(features);
@@ -475,7 +477,7 @@ uint32_t  PluginManager::deactivateFeaturesFor(uint32_t pluginID, uint32_t featu
 void PluginManager::foreachPlugin(std::function<void(Plugin&)> pluginProcessor) const {
 	QReadLocker lock(&this->pluginCollectionLock);
 
-	QHash<uint32_t, QSharedPointer<Plugin>>::const_iterator it = this->pluginHashMap.constBegin();
+	QHash<plugin_id_t, plugin_ptr_t>::const_iterator it = this->pluginHashMap.constBegin();
 
 	while (it != this->pluginHashMap.constEnd()) {
 		pluginProcessor(*it.value());

@@ -43,10 +43,10 @@ void PluginUpdater::checkForUpdates() {
 	QtConcurrent::run([this]() {
 		QMutexLocker lock(&m_dataMutex);
 
-		const QVector<QSharedPointer<const Plugin>> plugins = g.pluginManager->getPlugins();
+		const QVector<const_plugin_ptr_t> plugins = g.pluginManager->getPlugins();
 
 		for (int i = 0; i < plugins.size(); i++) {
-			const QSharedPointer<const Plugin> plugin = plugins[i];
+			const_plugin_ptr_t plugin = plugins[i];
 
 			if (plugin->hasUpdate()) {
 				QUrl updateURL = plugin->getUpdateDownloadURL();
@@ -100,9 +100,9 @@ void PluginUpdater::populateUI() {
 	QMutexLocker l(&m_dataMutex);
 	for (int i = 0; i < m_pluginsToUpdate.size(); i++) {
 		UpdatePair currentPair = m_pluginsToUpdate[i];
-		uint32_t pluginID = currentPair.pluginID;
+		plugin_id_t pluginID = currentPair.pluginID;
 
-		const QSharedPointer<const Plugin> plugin = g.pluginManager->getPlugin(pluginID);
+		const_plugin_ptr_t plugin = g.pluginManager->getPlugin(pluginID);
 
 		if (!plugin) {
 			continue;
@@ -203,7 +203,7 @@ void PluginUpdater::on_finished(int result) {
 		// The user wants to update the selected plugins only
 		// remove the plugins tha shouldn't be updated from m_pluginsToUpdate
 		for (int i = 0; i < m_pluginsToUpdate.size(); i++) {
-			uint32_t id = m_pluginsToUpdate[i].pluginID;
+			plugin_id_t id = m_pluginsToUpdate[i].pluginID;
 
 			// find the corresponding checkbox
 			bool updateCurrent = false;
@@ -211,7 +211,7 @@ void PluginUpdater::on_finished(int result) {
 				QCheckBox *checkBox = m_pluginUpdateWidgets[k].pluginCheckBox;
 				QVariant idVariant = checkBox->property("pluginID");
 
-				if (idVariant.isValid() && static_cast<uint32_t>(idVariant.toInt()) == id) {
+				if (idVariant.isValid() && static_cast<plugin_id_t>(idVariant.toInt()) == id) {
 					updateCurrent = checkBox->isChecked();
 					break;
 				}
@@ -248,7 +248,7 @@ void PluginUpdater::on_updateDownloaded(QNetworkReply *reply) {
 			}
 
 			// Find the ID of the plugin this update is for by comparing the URLs
-			uint32_t pluginID;
+			plugin_id_t pluginID;
 			bool foundID = false;
 			{
 				QMutexLocker l(&m_dataMutex);
@@ -273,7 +273,7 @@ void PluginUpdater::on_updateDownloaded(QNetworkReply *reply) {
 			}
 
 			// Now get a handle to that plugin
-			const QSharedPointer<const Plugin> plugin = g.pluginManager->getPlugin(pluginID);
+			const_plugin_ptr_t plugin = g.pluginManager->getPlugin(pluginID);
 
 			if (!plugin) {
 				// Can't find plugin with given ID
