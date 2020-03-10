@@ -585,13 +585,13 @@ int main(int argc, char **argv) {
 		// snapshot build
 		new VersionCheck(false, g.mw, true);
 #endif
-	}
-#else
-	g.mw->msgBox(MainWindow::tr("Skipping version check in debug mode."));
-#endif
+
 	if (g.s.bPluginCheck) {
 		g.pluginManager->checkForPluginUpdates();
 	}
+#else // QT_NO_DEBUG
+	g.mw->msgBox(MainWindow::tr("Skipping version check in debug mode."));
+#endif // QT_NO_DEBUG
 
 	if (url.isValid()) {
 		OpenURLEvent *oue = new OpenURLEvent(url);
