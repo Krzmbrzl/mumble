@@ -317,7 +317,7 @@ void PluginUpdater::on_updateDownloaded(QNetworkReply *reply) {
 
 			QFile file(QDir::temp().filePath(reply->url().fileName()));
 			if (!file.open(QIODevice::WriteOnly)) {
-				qWarning() << "PluginUpdater: Can't open" << file << "for writing!";
+				qWarning() << "PluginUpdater: Can't open" << file.fileName() << "for writing!";
 				return;
 			}
 
