@@ -25,6 +25,7 @@
 #include "ClientUser.h"
 #include "Channel.h"
 #include "Settings.h"
+#include "PluginUpdater.h"
 
 #include <functional>
 
@@ -107,6 +108,9 @@ class PluginManager : public QObject {
 		/// The plugin that is currently used to retrieve positional data. You have to aquire activePosDataPluginLock before
 		/// accessing this field.
 		QSharedPointer<Plugin> activePositionalDataPlugin;
+		/// The PluginUpdater used to handle plugin updates.
+		PluginUpdater m_updater;
+
 
 		/// Clears the current list of plugins
 		void clearPlugins();
@@ -132,10 +136,8 @@ class PluginManager : public QObject {
 		/// @param pluginID The ID of the plugin that should be retreved
 		/// @returns A pointer to the plugin with the given ID or nullptr if no such plugin could be found
 		const QSharedPointer<const Plugin> getPlugin(uint32_t pluginID) const;
-		/// Checks whether there are any updates for the plugins.
-		/// NOTE: This is currently not implemented so this function does nothing. It mainly exists for backwards-compatibility
-		// TODO
-		void checkForPluginUpdates() const;
+		/// Checks whether there are any updates for the plugins and if there are it invokes the PluginUpdater.
+		void checkForPluginUpdates();
 		/// Fetches positional data from the activePositionalDataPlugin if there is one set. This function will update the
 		/// positionalData field
 		///
@@ -248,6 +250,9 @@ class PluginManager : public QObject {
 		/// Slot that gets called whenever the positional data should be synchronized with the server. Before it does that, it tries to
 		/// fetch new data.
 		void on_syncPositionalData();
+
+		/// Slot called if there are plugin updates available
+		void on_updatesAvailable();
 };
 
 #endif

@@ -24,6 +24,7 @@
 #include "ProcessResolver.h"
 #include "ServerHandler.h"
 #include "MumbleAPI.h"
+#include "PluginUpdater.h"
 
 #ifdef Q_OS_WIN
 	#include <tlhelp32.h>
@@ -37,9 +38,18 @@
 // We define a global macro called 'g'. This can lead to issues when included code uses 'g' as a type or parameter name (like protobuf 3.7 does). As such, for now, we have to make this our last include.
 #include "Global.h"
 
-PluginManager::PluginManager(QString sysPath, QString userPath, QObject *p) : QObject(p), pluginCollectionLock(QReadWriteLock::Recursive),
-	pluginHashMap(), systemPluginsPath(sysPath), userPluginsPath(userPath), positionalData(), sentDataMutex(), sentData(),
-		activePosDataPluginLock(QReadWriteLock::Recursive), activePositionalDataPlugin() {
+PluginManager::PluginManager(QString sysPath, QString userPath, QObject *p)
+	: QObject(p),
+	  pluginCollectionLock(QReadWriteLock::Recursive),
+	  pluginHashMap(),
+	  systemPluginsPath(sysPath),
+	  userPluginsPath(userPath),
+	  positionalData(),
+	  sentDataMutex(),
+	  sentData(),
+	  activePosDataPluginLock(QReadWriteLock::Recursive),
+	  activePositionalDataPlugin(),
+	  m_updater() {
 	// Set the paths to read plugins from
 
 #ifdef Q_OS_WIN
@@ -67,10 +77,13 @@ PluginManager::PluginManager(QString sysPath, QString userPath, QObject *p) : QO
 	AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), &tpPrevious, &cbPrevious);
 #endif
 
+	// Synchronize the positional data in a regular interval
 	// By making this the parent of the created timer, we don't have to delete it explicitly
 	QTimer *serverSyncTimer = new QTimer(this);
 	QObject::connect(serverSyncTimer, &QTimer::timeout, this, &PluginManager::on_syncPositionalData);
 	serverSyncTimer->start(500);
+
+	QObject::connect(&m_updater, &PluginUpdater::updatesAvailable, this, &PluginManager::on_updatesAvailable);
 }
 
 PluginManager::~PluginManager() {
@@ -271,8 +284,8 @@ const QSharedPointer<const Plugin> PluginManager::getPlugin(uint32_t pluginID) c
 	return this->pluginHashMap.value(pluginID);
 }
 
-void PluginManager::checkForPluginUpdates() const {
-	// TODO
+void PluginManager::checkForPluginUpdates() {
+	m_updater.checkForUpdates();
 }
 
 bool PluginManager::fetchPositionalData() {
@@ -764,6 +777,14 @@ void PluginManager::on_syncPositionalData() {
 			}
 		}
 	}
+}
 
+void PluginManager::on_updatesAvailable() {
+	qDebug() << "Updates available";
 
+	if (g.s.bPluginAutoUpdate) {
+		m_updater.update();
+	} else {
+		m_updater.promptAndUpdate();
+	}
 }
