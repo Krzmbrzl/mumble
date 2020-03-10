@@ -82,7 +82,7 @@ class PluginManager : public QObject {
 		mutable QReadWriteLock pluginCollectionLock;
 		/// A map between plugin-IDs and the actual plugin objects. You have to aquire pluginCollectionLock before
 		/// accessing this map.
-		QHash<uint32_t, QSharedPointer<Plugin>> pluginHashMap;
+		QHash<plugin_id_t, plugin_ptr_t> pluginHashMap;
 		/// The path to the system-directory containing plugins
 		QString systemPluginsPath;
 		/// The path to the user-directory containing plugins
@@ -107,7 +107,7 @@ class PluginManager : public QObject {
 		mutable QReadWriteLock activePosDataPluginLock;
 		/// The plugin that is currently used to retrieve positional data. You have to aquire activePosDataPluginLock before
 		/// accessing this field.
-		QSharedPointer<Plugin> activePositionalDataPlugin;
+		plugin_ptr_t activePositionalDataPlugin;
 		/// The PluginUpdater used to handle plugin updates.
 		PluginUpdater m_updater;
 
@@ -135,7 +135,7 @@ class PluginManager : public QObject {
 
 		/// @param pluginID The ID of the plugin that should be retreved
 		/// @returns A pointer to the plugin with the given ID or nullptr if no such plugin could be found
-		const QSharedPointer<const Plugin> getPlugin(uint32_t pluginID) const;
+		const_plugin_ptr_t getPlugin(plugin_id_t pluginID) const;
 		/// Checks whether there are any updates for the plugins and if there are it invokes the PluginUpdater.
 		void checkForPluginUpdates();
 		/// Fetches positional data from the activePositionalDataPlugin if there is one set. This function will update the
@@ -154,24 +154,24 @@ class PluginManager : public QObject {
 		///
 		/// @param pluginID The ID of the plugin to access
 		/// @param enable Whether to enable positional data (alternative is to disable it)
-		void enablePositionalDataFor(uint32_t pluginID, bool enable = true) const;
+		void enablePositionalDataFor(plugin_id_t pluginID, bool enable = true) const;
 		/// @returns A const vector of the plugins
-		const QVector<QSharedPointer<const Plugin> > getPlugins(bool sorted = false) const;
+		const QVector<const_plugin_ptr_t> getPlugins(bool sorted = false) const;
 		/// Loads the plugin with the given ID. Loading means initializing the plugin.
 		///
 		/// @param pluginID The ID of the plugin to load
 		/// @returns Whether the plugin could be successfully loaded
-		bool loadPlugin(uint32_t pluginID) const;
+		bool loadPlugin(plugin_id_t pluginID) const;
 		/// Unloads the plugin with the given ID. Unloading means shutting the pluign down.
 		///
 		/// @param pluginID The ID of the plugin to unload
-		void unloadPlugin(uint32_t pluginID) const;
+		void unloadPlugin(plugin_id_t pluginID) const;
 		/// Deactivates the given features for the plugin with the given ID
 		///
 		/// @param pluginID The ID of the plugin to access
 		/// @param features The feature set that should be deactivated. The features are or'ed together.
 		/// @returns The feature set that could not be deactivated
-		uint32_t deactivateFeaturesFor(uint32_t pluginID, uint32_t features) const;
+		uint32_t deactivateFeaturesFor(plugin_id_t pluginID, uint32_t features) const;
 
 	public slots:
 		/// Rescans the plugin directory and load all plugins from there after having cleared the current plugin list

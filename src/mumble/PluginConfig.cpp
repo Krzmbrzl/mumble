@@ -87,7 +87,7 @@ void PluginConfig::save() const {
 		bool enable = (i->checkState(1) == Qt::Checked);
 		bool positionalDataEnabled = (i->checkState(2) == Qt::Checked);
 
-		const QSharedPointer<const Plugin> plugin = pluginForItem(i);
+		const_plugin_ptr_t plugin = pluginForItem(i);
 		if (plugin) {
 			// insert plugin to settings
 			g.pluginManager->enablePositionalDataFor(plugin->getID(), positionalDataEnabled);
@@ -126,16 +126,16 @@ void PluginConfig::save() const {
 	}
 }
 
-const QSharedPointer<const Plugin> PluginConfig::pluginForItem(QTreeWidgetItem *i) const {
+const_plugin_ptr_t PluginConfig::pluginForItem(QTreeWidgetItem *i) const {
 	if (i) {
 		return g.pluginManager->getPlugin(i->data(0, Qt::UserRole).toUInt());
 	}
 
-	return QSharedPointer<const Plugin>();
+	return nullptr;
 }
 
 void PluginConfig::on_qpbConfig_clicked() {
-	const QSharedPointer<const Plugin> plugin = pluginForItem(qtwPlugins->currentItem());
+	const_plugin_ptr_t plugin = pluginForItem(qtwPlugins->currentItem());
 
 	if (plugin) {
 		if (!plugin->showConfigDialog(this)) {
@@ -146,7 +146,7 @@ void PluginConfig::on_qpbConfig_clicked() {
 }
 
 void PluginConfig::on_qpbAbout_clicked() {
-	const QSharedPointer<const Plugin> plugin = pluginForItem(qtwPlugins->currentItem());
+	const_plugin_ptr_t plugin = pluginForItem(qtwPlugins->currentItem());
 
 	if (plugin) {
 		if (!plugin->showAboutDialog(this)) {
@@ -165,9 +165,9 @@ void PluginConfig::refillPluginList() {
 	qtwPlugins->clear();
 
 	// get plugins already sorted according to their name
-	const QVector<QSharedPointer<const Plugin> > plugins = g.pluginManager->getPlugins(true);
+	const QVector<const_plugin_ptr_t > plugins = g.pluginManager->getPlugins(true);
 
-	foreach(const QSharedPointer<const Plugin> currentPlugin, plugins) {
+	foreach(const_plugin_ptr_t currentPlugin, plugins) {
 		QTreeWidgetItem *i = new QTreeWidgetItem(qtwPlugins);
 		i->setFlags(Qt::ItemIsUserCheckable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 		i->setCheckState(1, currentPlugin->isLoaded() ? Qt::Checked : Qt::Unchecked);
@@ -190,7 +190,7 @@ void PluginConfig::refillPluginList() {
 }
 
 void PluginConfig::on_qtwPlugins_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *) {
-	const QSharedPointer<const Plugin> plugin = pluginForItem(current);
+	const_plugin_ptr_t plugin = pluginForItem(current);
 
 	if (plugin) {
 		qpbAbout->setEnabled(plugin->providesAboutDialog());

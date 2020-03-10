@@ -7,11 +7,21 @@
 #define MUMBLE_MUMBLE_LEGACY_PLUGIN_H_
 
 #include "Plugin.h"
+
 #include <QtCore/QString>
+
 #include <string>
+#include <memory>
 
 #define MUMBLE_ALLOW_DEPRECATED_LEGACY_PLUGIN_API
 #include "mumble_legacy_plugin.h"
+
+class LegacyPlugin;
+
+/// Typedef for a LegacyPlugin pointer
+typedef std::shared_ptr<LegacyPlugin> legacy_plugin_ptr_t;
+/// Typedef for a const LegacyPlugin pointer
+typedef std::shared_ptr<const LegacyPlugin> const_legacy_plugin_ptr_t;
 
 class LegacyPlugin : public Plugin {
 	friend class Plugin; // needed in order for Plugin::createNew to access LegacyPlugin::doInitialize()

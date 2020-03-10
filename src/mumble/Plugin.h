@@ -17,6 +17,7 @@
 #include <QtCore/QUrl>
 
 #include <stdexcept>
+#include <memory>
 
 /// A struct for holding the function pointers to the functions inside the plugin's library
 /// For the documentation of those functions, see the plugin's header file (the one used when developing a plugin)
@@ -93,6 +94,15 @@ class PluginReadLocker {
 		~PluginReadLocker();
 };
 
+class Plugin;
+
+/// Typedef for the plugin ID
+typedef uint32_t plugin_id_t;
+/// Typedef for a plugin pointer
+typedef std::shared_ptr<Plugin> plugin_ptr_t;
+/// Typedef for a const plugin pointer
+typedef std::shared_ptr<const Plugin> const_plugin_ptr_t;
+
 /// A class representing a plugin library attached to Mumble. It can be used to manage (load/unload) and access plugin libraries.
 class Plugin : public QObject {
 	private:
@@ -102,7 +112,7 @@ class Plugin : public QObject {
 		/// A mutex guarding Plugin::nextID
 		static QMutex idLock;
 		/// The ID of the plugin that will be loaded next. Whenever accessing this field, Plugin::idLock should be locked.
-		static uint32_t nextID;
+		static plugin_id_t nextID;
 
 		/// Constructor of the Plugin.
 		///
@@ -119,7 +129,7 @@ class Plugin : public QObject {
 		QString pluginPath;
 		/// The unique ID of this plugin. Note though that this ID is not suitable for uniquely identifying this plugin between restarts of Mumble
 		/// (not even between rescans of the plugins) let alone across clients.
-		uint32_t pluginID;
+		plugin_id_t pluginID;
 		// a flag indicating whether this plugin has been loaded by calling its init function.
 		bool pluginIsLoaded;
 		/// The lock guarding this plugin object. Every time a member is accessed this lock should be locked accordingly.
@@ -148,7 +158,7 @@ class Plugin : public QObject {
 		/// @returns Whether this plugin is loaded (has been initialized via Plugin::init())
 		virtual bool isLoaded() const Q_DECL_FINAL;
 		/// @returns The unique ID of this plugin. This ID holds only as long as this plugin isn't "reconstructed".
-		virtual uint32_t getID() const Q_DECL_FINAL;
+		virtual plugin_id_t getID() const Q_DECL_FINAL;
 		/// @returns Whether this plugin is built into Mumble (thus not backed by a shared library)
 		virtual bool isBuiltInPlugin() const Q_DECL_FINAL;
 		/// @returns The path to the shared library in the host's filesystem

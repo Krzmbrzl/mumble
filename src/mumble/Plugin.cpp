@@ -13,7 +13,7 @@
 
 
 // initialize the static ID counter
-uint32_t Plugin::nextID = 1;
+plugin_id_t Plugin::nextID = 1;
 QMutex Plugin::idLock(QMutex::Recursive);
 
 void assertPluginLoaded(const Plugin* plugin) {
@@ -151,7 +151,7 @@ bool Plugin::isLoaded() const {
 	return pluginIsLoaded;
 }
 
-uint32_t Plugin::getID() const {
+plugin_id_t Plugin::getID() const {
 	PluginReadLocker lock(&this->pluginLock);
 
 	return this->pluginID;

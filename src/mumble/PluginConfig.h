@@ -31,7 +31,7 @@ class PluginConfig : public ConfigWidget, public Ui::PluginConfig {
 		void refillPluginList();
 		/// @param item The QTreeWidgetItem to retrieve the plugin for
 		/// @returns The plugin corresponding to the provided item
-		const QSharedPointer<const Plugin> pluginForItem(QTreeWidgetItem *item) const;
+		const_plugin_ptr_t pluginForItem(QTreeWidgetItem *item) const;
 	public:
 		/// Constructor
 		///

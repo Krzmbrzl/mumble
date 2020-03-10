@@ -15,6 +15,7 @@
 #include <atomic>
 
 #include "ui_PluginUpdater.h"
+#include "Plugin.h"
 
 /// A helper struct to store a pair of a CheckBox and a label corresponding to
 /// a single plugin.
@@ -26,7 +27,7 @@ struct UpdateWidgetPair {
 /// A helper struct to store a pair of a plugin ID  and an URL corresponding to
 /// the same plugin.
 struct UpdatePair {
-	uint32_t pluginID;
+	plugin_id_t pluginID;
 	QUrl updateURL;
 };
 
