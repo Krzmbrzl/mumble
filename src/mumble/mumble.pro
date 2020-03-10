@@ -11,6 +11,8 @@ DEFINES *= MUMBLE
 TEMPLATE = app
 TARGET = mumble
 
+QT += concurrent
+
 !CONFIG(qt4-legacy-compat) {
   CONFIG += no-qt4-legacy-compat
 }
@@ -104,6 +106,7 @@ HEADERS *= BanEditor.h \
 	Plugin.h \
 	LegacyPlugin.h \
 	PluginManager.h \
+	PluginUpdater.h \
 	PositionalData.h \
 	MumbleAPI.h \
     PTTButtonWidget.h \
@@ -182,6 +185,7 @@ SOURCES *= BanEditor.cpp \
 	Plugin.cpp \
 	LegacyPlugin.cpp \
 	PluginManager.cpp \
+	PluginUpdater.cpp \
 	PositionalData.cpp \
 	MumbleAPI.cpp \
     PTTButtonWidget.cpp \
@@ -273,7 +277,8 @@ FORMS *= ConfigDialog.ui \
     RichTextEditor.ui \
     RichTextEditorLink.ui \
     UserInformation.ui \
-    VoiceRecorderDialog.ui
+    VoiceRecorderDialog.ui \
+	PluginUpdater.ui
 
 # Include TRANSLATIONS variable
 include(translations.pri)
