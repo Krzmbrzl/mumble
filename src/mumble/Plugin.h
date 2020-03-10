@@ -8,11 +8,14 @@
 
 #include "PluginComponents.h"
 #include "PositionalData.h"
+
 #include <QtCore/QObject>
 #include <QtCore/QReadWriteLock>
 #include <QtCore/QString>
 #include <QtCore/QLibrary>
 #include <QtCore/QMutex>
+#include <QtCore/QUrl>
+
 #include <stdexcept>
 
 /// A struct for holding the function pointers to the functions inside the plugin's library
@@ -55,6 +58,10 @@ struct PluginAPIFunctions {
 		void          (PLUGIN_CALLING_CONVENTION *onChannelAdded)(mumble_connection_t connection, mumble_channelid_t channelID);
 		void          (PLUGIN_CALLING_CONVENTION *onChannelRemoved)(mumble_connection_t connection, mumble_channelid_t channelID);
 		void          (PLUGIN_CALLING_CONVENTION *onChannelRenamed)(mumble_connection_t connection, mumble_channelid_t channelID);
+
+		// Plugin updates
+		bool          (PLUGIN_CALLING_CONVENTION *hasUpdate)();
+		bool          (PLUGIN_CALLING_CONVENTION *getUpdateDownloadURL)(char *buffer, uint16_t bufferSize, uint16_t offset);
 };
 
 
@@ -346,6 +353,10 @@ class Plugin : public QObject {
 		/// @param connection An object used to identify the current connection
 		/// @param channelID The ID of the channel that has been renamed
 		virtual void onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID);
+		/// @return Whether the plugin has found a new/updated version of itself available for download
+		virtual bool hasUpdate() const;
+		/// @return The URL to download the updated plugin. May be empty
+		virtual QUrl getUpdateDownloadURL() const;
 
 		/// @returns Whether this plugin provides an about-dialog
 		virtual bool providesAboutDialog() const;

@@ -5,8 +5,11 @@
 
 #include "Plugin.h"
 #include "Version.h"
+
 #include <QtCore/QWriteLocker>
 #include <QtCore/QMutexLocker>
+
+#include <cstring>
 
 
 // initialize the static ID counter
@@ -115,6 +118,8 @@ void Plugin::resolveFunctionPointers() {
 		this->apiFnc.onChannelAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelAdded"));
 		this->apiFnc.onChannelRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelRemoved"));
 		this->apiFnc.onChannelRenamed = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelRenamed"));
+		this->apiFnc.hasUpdate = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("hasUpdate"));
+		this->apiFnc.getUpdateDownloadURL = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(char*, uint16_t, uint16_t)>(lib.resolve("getUpdateDownloadURL"));
 
 		// If positional audio is to be supported, all three corresponding functions have to be implemented
 		// For PA it is all or nothing
@@ -568,6 +573,53 @@ void Plugin::onChannelRenamed(mumble_connection_t connection, mumble_channelid_t
 	if (this->apiFnc.onChannelRenamed) {
 		this->apiFnc.onChannelRenamed(connection, channelID);
 	}
+}
+
+bool Plugin::hasUpdate() const {
+	PluginReadLocker lock(&this->pluginLock);
+	
+	if (this->apiFnc.hasUpdate) {
+		return this->apiFnc.hasUpdate();
+	} else {
+		// A plugin that doesn't implement this function is assumed to never know about
+		// any potential updates
+		return false;
+	}
+}
+
+QUrl Plugin::getUpdateDownloadURL() const {
+	if (!this->apiFnc.getUpdateDownloadURL) {
+		// Return an empty URL as a fallback
+		return QUrl();
+	}
+
+	const int bufferSize = 150;
+
+	QString strURL;
+	char buffer[bufferSize];
+	unsigned int offset = 0;
+
+	bool readCompleteURL = false;
+
+	while(!readCompleteURL) {
+		// Clear buffer
+		std::memset(buffer, 0, bufferSize);
+
+		readCompleteURL = this->apiFnc.getUpdateDownloadURL(buffer, bufferSize, offset);
+
+		if (buffer[bufferSize - 1] == 0) {
+			// The buffer is zero-terminated
+			strURL += QString::fromUtf8(buffer);
+		} else {
+			// The buffer is not zero-terminated
+			// Thus we have to specify a size to avoid reading beyond our memory
+			strURL += QString::fromUtf8(buffer, bufferSize);
+		}
+
+		offset += bufferSize;
+	}
+
+	return QUrl(strURL);
 }
 
 bool Plugin::providesAboutDialog() const {
