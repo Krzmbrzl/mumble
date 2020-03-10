@@ -289,6 +289,28 @@ extern "C" {
 	/// @param channelID The ID of the channel that has been renamed
 	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID);
 
+	// -------- Plugin updates -----------
+
+	/// This function is used to determine whether the plugin can find an update for itself that is available for download.
+	///
+	/// NOTE: This function may be called without the plugin being loaded
+	///
+	/// @return Whether the plugin was able to find an update for itself
+	PLUGIN_EXPORT bool PLUGIN_CALLING_CONVENTION hasUpdate();
+
+	/// This function is used to retrieve the URL for downloading the newer/updated version of this plugin.
+	/// If the URL is too long for the provided buffer, it will have to be split up and be read chunk by chunk. Make sure
+	/// though that you don't forget about the trailing null byte.
+	///
+	/// NOTE: This function may be called without the plugin being loaded
+	///
+	/// @param buffer A pointer to the char buffer to write the UTF-8 encoded URL (as C-string) into
+	/// @param bufferSize The size of the buffer
+	/// @param offset The offset in the URL from which this functions should start writing it to the buffer
+	/// @param Whether the URL has been completely written into the buffer yet. If this is false, this function will be called
+	/// 	again with a modified offset until the URL has been completely transferred.
+	PLUGIN_EXPORT bool PLUGIN_CALLING_CONVENTION getUpdateDownloadURL(char *buffer, uint16_t bufferSize, uint16_t offset);
+
 
 #ifdef __cplusplus
 }

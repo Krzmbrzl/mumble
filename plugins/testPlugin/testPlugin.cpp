@@ -331,3 +331,23 @@ void onChannelRemoved(mumble_connection_t connection, mumble_channelid_t channel
 void onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID) {
 	pLog() << "Renamed channel with ID " << channelID << " (ServerConnection: " << connection << ")" << std::endl;
 }
+
+bool hasUpdate() {
+	// Just fake always having an updated version available
+	return true;
+}
+
+bool getUpdateDownloadURL(char *buffer, uint16_t bufferSize, uint16_t offset) {
+	static std::string url = "https://i.dont.exist/testplugin.zip";
+
+	size_t writtenChars = url.copy(buffer, bufferSize, offset);
+
+	if (writtenChars < bufferSize) {
+		// URL has fit into the buffer -> append null byte and be done with it
+		buffer[writtenChars] = '\0';
+		return true;
+	} else {
+		std::cout << "Overflow" << std::endl;
+		return false;
+	}
+}
