@@ -172,6 +172,11 @@ class PluginManager : public QObject {
 		/// @param features The feature set that should be deactivated. The features are or'ed together.
 		/// @returns The feature set that could not be deactivated
 		uint32_t deactivateFeaturesFor(plugin_id_t pluginID, uint32_t features) const;
+		/// Checks whether a plugin with the given ID exists.
+		///
+		/// @param pluginID The ID to check
+		/// @returns Whether such a plugin exists
+		bool pluginExists(plugin_id_t pluginID) const;
 
 	public slots:
 		/// Rescans the plugin directory and load all plugins from there after having cleared the current plugin list

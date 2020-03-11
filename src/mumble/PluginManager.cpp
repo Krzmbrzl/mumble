@@ -474,6 +474,12 @@ uint32_t  PluginManager::deactivateFeaturesFor(plugin_id_t pluginID, uint32_t fe
 	return FEATURE_NONE;
 }
 
+bool PluginManager::pluginExists(plugin_id_t pluginID) const {
+	QReadLocker lock(&this->pluginCollectionLock);
+
+	return pluginHashMap.contains(pluginID);
+}
+
 void PluginManager::foreachPlugin(std::function<void(Plugin&)> pluginProcessor) const {
 	QReadLocker lock(&this->pluginCollectionLock);
 
