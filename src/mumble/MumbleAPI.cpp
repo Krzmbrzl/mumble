@@ -10,6 +10,7 @@
 #include "Settings.h"
 #include "Log.h"
 #include "AudioOutput.h"
+#include "PluginManager.h"
 
 #include <QtCore/QMutex>
 #include <QtCore/QMutexLocker>
@@ -24,6 +25,8 @@
 
 // We define a global macro called 'g'. This can lead to issues when included code uses 'g' as a type or parameter name (like protobuf 3.7 does). As such, for now, we have to make this our last include.
 #include "Global.h"
+
+#define VERIFY_PLUGIN_ID(id) if (!g.pluginManager->pluginExists(id)) { return EC_INVALID_PLUGIN_ID; }
 
 namespace API {
 	/// A "curator" that will keep track of allocated resources and how to delete them
@@ -59,7 +62,10 @@ namespace API {
 
 	// The description of the functions is provided in PluginComponents.h
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION freeMemory_v_1_0_x(void *ptr) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION freeMemory_v_1_0_x(plugin_id_t callerID, void *ptr) {
+		// Don't verify plugin ID here to avoid memory leaks
+		Q_UNUSED(callerID);
+
 		QMutexLocker lock(&curator.deleterMutex);
 
 		if (curator.deleteFunctions.contains(ptr)) {
@@ -75,7 +81,9 @@ namespace API {
 		}
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION getActiveServerConnection_v_1_0_x(mumble_connection_t *connection) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION getActiveServerConnection_v_1_0_x(plugin_id_t callerID, mumble_connection_t *connection) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		if (g.sh) {
 			*connection = g.sh->getConnectionID();
 
@@ -85,7 +93,9 @@ namespace API {
 		}
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION getLocalUserID_v_1_0_x(mumble_connection_t connection, mumble_userid_t *userID) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION getLocalUserID_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, mumble_userid_t *userID) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -96,7 +106,9 @@ namespace API {
 		return STATUS_OK;
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION getUserName_v_1_0_x(mumble_connection_t connection, mumble_userid_t userID, char **name) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION getUserName_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, mumble_userid_t userID, char **name) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -126,7 +138,9 @@ namespace API {
 		}
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION getChannelName_v_1_0_x(mumble_connection_t connection, mumble_channelid_t channelID, char **name) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION getChannelName_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, mumble_channelid_t channelID, char **name) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -156,7 +170,9 @@ namespace API {
 		}
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION getAllUsers_v_1_0_x(mumble_connection_t connection, mumble_userid_t **users, size_t *userCount) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION getAllUsers_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, mumble_userid_t **users, size_t *userCount) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -190,7 +206,9 @@ namespace API {
 		return STATUS_OK;
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION getAllChannels_v_1_0_x(mumble_connection_t connection, mumble_channelid_t **channels, size_t *channelCount) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION getAllChannels_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, mumble_channelid_t **channels, size_t *channelCount) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -224,7 +242,9 @@ namespace API {
 		return STATUS_OK;
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION getChannelOfUser_v_1_0_x(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t *channel) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION getChannelOfUser_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t *channel) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -245,8 +265,10 @@ namespace API {
 		}
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION getUsersInChannel_v_1_0_x(mumble_connection_t connection, mumble_channelid_t channelID, mumble_userid_t **userList,
+	mumble_error_t PLUGIN_CALLING_CONVENTION getUsersInChannel_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, mumble_channelid_t channelID, mumble_userid_t **userList,
 			size_t *userCount) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -282,7 +304,9 @@ namespace API {
 	}
 
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION getLocalUserTransmissionMode_v_1_0_x(transmission_mode_t *transmissionMode) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION getLocalUserTransmissionMode_v_1_0_x(plugin_id_t callerID, transmission_mode_t *transmissionMode) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		switch(g.s.atTransmit) {
 			case Settings::AudioTransmit::Continuous:
 				*transmissionMode = TM_CONTINOUS;
@@ -300,7 +324,9 @@ namespace API {
 		return STATUS_OK;
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION requestLocalUserTransmissionMode_v_1_0_x(transmission_mode_t transmissionMode) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION requestLocalUserTransmissionMode_v_1_0_x(plugin_id_t callerID, transmission_mode_t transmissionMode) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		switch(transmissionMode) {
 			case TM_CONTINOUS:
 				g.s.atTransmit = Settings::AudioTransmit::Continuous;
@@ -318,8 +344,10 @@ namespace API {
 		return STATUS_OK;
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION requestUserMove_v_1_0_x(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID,
+	mumble_error_t PLUGIN_CALLING_CONVENTION requestUserMove_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID,
 			const char *password) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -350,13 +378,17 @@ namespace API {
 		return STATUS_OK;
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION requestMicrophoneActivationOverwrite_v_1_0_x(bool activate) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION requestMicrophoneActivationOverwrite_v_1_0_x(plugin_id_t callerID, bool activate) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		PluginData::get().overwriteMicrophoneActivation.store(activate);
 
 		return STATUS_OK;
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION findUserByName_v_1_0_x(mumble_connection_t connection, const char *userName, mumble_userid_t *userID) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION findUserByName_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, const char *userName, mumble_userid_t *userID) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -380,7 +412,9 @@ namespace API {
 		return EC_USER_NOT_FOUND;
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION findChannelByName_v_1_0_x(mumble_connection_t connection, const char *channelName, mumble_channelid_t *channelID) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION findChannelByName_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, const char *channelName, mumble_channelid_t *channelID) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -404,8 +438,10 @@ namespace API {
 		return EC_CHANNEL_NOT_FOUND;
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION sendData_v_1_0_x(mumble_connection_t connection, mumble_userid_t *users, size_t userCount, const char *data,
+	mumble_error_t PLUGIN_CALLING_CONVENTION sendData_v_1_0_x(plugin_id_t callerID, mumble_connection_t connection, mumble_userid_t *users, size_t userCount, const char *data,
 		size_t dataLength, const char *dataID) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		// Right now there can only be one connection managed by the current ServerHandler
 		if (!g.sh || g.sh->getConnectionID() != connection) {
 			return EC_CONNECTION_NOT_FOUND;
@@ -430,10 +466,16 @@ namespace API {
 		}
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION log_v_1_0_x(const char *prefix, const char *message) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION log_v_1_0_x(plugin_id_t callerID, const char *message) {
+		// We verify the plugin manually
+		const_plugin_ptr_t plugin = g.pluginManager->getPlugin(callerID);
+		if (!plugin) {
+			return EC_INVALID_PLUGIN_ID;
+		}
+
 		if (g.l) {
 			g.l->log(Log::PluginMessage,
-				QString::fromUtf8("<b>%1:</b> %2").arg(QString::fromUtf8(prefix).toHtmlEscaped()).arg(QString::fromUtf8(message).toHtmlEscaped())
+				QString::fromUtf8("<b>%1:</b> %2").arg(plugin->getName().toHtmlEscaped()).arg(QString::fromUtf8(message).toHtmlEscaped())
 			);
 
 			return STATUS_OK;
@@ -442,7 +484,9 @@ namespace API {
 		}
 	}
 
-	mumble_error_t PLUGIN_CALLING_CONVENTION playSample_v_1_0_x(const char *samplePath) {
+	mumble_error_t PLUGIN_CALLING_CONVENTION playSample_v_1_0_x(plugin_id_t callerID, const char *samplePath) {
+		VERIFY_PLUGIN_ID(callerID);
+
 		if (!g.ao) {
 			return EC_AUDIO_NOT_AVAILABLE;
 		}

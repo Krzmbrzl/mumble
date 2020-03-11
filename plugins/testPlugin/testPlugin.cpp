@@ -36,6 +36,7 @@ std::ostream& operator<<(std::ostream& stream, const version_t version) {
 
 MumbleAPI mumAPI;
 mumble_connection_t activeConnection;
+plugin_id_t ownID;
 
 //////////////////////////////////////////////////////////////
 //////////////////// OBLIGATORY FUNCTIONS ////////////////////
@@ -54,7 +55,7 @@ mumble_error_t init() {
 void shutdown() {
 	pluginLog("Shutdown plugin");
 
-	mumAPI.log("testPlugin", "Shutdown");
+	mumAPI.log(ownID, "Shutdown");
 }
 
 const char* getName() {
@@ -78,7 +79,7 @@ void registerAPIFunctions(MumbleAPI api) {
 
 	pluginLog("Registered Mumble's API functions");
 
-	mumAPI.log("testPlugin", "Received API functions");
+	mumAPI.log(ownID, "Received API functions");
 }
 
 
@@ -113,10 +114,12 @@ const char* getDescription() {
 	return "This plugin is merely a reference implementation without any real functionality. It shouldn't be included in the release build of Mumble";
 }
 
-void registerPluginID(uint32_t id) {
+void registerPluginID(plugin_id_t id) {
 	// This ID serves as an identifier for this plugin as far as Mumble is concerned
 	// It might be a good idea to store it somewhere for later use
 	pLog() << "Registered ID: " << id << std::endl;
+
+	ownID = id;
 }
 
 uint32_t getFeatures() {
@@ -190,7 +193,7 @@ void onServerSynchronized(mumble_connection_t connection) {
 	size_t userCount;
 	mumble_userid_t *userIDs;
 
-	if (mumAPI.getAllUsers(activeConnection, &userIDs, &userCount) != STATUS_OK) {
+	if (mumAPI.getAllUsers(ownID, activeConnection, &userIDs, &userCount) != STATUS_OK) {
 		pluginLog("[ERROR]: Can't obtain user list");
 		return;
 	}
@@ -199,22 +202,22 @@ void onServerSynchronized(mumble_connection_t connection) {
 
 	for(size_t i=0; i<userCount; i++) {
 		char *userName;
-		mumAPI.getUserName(connection, userIDs[i], &userName);
+		mumAPI.getUserName(ownID, connection, userIDs[i], &userName);
 		
 		pLog() << "\t" << userName << std::endl;
 
-		mumAPI.freeMemory(userName);
+		mumAPI.freeMemory(ownID, userName);
 	}
 
-	mumAPI.freeMemory(userIDs);
+	mumAPI.freeMemory(ownID, userIDs);
 
 	mumble_userid_t localUser;
-	if (mumAPI.getLocalUserID(activeConnection, &localUser) != STATUS_OK) {
+	if (mumAPI.getLocalUserID(ownID, activeConnection, &localUser) != STATUS_OK) {
 		pluginLog("Failed to retrieve local user ID");
 		return;
 	}
 
-	if (mumAPI.sendData(activeConnection, &localUser, 1, "Just a test", 12, "testMsg") == STATUS_OK) {
+	if (mumAPI.sendData(ownID, activeConnection, &localUser, 1, "Just a test", 12, "testMsg") == STATUS_OK) {
 		pluginLog("Successfully sent plugin message");
 	} else {
 		pluginLog("Failed at sending message");
