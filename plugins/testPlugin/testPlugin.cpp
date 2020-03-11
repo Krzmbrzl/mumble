@@ -333,8 +333,8 @@ void onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channel
 }
 
 bool hasUpdate() {
-	// Just fake always having an updated version available
-	return true;
+	// This plugin never has an update
+	return false;
 }
 
 bool getUpdateDownloadURL(char *buffer, uint16_t bufferSize, uint16_t offset) {
