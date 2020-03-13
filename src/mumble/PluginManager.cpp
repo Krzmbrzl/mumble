@@ -449,6 +449,13 @@ bool PluginManager::loadPlugin(plugin_id_t pluginID) const {
 	plugin_ptr_t plugin = pluginHashMap.value(pluginID);
 
 	if (plugin) {
+		if (plugin->isLoaded()) {
+			// Don't attempt to load a plugin if it already is loaded.
+			// This can happen if the user clicks the apply button in the settings
+			// before hitting ok.
+			return true;
+		}
+
 		if (plugin->init() == STATUS_OK) {
 			try {
 				MumbleAPI api = API::getMumbleAPI(plugin->getAPIVersion());
@@ -478,7 +485,11 @@ void PluginManager::unloadPlugin(plugin_id_t pluginID) const {
 	plugin_ptr_t plugin = pluginHashMap.value(pluginID);
 
 	if (plugin) {
-		plugin->shutdown();
+		if (plugin->isLoaded()) {
+			// // Only shut down laoded plugins
+			// Only shut down laoded plugins
+			plugin->shutdown();
+		}
 	}
 }
 
