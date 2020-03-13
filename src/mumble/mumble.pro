@@ -317,7 +317,6 @@ CONFIG(static) {
 
 	FORMS *= PluginInstaller.ui
 } else {
-	message("Some test")
 	DEFINES *= NO_PLUGIN_INSTALLER
 }
 
