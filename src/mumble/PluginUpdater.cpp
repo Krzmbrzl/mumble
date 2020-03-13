@@ -5,8 +5,10 @@
 
 #include "PluginUpdater.h"
 #include "PluginManager.h"
-#include "PluginInstaller.h"
 #include "Log.h"
+#ifndef NO_PLUGIN_INSTALLER
+	#include "PluginInstaller.h"
+#endif
 
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QLabel>
@@ -324,6 +326,7 @@ void PluginUpdater::on_updateDownloaded(QNetworkReply *reply) {
 			file.write(content);
 			file.close();
 
+#ifndef NO_PLUGIN_INSTALLER
 			try {
 				// Launch installer
 				PluginInstaller installer(file.fileName());
@@ -336,6 +339,9 @@ void PluginUpdater::on_updateDownloaded(QNetworkReply *reply) {
 			} catch (const PluginInstallException &e) {
 				qWarning() << qUtf8Printable(e.getMessage());
 			}
+#else
+			Log::logOrDefer(Log::Information, QObject::tr("Downloaded update for plugin %1 to \"%2\"").arg(plugin->getName()).arg(file.fileName()));
+#endif
 
 			{
 				QMutexLocker l(&m_dataMutex);
