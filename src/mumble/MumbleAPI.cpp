@@ -473,15 +473,11 @@ namespace API {
 			return EC_INVALID_PLUGIN_ID;
 		}
 
-		if (g.l) {
-			g.l->log(Log::PluginMessage,
-				QString::fromUtf8("<b>%1:</b> %2").arg(plugin->getName().toHtmlEscaped()).arg(QString::fromUtf8(message).toHtmlEscaped())
-			);
+		Log::logOrDefer(Log::PluginMessage,
+			QString::fromUtf8("<b>%1:</b> %2").arg(plugin->getName().toHtmlEscaped()).arg(QString::fromUtf8(message).toHtmlEscaped())
+		);
 
-			return STATUS_OK;
-		} else {
-			return EC_LOGGER_NOT_AVAILABLE;
-		}
+		return STATUS_OK;
 	}
 
 	mumble_error_t PLUGIN_CALLING_CONVENTION playSample_v_1_0_x(plugin_id_t callerID, const char *samplePath) {
