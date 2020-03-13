@@ -18,6 +18,7 @@
 #include <QtCore/QChar>
 #include <QtCore/QMutexLocker>
 #include <QtCore/QTimer>
+#include <QtCore/QHashIterator>
 
 #include "ManualPlugin.h"
 #include "Log.h"
@@ -104,7 +105,26 @@ void reportLostLink(const QString& pluginName) {
 		g.l->log(Log::Information, QString::fromUtf8("%1 lost link").arg(pluginName.toHtmlEscaped()));
 }
 
+void PluginManager::unloadPlugins() const {
+	QReadLocker lock(&this->pluginCollectionLock);
+
+	QHashIterator<plugin_id_t, plugin_ptr_t> it(this->pluginHashMap);
+
+	while (it.hasNext()) {
+		it.next();
+		unloadPlugin(it.key());
+	}
+}
+
 void PluginManager::clearPlugins() {
+	// Unload plugins so that they aren't implicitly unloaded once they go out of scope after having been
+	// removed from the pluginHashMap.
+	// This could lead to one of the plugins making an API call in its shutdown function which then would try
+	// to verify the plugin's ID. For that it'll ask this PluginManager for a plugin with that ID. To check
+	// that it will have to aquire a read-lock for the pluginHashMap which is impossible after we aquire the
+	// write-lock in this function leading to a deadlock.
+	unloadPlugins();
+
 	QWriteLocker lock(&this->pluginCollectionLock);
 
 	// Clear the list itself
@@ -171,10 +191,10 @@ bool PluginManager::selectActivePositionalDataPlugin() {
 #define LOG_FOUND_LEGACY_PLUGIN(plugin, path) LOG_FOUND(plugin, path, "legacy ")
 #define LOG_FOUND_BUILTIN(plugin) LOG_FOUND(plugin, QString::fromUtf8("<builtin>"), "built-in ")
 void PluginManager::rescanPlugins() {
+	clearPlugins();
+
 	{
 		QWriteLocker lock(&this->pluginCollectionLock);
-
-		this->clearPlugins();
 
 		QDir sysDir(systemPluginsPath);
 		QDir userDir(userPluginsPath);

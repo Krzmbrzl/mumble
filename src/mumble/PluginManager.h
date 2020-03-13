@@ -112,6 +112,8 @@ class PluginManager : public QObject {
 		PluginUpdater m_updater;
 
 
+		/// Unloads all plugins that are currently loaded.
+		void unloadPlugins() const;
 		/// Clears the current list of plugins
 		void clearPlugins();
 		/// Iterates over the plugins and tries to select a plugin that currently claims to be able to deliver positional data. If
