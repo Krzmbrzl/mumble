@@ -111,7 +111,10 @@ class PluginManager : public QObject {
 		/// The PluginUpdater used to handle plugin updates.
 		PluginUpdater m_updater;
 
-
+		// We override the QObject::eventFilter function in order to be able to install the pluginManager as an event filter
+		// to the main application in order to get notified about keystrokes.
+		bool eventFilter(QObject *target, QEvent *event) Q_DECL_OVERRIDE;
+		
 		/// Unloads all plugins that are currently loaded.
 		void unloadPlugins() const;
 		/// Clears the current list of plugins
@@ -260,6 +263,15 @@ class PluginManager : public QObject {
 
 		/// Slot called if there are plugin updates available
 		void on_updatesAvailable();
+
+	signals:
+		/// A signal emitted if the PluginManager (acting as an event filter) detected
+		/// a QKeyEvent.
+		///
+		/// @param key The code of the affected key
+		/// @param modifiers The modifiers that were active in the moment of the event
+		/// @param isPress True if the key has been pressed, false if it has been released
+		void keyEvent(int key, Qt::KeyboardModifiers modifiers, bool isPress);
 };
 
 #endif

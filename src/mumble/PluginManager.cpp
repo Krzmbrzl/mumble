@@ -87,6 +87,12 @@ PluginManager::PluginManager(QString sysPath, QString userPath, QObject *p)
 	serverSyncTimer->start(500);
 
 	QObject::connect(&m_updater, &PluginUpdater::updatesAvailable, this, &PluginManager::on_updatesAvailable);
+
+	// Install this manager as a global eventFilter in order to get notified about all keypresses
+	if (QCoreApplication::instance()) {
+		qDebug() << "Installing event filter";
+		QCoreApplication::instance()->installEventFilter(this);
+	}
 }
 
 PluginManager::~PluginManager() {
@@ -103,6 +109,37 @@ PluginManager::~PluginManager() {
 /// @param pluginName The name of the plugin that lost link
 void reportLostLink(const QString& pluginName) {
 		g.l->log(Log::Information, QString::fromUtf8("%1 lost link").arg(pluginName.toHtmlEscaped()));
+}
+
+bool PluginManager::eventFilter(QObject *target, QEvent *event) {
+	if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+		static QVector<QKeyEvent*> processedEvents;
+
+		QKeyEvent *kEvent = static_cast<QKeyEvent *>(event);
+
+		// We have to keep track of which events we have processed already as
+		// the same event might be sent to multiple targets and since this is
+		// installed as a global event filter, we get notified about each of
+		// them. However we only want to process each event only once.
+		if (!kEvent->isAutoRepeat() && !processedEvents.contains(kEvent)) {
+			// Fire event
+			emit keyEvent(kEvent->key(), kEvent->modifiers(), kEvent->type() == QEvent::KeyPress);
+
+			processedEvents << kEvent;
+
+			if (processedEvents.size() == 1) {
+				// Make sure to clear the list of processed events after each iteration
+				// of the event loop (we don't want to let the vector grow to infinity
+				// over time. Firing the timer only when the size of processedEvents is
+				// exactly 1, we avoid adding multiple timers in a single iteration.
+				QTimer::singleShot(0, []() { processedEvents.clear(); });
+			}
+		}
+
+	}
+
+	// standard event processing
+	return QObject::eventFilter(target, event);
 }
 
 void PluginManager::unloadPlugins() const {
