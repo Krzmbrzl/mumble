@@ -533,6 +533,136 @@ namespace API {
 				+ std::to_string(apiVersion.minor) + ".x");
 	}
 
+#define MAP(qtName, apiName) case Qt::Key_##qtName: return KC_##apiName
+
+	keycode_t qtKeyCodeToAPIKeyCode(unsigned int keyCode) {
+		switch (keyCode) {
+			MAP(Escape, ESCAPE);
+			MAP(Tab, TAB);
+			MAP(Backspace, BACKSPACE);
+			case Qt::Key_Return:
+				// Fallthrough
+			case Qt::Key_Enter:
+				return KC_ENTER;
+			MAP(Delete, DELETE);
+			MAP(Print, PRINT);
+			MAP(Home, HOME);
+			MAP(End, END);
+			MAP(Up, UP);
+			MAP(Down, DOWN);
+			MAP(Left, LEFT);
+			MAP(Right, RIGHT);
+			MAP(PageUp, PAGE_UP);
+			MAP(PageDown, PAGE_DOWN);
+			MAP(Shift, SHIFT);
+			MAP(Control, CONTROL);
+			MAP(Meta, META);
+			MAP(Alt, ALT);
+			MAP(AltGr, ALT_GR);
+			MAP(CapsLock, CAPSLOCK);
+			MAP(NumLock, NUMLOCK);
+			MAP(ScrollLock, SCROLLLOCK);
+			MAP(F1, F1);
+			MAP(F2, F2);
+			MAP(F3, F3);
+			MAP(F4, F4);
+			MAP(F5, F5);
+			MAP(F6, F6);
+			MAP(F7, F7);
+			MAP(F8, F8);
+			MAP(F9, F9);
+			MAP(F10, F10);
+			MAP(F11, F11);
+			MAP(F12, F12);
+			MAP(F13, F13);
+			MAP(F14, F14);
+			MAP(F15, F15);
+			MAP(F16, F16);
+			MAP(F17, F17);
+			MAP(F18, F18);
+			MAP(F19, F19);
+			case Qt::Key_Super_L:
+				// Fallthrough
+			case Qt::Key_Super_R:
+				return KC_SUPER;
+			MAP(Space, SPACE);
+			MAP(Exclam, EXCLAMATION_MARK);
+			MAP(QuoteDbl, DOUBLE_QUOTE);
+			MAP(NumberSign, HASHTAG);
+			MAP(Dollar, DOLLAR);
+			MAP(Percent, PERCENT);
+			MAP(Ampersand, AMPERSAND);
+			MAP(Apostrophe, SINGLE_QUOTE);
+			MAP(ParenLeft, OPEN_PARENTHESIS);
+			MAP(ParenRight, CLOSE_PARENTHESIS);
+			MAP(Asterisk, ASTERISK);
+			MAP(Plus, PLUS);
+			MAP(Comma, COMMA);
+			MAP(Minus, MINUS);
+			MAP(Period, PERIOD);
+			MAP(Slash, SLASH);
+			MAP(0, 0);
+			MAP(1, 1);
+			MAP(2, 2);
+			MAP(3, 3);
+			MAP(4, 4);
+			MAP(5, 5);
+			MAP(6, 6);
+			MAP(7, 7);
+			MAP(8, 8);
+			MAP(9, 9);
+			MAP(Colon, COLON);
+			MAP(Semicolon, SEMICOLON);
+			MAP(Less, LESS_THAN);
+			MAP(Equal, EQUALS);
+			MAP(Greater, GREATER_THAN);
+			MAP(Question, QUESTION_MARK);
+			MAP(At, AT_SYMBOL);
+			MAP(A, A);
+			MAP(B, B);
+			MAP(C, C);
+			MAP(D, D);
+			MAP(E, E);
+			MAP(F, F);
+			MAP(G, G);
+			MAP(H, H);
+			MAP(I, I);
+			MAP(J, J);
+			MAP(K, K);
+			MAP(L, L);
+			MAP(M, M);
+			MAP(N, N);
+			MAP(O, O);
+			MAP(P, P);
+			MAP(Q, Q);
+			MAP(R, R);
+			MAP(S, S);
+			MAP(T, T);
+			MAP(U, U);
+			MAP(V, V);
+			MAP(W, W);
+			MAP(X, X);
+			MAP(Y, Y);
+			MAP(Z, Z);
+			MAP(BracketLeft, OPEN_BRACKET);
+			MAP(BracketRight, CLOSE_BRACKET);
+			MAP(Backslash, BACKSLASH);
+			MAP(AsciiCircum, CIRCUMFLEX);
+			MAP(Underscore, UNDERSCORE);
+			MAP(BraceLeft, OPEN_BRACE);
+			MAP(BraceRight, CLOSE_BRACE);
+			MAP(Bar, VERTICAL_BAR);
+			MAP(AsciiTilde, TILDE);
+			MAP(degree, DEGREE_SIGN);
+
+
+			default:
+				return KC_INVALID;
+		}
+	}
+
+#undef MAP
+
 
 	// Implementation of PluginData
 	PluginData::PluginData() : overwriteMicrophoneActivation(false) {

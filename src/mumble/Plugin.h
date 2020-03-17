@@ -59,6 +59,7 @@ struct PluginAPIFunctions {
 		void          (PLUGIN_CALLING_CONVENTION *onChannelAdded)(mumble_connection_t connection, mumble_channelid_t channelID);
 		void          (PLUGIN_CALLING_CONVENTION *onChannelRemoved)(mumble_connection_t connection, mumble_channelid_t channelID);
 		void          (PLUGIN_CALLING_CONVENTION *onChannelRenamed)(mumble_connection_t connection, mumble_channelid_t channelID);
+		void          (PLUGIN_CALLING_CONVENTION *onKeyEvent)(uint32_t keyCode, bool wasPress);
 
 		// Plugin updates
 		bool          (PLUGIN_CALLING_CONVENTION *hasUpdate)();
@@ -363,6 +364,14 @@ class Plugin : public QObject {
 		/// @param connection An object used to identify the current connection
 		/// @param channelID The ID of the channel that has been renamed
 		virtual void onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID);
+		/// Called when a key has been pressed or released while Mumble has keyboard focus.
+		///
+		/// @param keyCode The key code of the respective key. The character codes are defined
+		/// 	via the KeyCode enum. For printable 7-bit ASCII characters these codes conform
+		/// 	to the ASCII code-page with the only difference that case is not distinguished. Therefore
+		/// 	always the upper-case letter code will be used for letters.
+		/// @param wasPress Whether the key has been pressed (instead of released)
+		virtual void onKeyEvent(keycode_t keyCode, bool wasPress);
 		/// @return Whether the plugin has found a new/updated version of itself available for download
 		virtual bool hasUpdate() const;
 		/// @return The URL to download the updated plugin. May be empty
