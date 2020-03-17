@@ -330,6 +330,8 @@ void PluginManager::rescanPlugins() {
 				// additionally to telling the plugin library that the feature shall be deactivated
 				plugin->enablePositionalData(setting.positionalDataEnabled);
 
+				plugin->allowKeyboardMonitoring(setting.allowKeyboardMonitoring);
+
 				break;
 			}
 
@@ -543,6 +545,16 @@ uint32_t  PluginManager::deactivateFeaturesFor(plugin_id_t pluginID, uint32_t fe
 	}
 
 	return FEATURE_NONE;
+}
+
+void PluginManager::allowKeyboardMonitoringFor(plugin_id_t pluginID, bool allow) const {
+	QReadLocker lock(&this->pluginCollectionLock);
+
+	plugin_ptr_t plugin = pluginHashMap.value(pluginID);
+
+	if (plugin) {
+		return plugin->allowKeyboardMonitoring(allow);
+	}
 }
 
 bool PluginManager::pluginExists(plugin_id_t pluginID) const {
