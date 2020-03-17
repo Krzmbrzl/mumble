@@ -583,6 +583,7 @@ int main(int argc, char **argv) {
 		// snapshot build
 		new VersionCheck(false, g.mw, true);
 #endif
+	}
 
 	if (g.s.bPluginCheck) {
 		g.pluginManager->checkForPluginUpdates();
