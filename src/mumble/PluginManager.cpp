@@ -86,13 +86,14 @@ PluginManager::PluginManager(QString sysPath, QString userPath, QObject *p)
 	QObject::connect(serverSyncTimer, &QTimer::timeout, this, &PluginManager::on_syncPositionalData);
 	serverSyncTimer->start(500);
 
-	QObject::connect(&m_updater, &PluginUpdater::updatesAvailable, this, &PluginManager::on_updatesAvailable);
-
 	// Install this manager as a global eventFilter in order to get notified about all keypresses
 	if (QCoreApplication::instance()) {
 		qDebug() << "Installing event filter";
 		QCoreApplication::instance()->installEventFilter(this);
 	}
+
+	QObject::connect(&m_updater, &PluginUpdater::updatesAvailable, this, &PluginManager::on_updatesAvailable);
+	QObject::connect(this, &PluginManager::keyEvent, this, &PluginManager::on_keyEvent);
 }
 
 PluginManager::~PluginManager() {
@@ -817,6 +818,24 @@ void PluginManager::on_channelRenamed(int channelID) const {
 	});
 }
 
+void PluginManager::on_keyEvent(unsigned int key, Qt::KeyboardModifiers modifiers, bool isPress) const {
+#ifdef MUMBLE_PLUGIN_DEBUG
+	qDebug() << "PluginManager: Key event detected: keyCode =" << key << "modifiers:"
+		<< modifiers << "isPress =" << isPress;
+#else
+	Q_UNUSED(modifiers);
+#endif
+
+	// Convert from Qt encoding to our own encoding
+	keycode_t keyCode = API::qtKeyCodeToAPIKeyCode(key);
+
+	foreachPlugin([keyCode, isPress](Plugin &plugin) {
+		if (plugin.isLoaded()) {
+			plugin.onKeyEvent(keyCode, isPress);
+		}
+	});
+}
+
 void PluginManager::on_syncPositionalData() {
 	// fetch positional data
 	if (this->fetchPositionalData()) {
@@ -856,8 +875,6 @@ void PluginManager::on_syncPositionalData() {
 }
 
 void PluginManager::on_updatesAvailable() {
-	qDebug() << "Updates available";
-
 	if (g.s.bPluginAutoUpdate) {
 		m_updater.update();
 	} else {

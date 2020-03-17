@@ -335,6 +335,10 @@ void onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channel
 	pLog() << "Renamed channel with ID " << channelID << " (ServerConnection: " << connection << ")" << std::endl;
 }
 
+void onKeyEvent(uint32_t keyCode, bool wasPress) {
+	pLog() << "Encountered key " << (wasPress ? "press" : "release") << " of key with code " << keyCode << std::endl;
+}
+
 bool hasUpdate() {
 	// This plugin never has an update
 	return false;

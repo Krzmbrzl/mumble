@@ -257,10 +257,16 @@ class PluginManager : public QObject {
 		///
 		/// @param channelID The ID of the renamed channel
 		void on_channelRenamed(int channelID) const;
+		/// Slot that gets called when a key has been pressed or released while Mumble has keyboard focus.
+		///
+		/// @param key The code of the affected key (as encoded by Qt::Key)
+		/// @param modifiers The modifiers that were active in the moment of the event
+		/// @param isPress True if the key has been pressed, false if it has been released
+		void on_keyEvent(unsigned int key, Qt::KeyboardModifiers modifiers, bool isPress) const;
+
 		/// Slot that gets called whenever the positional data should be synchronized with the server. Before it does that, it tries to
 		/// fetch new data.
 		void on_syncPositionalData();
-
 		/// Slot called if there are plugin updates available
 		void on_updatesAvailable();
 
@@ -268,10 +274,10 @@ class PluginManager : public QObject {
 		/// A signal emitted if the PluginManager (acting as an event filter) detected
 		/// a QKeyEvent.
 		///
-		/// @param key The code of the affected key
+		/// @param key The code of the affected key (as encoded by Qt::Key)
 		/// @param modifiers The modifiers that were active in the moment of the event
 		/// @param isPress True if the key has been pressed, false if it has been released
-		void keyEvent(int key, Qt::KeyboardModifiers modifiers, bool isPress);
+		void keyEvent(unsigned int key, Qt::KeyboardModifiers modifiers, bool isPress);
 };
 
 #endif

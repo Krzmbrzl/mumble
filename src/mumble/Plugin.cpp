@@ -118,6 +118,7 @@ void Plugin::resolveFunctionPointers() {
 		this->apiFnc.onChannelAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelAdded"));
 		this->apiFnc.onChannelRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelRemoved"));
 		this->apiFnc.onChannelRenamed = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelRenamed"));
+		this->apiFnc.onKeyEvent = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(uint32_t, bool)>(lib.resolve("onKeyEvent"));
 		this->apiFnc.hasUpdate = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("hasUpdate"));
 		this->apiFnc.getUpdateDownloadURL = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(char*, uint16_t, uint16_t)>(lib.resolve("getUpdateDownloadURL"));
 
@@ -572,6 +573,16 @@ void Plugin::onChannelRenamed(mumble_connection_t connection, mumble_channelid_t
 
 	if (this->apiFnc.onChannelRenamed) {
 		this->apiFnc.onChannelRenamed(connection, channelID);
+	}
+}
+
+void Plugin::onKeyEvent(keycode_t keyCode, bool wasPress) {
+	PluginReadLocker lock(&this->pluginLock);
+
+	assertPluginLoaded(this);
+
+	if (this->apiFnc.onKeyEvent) {
+		this->apiFnc.onKeyEvent(keyCode, wasPress);
 	}
 }
 

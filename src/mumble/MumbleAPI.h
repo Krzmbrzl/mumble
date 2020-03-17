@@ -18,6 +18,12 @@ namespace API {
 	/// @throws std::invalid_argument if there is no set of API functions for the requested API version
 	MumbleAPI getMumbleAPI(const version_t& apiVersion);
 
+	/// Converts from the Qt key-encoding to the API's key encoding.
+	///
+	/// @param keyCode The Qt key-code that shall be converted
+	/// @returns The converted key code or KC_INVALID if conversion failed
+	keycode_t qtKeyCodeToAPIKeyCode(unsigned int keyCode);
+
 	/// A class holding non-permanent data set by plugins. Non-permanent means that this data
 	/// will not be stored between restarts.
 	/// All member field should be atomic in order to be thread-safe
