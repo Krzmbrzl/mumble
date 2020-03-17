@@ -27,8 +27,17 @@ void assertPluginLoaded(const Plugin* plugin) {
 #endif
 }
 
-Plugin::Plugin(QString path, bool isBuiltIn, QObject *p) : QObject(p), lib(path), pluginPath(path), pluginIsLoaded(false), pluginLock(QReadWriteLock::Recursive),
-	apiFnc(), isBuiltIn(isBuiltIn), positionalDataIsEnabled(true), positionalDataIsActive(false) {
+Plugin::Plugin(QString path, bool isBuiltIn, QObject *p)
+	: QObject(p),
+	  lib(path),
+	  pluginPath(path),
+	  pluginIsLoaded(false),
+	  pluginLock(QReadWriteLock::Recursive),
+	  apiFnc(),
+	  isBuiltIn(isBuiltIn),
+	  positionalDataIsEnabled(true),
+	  positionalDataIsActive(false),
+	  mayMonitorKeyboard(false) {
 	// See if the plugin is loadable in the first place unless it is a built-in plugin
 	pluginIsValid = isBuiltIn || lib.load();
 
@@ -186,6 +195,18 @@ bool Plugin::isPositionalDataActive() const {
 	PluginReadLocker lock(&this->pluginLock);
 
 	return this->positionalDataIsActive;
+}
+
+void Plugin::allowKeyboardMonitoring(bool allow) {
+	QWriteLocker lock(&this->pluginLock);
+
+	this->mayMonitorKeyboard = allow;
+}
+
+bool Plugin::isKeyboardMonitoringAllowed() const {
+	PluginReadLocker lock(&this->pluginLock);
+
+	return this->mayMonitorKeyboard;
 }
 
 mumble_error_t Plugin::init() {
@@ -580,6 +601,11 @@ void Plugin::onKeyEvent(keycode_t keyCode, bool wasPress) {
 	PluginReadLocker lock(&this->pluginLock);
 
 	assertPluginLoaded(this);
+
+	if (!this->mayMonitorKeyboard) {
+		// Keyboard monitoring is forbiden for this plugin
+		return;
+	}
 
 	if (this->apiFnc.onKeyEvent) {
 		this->apiFnc.onKeyEvent(keyCode, wasPress);

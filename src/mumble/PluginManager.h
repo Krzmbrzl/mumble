@@ -177,6 +177,11 @@ class PluginManager : public QObject {
 		/// @param features The feature set that should be deactivated. The features are or'ed together.
 		/// @returns The feature set that could not be deactivated
 		uint32_t deactivateFeaturesFor(plugin_id_t pluginID, uint32_t features) const;
+		/// Allows or forbids the given plugin to monitor keyboard events.
+		///
+		/// @param pluginID The ID of the plugin to access
+		/// @param allow Whether to allow the monitoring or not
+		void allowKeyboardMonitoringFor(plugin_id_t pluginID, bool allow) const;
 		/// Checks whether a plugin with the given ID exists.
 		///
 		/// @param pluginID The ID to check

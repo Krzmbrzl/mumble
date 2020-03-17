@@ -1257,6 +1257,7 @@ void Settings::save() {
 QDataStream& operator>>(QDataStream &arch, PluginSetting &setting) {
 	arch >> setting.enabled;
 	arch >> setting.positionalDataEnabled;
+	arch >> setting.allowKeyboardMonitoring;
 
 	return arch;
 }
@@ -1264,6 +1265,7 @@ QDataStream& operator>>(QDataStream &arch, PluginSetting &setting) {
 QDataStream& operator<<(QDataStream &arch, const PluginSetting &setting) {
 	arch << setting.enabled;
 	arch << setting.positionalDataEnabled;
+	arch << setting.allowKeyboardMonitoring;
 
 	return arch;
 }

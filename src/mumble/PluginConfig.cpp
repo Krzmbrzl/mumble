@@ -52,6 +52,8 @@ PluginConfig::PluginConfig(Settings &st) : ConfigWidget(st) {
 
 	qtwPlugins->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 	qtwPlugins->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+	qtwPlugins->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+	qtwPlugins->header()->setSectionResizeMode(3, QHeaderView::ResizeToContents);
 
 	refillPluginList();
 }
@@ -86,11 +88,13 @@ void PluginConfig::save() const {
 	foreach(QTreeWidgetItem *i, list) {
 		bool enable = (i->checkState(1) == Qt::Checked);
 		bool positionalDataEnabled = (i->checkState(2) == Qt::Checked);
+		bool keyboardMonitoringEnabled = (i->checkState(3) == Qt::Checked);
 
 		const_plugin_ptr_t plugin = pluginForItem(i);
 		if (plugin) {
 			// insert plugin to settings
 			g.pluginManager->enablePositionalDataFor(plugin->getID(), positionalDataEnabled);
+			g.pluginManager->allowKeyboardMonitoringFor(plugin->getID(), keyboardMonitoringEnabled);
 
 			if (enable) {
 				if (g.pluginManager->loadPlugin(plugin->getID())) {
@@ -121,7 +125,7 @@ void PluginConfig::save() const {
 				g.pluginManager->unloadPlugin(plugin->getID());
 			}
 
-			s.qhPluginSettings.insert(plugin->getFilePath(), { enable, positionalDataEnabled });
+			s.qhPluginSettings.insert(plugin->getFilePath(), { enable, positionalDataEnabled, keyboardMonitoringEnabled });
 		}
 	}
 }
@@ -178,6 +182,9 @@ void PluginConfig::refillPluginList() {
 		} else {
 			i->setToolTip(2, QString::fromUtf8("This plugin does not provide support for positional audio"));
 		}
+
+		i->setCheckState(3, currentPlugin->isKeyboardMonitoringAllowed() ? Qt::Checked : Qt::Unchecked);
+		i->setToolTip(3, QObject::tr("Whether this plugin has the permission to be listening to all keyboard events that occur while Mumble has focus"));
 
 		i->setText(0, currentPlugin->getName());
 		i->setToolTip(0, currentPlugin->getDescription().toHtmlEscaped());

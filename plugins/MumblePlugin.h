@@ -290,6 +290,9 @@ extern "C" {
 	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID);
 
 	/// Called when a key has been pressed or released while Mumble has keyboard focus.
+	/// Note that this callback will only work if the user has explicitly given permission to monitor keyboard
+	/// events for this plugin. Thus if you want to use this callback, make sure your users know that they have to
+	/// enable that.
 	///
 	/// @param keyCode The key code of the respective key. The character codes are defined
 	/// 	via the KeyCode enum. For printable 7-bit ASCII characters these codes conform

@@ -143,6 +143,9 @@ class Plugin : public QObject {
 		bool positionalDataIsEnabled;
 		/// A flag indicating whether positional data gathering is currently active (Active as in running)
 		bool positionalDataIsActive;
+		/// A flag indicating whether this plugin has permission to monitor keyboard events that occur while
+		/// Mumble has the keyboard focus.
+		bool mayMonitorKeyboard;
 
 		/// Initializes this plugin. This function must be called directly after construction. This is guaranteed when the
 		/// plugin is created via Plugin::createNew
@@ -172,6 +175,12 @@ class Plugin : public QObject {
 		virtual void enablePositionalData(bool enable = true);
 		/// @returns Whether positional data gathering is currently active (as in running)
 		virtual bool isPositionalDataActive() const Q_DECL_FINAL;
+		/// Allows or forbids the monitoring of keyboard events for this plugin.
+		///
+		/// @param allow Whether to allow or forbid it
+		virtual void allowKeyboardMonitoring(bool allow);
+		/// @returns Whether this plugin is currently allowed to monitor keyboard events
+		virtual bool isKeyboardMonitoringAllowed() const Q_DECL_FINAL;
 
 		/// A template function for instantiating new plugin objects and initializing them. The plugin will be allocated on the heap and has
 		/// thus to be deleted via the delete instruction.
