@@ -20,6 +20,8 @@
 #include <QtCore/QTimer>
 #include <QtCore/QHashIterator>
 
+#include <QtGui/QKeyEvent>
+
 #include "ManualPlugin.h"
 #include "Log.h"
 #include "ProcessResolver.h"
