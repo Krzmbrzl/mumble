@@ -282,7 +282,7 @@ version_t Plugin::getAPIVersion() const {
 	}
 }
 
-void Plugin::registerAPIFunctions(MumbleAPI api) {
+void Plugin::registerAPIFunctions(MumbleAPI api) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -292,7 +292,7 @@ void Plugin::registerAPIFunctions(MumbleAPI api) {
 	}
 }
 
-void Plugin::setMumbleInfo(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion) {
+void Plugin::setMumbleInfo(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	if (m_apiFnc.setMumbleInfo) {
@@ -330,7 +330,7 @@ QString Plugin::getDescription() const {
 	}
 }
 
-void Plugin::registerPluginID() {
+void Plugin::registerPluginID() const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -350,7 +350,7 @@ uint32_t Plugin::getFeatures() const {
 	}
 }
 
-uint32_t Plugin::deactivateFeatures(uint32_t features) {
+uint32_t Plugin::deactivateFeatures(uint32_t features) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -395,7 +395,7 @@ uint8_t Plugin::initPositionalData(const char **programNames, const uint64_t *pr
 }
 
 bool Plugin::fetchPositionalData(Position3D& avatarPos, Vector3D& avatarDir, Vector3D& avatarAxis, Position3D& cameraPos, Vector3D& cameraDir,
-		Vector3D& cameraAxis, QString& context, QString& identity) {
+		Vector3D& cameraAxis, QString& context, QString& identity) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -438,7 +438,7 @@ void Plugin::shutdownPositionalData() {
 	}
 }
 
-void Plugin::onServerConnected(mumble_connection_t connection) {
+void Plugin::onServerConnected(mumble_connection_t connection) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -448,7 +448,7 @@ void Plugin::onServerConnected(mumble_connection_t connection) {
 	}
 }
 
-void Plugin::onServerDisconnected(mumble_connection_t connection) {
+void Plugin::onServerDisconnected(mumble_connection_t connection) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -459,7 +459,7 @@ void Plugin::onServerDisconnected(mumble_connection_t connection) {
 }
 
 void Plugin::onChannelEntered(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t previousChannelID,
-		mumble_channelid_t newChannelID) {
+		mumble_channelid_t newChannelID) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -469,7 +469,7 @@ void Plugin::onChannelEntered(mumble_connection_t connection, mumble_userid_t us
 	}
 }
 
-void Plugin::onChannelExited(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID) {
+void Plugin::onChannelExited(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -479,7 +479,7 @@ void Plugin::onChannelExited(mumble_connection_t connection, mumble_userid_t use
 	}
 }
 
-void Plugin::onUserTalkingStateChanged(mumble_connection_t connection, mumble_userid_t userID, talking_state_t talkingState) {
+void Plugin::onUserTalkingStateChanged(mumble_connection_t connection, mumble_userid_t userID, talking_state_t talkingState) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -489,7 +489,7 @@ void Plugin::onUserTalkingStateChanged(mumble_connection_t connection, mumble_us
 	}
 }
 
-bool Plugin::onReceiveData(mumble_connection_t connection, mumble_userid_t sender, const char *data, size_t dataLength, const char *dataID) {
+bool Plugin::onReceiveData(mumble_connection_t connection, mumble_userid_t sender, const char *data, size_t dataLength, const char *dataID) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -501,7 +501,7 @@ bool Plugin::onReceiveData(mumble_connection_t connection, mumble_userid_t sende
 	}
 }
 
-bool Plugin::onAudioInput(short *inputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech) {
+bool Plugin::onAudioInput(short *inputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -513,7 +513,7 @@ bool Plugin::onAudioInput(short *inputPCM, uint32_t sampleCount, uint16_t channe
 	}
 }
 
-bool Plugin::onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, mumble_userid_t userID) {
+bool Plugin::onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, mumble_userid_t userID) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -525,10 +525,10 @@ bool Plugin::onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16
 	}
 }
 
-bool Plugin::onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, uint16_t channelCount) {
-	assertPluginLoaded(this);
-
+bool Plugin::onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, uint16_t channelCount) const {
 	PluginReadLocker lock(&m_pluginLock);
+
+	assertPluginLoaded(this);
 
 	if (m_apiFnc.onAudioOutputAboutToPlay) {
 		return m_apiFnc.onAudioOutputAboutToPlay(outputPCM, sampleCount, channelCount);
@@ -537,7 +537,7 @@ bool Plugin::onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, ui
 	}
 }
 
-void Plugin::onServerSynchronized(mumble_connection_t connection) {
+void Plugin::onServerSynchronized(mumble_connection_t connection) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -547,7 +547,7 @@ void Plugin::onServerSynchronized(mumble_connection_t connection) {
 	}
 }
 
-void Plugin::onUserAdded(mumble_connection_t connection, mumble_userid_t userID) {
+void Plugin::onUserAdded(mumble_connection_t connection, mumble_userid_t userID) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -557,7 +557,7 @@ void Plugin::onUserAdded(mumble_connection_t connection, mumble_userid_t userID)
 	}
 }
 
-void Plugin::onUserRemoved(mumble_connection_t connection, mumble_userid_t userID) {
+void Plugin::onUserRemoved(mumble_connection_t connection, mumble_userid_t userID) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -567,7 +567,7 @@ void Plugin::onUserRemoved(mumble_connection_t connection, mumble_userid_t userI
 	}
 }
 
-void Plugin::onChannelAdded(mumble_connection_t connection, mumble_channelid_t channelID) {
+void Plugin::onChannelAdded(mumble_connection_t connection, mumble_channelid_t channelID) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -577,7 +577,7 @@ void Plugin::onChannelAdded(mumble_connection_t connection, mumble_channelid_t c
 	}
 }
 
-void Plugin::onChannelRemoved(mumble_connection_t connection, mumble_channelid_t channelID) {
+void Plugin::onChannelRemoved(mumble_connection_t connection, mumble_channelid_t channelID) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -587,7 +587,7 @@ void Plugin::onChannelRemoved(mumble_connection_t connection, mumble_channelid_t
 	}
 }
 
-void Plugin::onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID) {
+void Plugin::onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
@@ -597,7 +597,7 @@ void Plugin::onChannelRenamed(mumble_connection_t connection, mumble_channelid_t
 	}
 }
 
-void Plugin::onKeyEvent(keycode_t keyCode, bool wasPress) {
+void Plugin::onKeyEvent(keycode_t keyCode, bool wasPress) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);

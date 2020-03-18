@@ -213,7 +213,7 @@ uint8_t LegacyPlugin::initPositionalData(const char **programNames, const uint64
 }
 
 bool LegacyPlugin::fetchPositionalData(Position3D& avatarPos, Vector3D& avatarDir, Vector3D& avatarAxis, Position3D& cameraPos, Vector3D& cameraDir,
-		Vector3D& cameraAxis, QString& context, QString& identity) {
+		Vector3D& cameraAxis, QString& context, QString& identity) const {
 	PluginReadLocker lock(&m_pluginLock);
 
 	std::wstring identityWstr;
