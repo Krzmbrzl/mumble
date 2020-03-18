@@ -60,18 +60,18 @@ PluginManager::PluginManager(QString sysPath, QString userPath, QObject *p)
 #ifdef Q_OS_WIN
 	// According to MS KB Q131065, we need this to OpenProcess()
 
-	hToken = NULL;
+	m_hToken = nullptr;
 
-	if (!OpenThreadToken(GetCurrentThread(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, FALSE, &hToken)) {
+	if (!OpenThreadToken(GetCurrentThread(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, FALSE, &m_hToken)) {
 		if (GetLastError() == ERROR_NO_TOKEN) {
 			ImpersonateSelf(SecurityImpersonation);
-			OpenThreadToken(GetCurrentThread(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, FALSE, &hToken);
+			OpenThreadToken(GetCurrentThread(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, FALSE, &m_hToken);
 		}
 	}
 
 	TOKEN_PRIVILEGES tp;
 	LUID luid;
-	cbPrevious=sizeof(TOKEN_PRIVILEGES);
+	m_cbPrevious=sizeof(TOKEN_PRIVILEGES);
 
 	LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid);
 
@@ -79,7 +79,7 @@ PluginManager::PluginManager(QString sysPath, QString userPath, QObject *p)
 	tp.Privileges[0].Luid       = luid;
 	tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
-	AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), &tpPrevious, &cbPrevious);
+	AdjustTokenPrivileges(m_hToken, FALSE, &tp, sizeof(TOKEN_PRIVILEGES), &m_tpPrevious, &m_cbPrevious);
 #endif
 
 	// Synchronize the positional data in a regular interval
@@ -102,8 +102,8 @@ PluginManager::~PluginManager() {
 	clearPlugins();
 
 #ifdef Q_OS_WIN
-	AdjustTokenPrivileges(hToken, FALSE, &tpPrevious, cbPrevious, NULL, NULL);
-	CloseHandle(hToken);
+	AdjustTokenPrivileges(m_hToken, FALSE, &m_tpPrevious, m_cbPrevious, NULL, NULL);
+	CloseHandle(m_hToken);
 #endif
 }
 
