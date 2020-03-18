@@ -39,8 +39,8 @@ class Manual : public QDialog, public Ui::Manual {
 		void on_qleIdentity_editingFinished();
 		void on_buttonBox_clicked(QAbstractButton *);
 	protected:
-		QGraphicsScene *qgsScene;
-		QGraphicsItem *qgiPosition;
+		QGraphicsScene *m_qgsScene;
+		QGraphicsItem *m_qgiPosition;
 
 		bool eventFilter(QObject *, QEvent *);
 		void changeEvent(QEvent *e);

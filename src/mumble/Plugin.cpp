@@ -13,8 +13,8 @@
 
 
 // initialize the static ID counter
-plugin_id_t Plugin::nextID = 1;
-QMutex Plugin::idLock(QMutex::Recursive);
+plugin_id_t Plugin::s_nextID = 1;
+QMutex Plugin::s_idLock(QMutex::Recursive);
 
 void assertPluginLoaded(const Plugin* plugin) {
 	// don't throw and exception in release build
@@ -29,68 +29,68 @@ void assertPluginLoaded(const Plugin* plugin) {
 
 Plugin::Plugin(QString path, bool isBuiltIn, QObject *p)
 	: QObject(p),
-	  lib(path),
-	  pluginPath(path),
-	  pluginIsLoaded(false),
-	  pluginLock(QReadWriteLock::Recursive),
-	  apiFnc(),
-	  isBuiltIn(isBuiltIn),
-	  positionalDataIsEnabled(true),
-	  positionalDataIsActive(false),
-	  mayMonitorKeyboard(false) {
+	  m_lib(path),
+	  m_pluginPath(path),
+	  m_pluginIsLoaded(false),
+	  m_pluginLock(QReadWriteLock::Recursive),
+	  m_apiFnc(),
+	  m_isBuiltIn(isBuiltIn),
+	  m_positionalDataIsEnabled(true),
+	  m_positionalDataIsActive(false),
+	  m_mayMonitorKeyboard(false) {
 	// See if the plugin is loadable in the first place unless it is a built-in plugin
-	pluginIsValid = isBuiltIn || lib.load();
+	m_pluginIsValid = isBuiltIn || m_lib.load();
 
-	if (!pluginIsValid) {
+	if (!m_pluginIsValid) {
 		// throw an exception to indicate that the plugin isn't valid
 		throw PluginError("Unable to load the specified library");
 	}
 
 	// aquire id-lock in order to assign an ID to this plugin
-	QMutexLocker lock(&Plugin::idLock);
-	pluginID = Plugin::nextID;
-	Plugin::nextID++;
+	QMutexLocker lock(&Plugin::s_idLock);
+	m_pluginID = Plugin::s_nextID;
+	Plugin::s_nextID++;
 }
 
 Plugin::~Plugin() {
-	QWriteLocker lock(&this->pluginLock);
+	QWriteLocker lock(&m_pluginLock);
 
-	if (this->isLoaded()) {
-		this->shutdown();
+	if (isLoaded()) {
+		shutdown();
 	}
-	if (lib.isLoaded()) {
-		lib.unload();
+	if (m_lib.isLoaded()) {
+		m_lib.unload();
 	}
 }
 
 bool Plugin::doInitialize() {
-	this->resolveFunctionPointers();
+	resolveFunctionPointers();
 	
-	return pluginIsValid;
+	return m_pluginIsValid;
 }
 
 void Plugin::resolveFunctionPointers() {
-	QWriteLocker lock(&this->pluginLock);
+	QWriteLocker lock(&m_pluginLock);
 
-	if (this->isValid()) {
+	if (isValid()) {
 		// The corresponding library was loaded -> try to locate all API functions and provide defaults for
 		// the missing ones
 		
 		// resolve the mandatory functions first
-		this->apiFnc.init = reinterpret_cast<mumble_error_t (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("init"));
-		this->apiFnc.shutdown = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("shutdown"));
-		this->apiFnc.getName = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getName"));
-		this->apiFnc.getAPIVersion = reinterpret_cast<version_t (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getAPIVersion"));
-		this->apiFnc.registerAPIFunctions = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleAPI)>(lib.resolve("registerAPIFunctions"));
+		m_apiFnc.init = reinterpret_cast<mumble_error_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("init"));
+		m_apiFnc.shutdown = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("shutdown"));
+		m_apiFnc.getName = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getName"));
+		m_apiFnc.getAPIVersion = reinterpret_cast<version_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getAPIVersion"));
+		m_apiFnc.registerAPIFunctions = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleAPI)>(m_lib.resolve("registerAPIFunctions"));
 
 		// validate that all those functions are available in the loaded lib
-		pluginIsValid = this->apiFnc.init && this->apiFnc.shutdown && this->apiFnc.getName && this->apiFnc.getAPIVersion
-			&& this->apiFnc.registerAPIFunctions;
+		m_pluginIsValid = m_apiFnc.init && m_apiFnc.shutdown && m_apiFnc.getName && m_apiFnc.getAPIVersion
+			&& m_apiFnc.registerAPIFunctions;
 
-		if (!pluginIsValid) {
+		if (!m_pluginIsValid) {
 			// Don't bother trying to resolve any other functions
 #ifdef MUMBLE_PLUGIN_DEBUG
-#define CHECK_AND_LOG(name) if (!this->apiFnc.name) { qDebug("\t\"%s\" is missing the %s() function", qPrintable(pluginPath), #name); }
+#define CHECK_AND_LOG(name) if (!m_apiFnc.name) { qDebug("\t\"%s\" is missing the %s() function", qPrintable(pluginPath), #name); }
 			CHECK_AND_LOG(init);
 			CHECK_AND_LOG(shutdown);
 			CHECK_AND_LOG(getName);
@@ -102,46 +102,46 @@ void Plugin::resolveFunctionPointers() {
 		}
 
 		// The mandatory functions are there, now see if any optional functions are implemented as well
-		this->apiFnc.setMumbleInfo = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(version_t, version_t, version_t)>(lib.resolve("setMumbleInfo"));
-		this->apiFnc.getVersion = reinterpret_cast<version_t (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getVersion"));
-		this->apiFnc.getAuthor = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getAuthor"));
-		this->apiFnc.getDescription = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getDescription"));
-		this->apiFnc.registerPluginID = reinterpret_cast<void  (PLUGIN_CALLING_CONVENTION *)(uint32_t)>(lib.resolve("registerPluginID"));
-		this->apiFnc.getFeatures = reinterpret_cast<uint32_t (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("getFeatures"));
-		this->apiFnc.deactivateFeatures = reinterpret_cast<uint32_t (PLUGIN_CALLING_CONVENTION *)(uint32_t)>(lib.resolve("deactivateFeatures"));
-		this->apiFnc.initPositionalData = reinterpret_cast<uint8_t (PLUGIN_CALLING_CONVENTION *)(const char**, const uint64_t *, size_t)>(lib.resolve("initPositionalData"));
-		this->apiFnc.fetchPositionalData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, float*, float*, float*, float*, float*, const char**, const char**)>(lib.resolve("fetchPositionalData"));
-		this->apiFnc.shutdownPositionalData = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("shutdownPositionalData"));
-		this->apiFnc.onServerConnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(lib.resolve("onServerConnected"));
-		this->apiFnc.onServerDisconnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(lib.resolve("onServerDisconnected"));
-		this->apiFnc.onChannelEntered = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, mumble_channelid_t, mumble_channelid_t)>(lib.resolve("onChannelEntered"));
-		this->apiFnc.onChannelExited = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, mumble_channelid_t)>(lib.resolve("onChannelExited"));
-		this->apiFnc.onUserTalkingStateChanged = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, talking_state_t)>(lib.resolve("onUserTalkingStateChanged"));
-		this->apiFnc.onReceiveData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, const char*, size_t, const char*)>(lib.resolve("onReceiveData"));
-		this->apiFnc.onAudioInput = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(short*, uint32_t, uint16_t, bool)>(lib.resolve("onAudioInput"));
-		this->apiFnc.onAudioSourceFetched = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t, bool, mumble_userid_t)>(lib.resolve("onAudioSourceFetched"));
-		this->apiFnc.onAudioOutputAboutToPlay = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t)>(lib.resolve("onAudioOutputAboutToPlay"));
-		this->apiFnc.onServerSynchronized = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(lib.resolve("onServerSynchronized"));
-		this->apiFnc.onUserAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t)>(lib.resolve("onUserAdded"));
-		this->apiFnc.onUserRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t)>(lib.resolve("onUserRemoved"));
-		this->apiFnc.onChannelAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelAdded"));
-		this->apiFnc.onChannelRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelRemoved"));
-		this->apiFnc.onChannelRenamed = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(lib.resolve("onChannelRenamed"));
-		this->apiFnc.onKeyEvent = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(uint32_t, bool)>(lib.resolve("onKeyEvent"));
-		this->apiFnc.hasUpdate = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)()>(lib.resolve("hasUpdate"));
-		this->apiFnc.getUpdateDownloadURL = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(char*, uint16_t, uint16_t)>(lib.resolve("getUpdateDownloadURL"));
+		m_apiFnc.setMumbleInfo = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(version_t, version_t, version_t)>(m_lib.resolve("setMumbleInfo"));
+		m_apiFnc.getVersion = reinterpret_cast<version_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getVersion"));
+		m_apiFnc.getAuthor = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getAuthor"));
+		m_apiFnc.getDescription = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getDescription"));
+		m_apiFnc.registerPluginID = reinterpret_cast<void  (PLUGIN_CALLING_CONVENTION *)(uint32_t)>(m_lib.resolve("registerPluginID"));
+		m_apiFnc.getFeatures = reinterpret_cast<uint32_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getFeatures"));
+		m_apiFnc.deactivateFeatures = reinterpret_cast<uint32_t (PLUGIN_CALLING_CONVENTION *)(uint32_t)>(m_lib.resolve("deactivateFeatures"));
+		m_apiFnc.initPositionalData = reinterpret_cast<uint8_t (PLUGIN_CALLING_CONVENTION *)(const char**, const uint64_t *, size_t)>(m_lib.resolve("initPositionalData"));
+		m_apiFnc.fetchPositionalData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, float*, float*, float*, float*, float*, const char**, const char**)>(m_lib.resolve("fetchPositionalData"));
+		m_apiFnc.shutdownPositionalData = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("shutdownPositionalData"));
+		m_apiFnc.onServerConnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(m_lib.resolve("onServerConnected"));
+		m_apiFnc.onServerDisconnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(m_lib.resolve("onServerDisconnected"));
+		m_apiFnc.onChannelEntered = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, mumble_channelid_t, mumble_channelid_t)>(m_lib.resolve("onChannelEntered"));
+		m_apiFnc.onChannelExited = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, mumble_channelid_t)>(m_lib.resolve("onChannelExited"));
+		m_apiFnc.onUserTalkingStateChanged = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, talking_state_t)>(m_lib.resolve("onUserTalkingStateChanged"));
+		m_apiFnc.onReceiveData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, const char*, size_t, const char*)>(m_lib.resolve("onReceiveData"));
+		m_apiFnc.onAudioInput = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(short*, uint32_t, uint16_t, bool)>(m_lib.resolve("onAudioInput"));
+		m_apiFnc.onAudioSourceFetched = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t, bool, mumble_userid_t)>(m_lib.resolve("onAudioSourceFetched"));
+		m_apiFnc.onAudioOutputAboutToPlay = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t)>(m_lib.resolve("onAudioOutputAboutToPlay"));
+		m_apiFnc.onServerSynchronized = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(m_lib.resolve("onServerSynchronized"));
+		m_apiFnc.onUserAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t)>(m_lib.resolve("onUserAdded"));
+		m_apiFnc.onUserRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t)>(m_lib.resolve("onUserRemoved"));
+		m_apiFnc.onChannelAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(m_lib.resolve("onChannelAdded"));
+		m_apiFnc.onChannelRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(m_lib.resolve("onChannelRemoved"));
+		m_apiFnc.onChannelRenamed = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(m_lib.resolve("onChannelRenamed"));
+		m_apiFnc.onKeyEvent = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(uint32_t, bool)>(m_lib.resolve("onKeyEvent"));
+		m_apiFnc.hasUpdate = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("hasUpdate"));
+		m_apiFnc.getUpdateDownloadURL = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(char*, uint16_t, uint16_t)>(m_lib.resolve("getUpdateDownloadURL"));
 
 		// If positional audio is to be supported, all three corresponding functions have to be implemented
 		// For PA it is all or nothing
-		if (!(this->apiFnc.initPositionalData && this->apiFnc.fetchPositionalData && this->apiFnc.shutdownPositionalData)
-				&& (this->apiFnc.initPositionalData || this->apiFnc.fetchPositionalData || this->apiFnc.shutdownPositionalData)) {
+		if (!(m_apiFnc.initPositionalData && m_apiFnc.fetchPositionalData && m_apiFnc.shutdownPositionalData)
+				&& (m_apiFnc.initPositionalData || m_apiFnc.fetchPositionalData || m_apiFnc.shutdownPositionalData)) {
 #ifdef MUMBLE_PLUGIN_DEBUG
 			qDebug() << "Not all three functions for positional data gathering are implemented => not using any of the existing one";
 #endif
 
-			this->apiFnc.initPositionalData = nullptr;
-			this->apiFnc.fetchPositionalData = nullptr;
-			this->apiFnc.shutdownPositionalData = nullptr;
+			m_apiFnc.initPositionalData = nullptr;
+			m_apiFnc.fetchPositionalData = nullptr;
+			m_apiFnc.shutdownPositionalData = nullptr;
 #ifdef MUMBLE_PLUGIN_DEBUG
 			qDebug("\t\"%s\" has only partially implemented positional audio functions -> deactivating all of them", qPrintable(pluginPath));
 #endif
@@ -150,84 +150,84 @@ void Plugin::resolveFunctionPointers() {
 }
 
 bool Plugin::isValid() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	return pluginIsValid;
+	return m_pluginIsValid;
 }
 
 bool Plugin::isLoaded() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	return pluginIsLoaded;
+	return m_pluginIsLoaded;
 }
 
 plugin_id_t Plugin::getID() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	return this->pluginID;
+	return m_pluginID;
 }
 
 bool Plugin::isBuiltInPlugin() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	return this->isBuiltIn;
+	return m_isBuiltIn;
 }
 
 QString Plugin::getFilePath() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	return this->pluginPath;
+	return m_pluginPath;
 }
 
 bool Plugin::isPositionalDataEnabled() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	return this->positionalDataIsEnabled;
+	return m_positionalDataIsEnabled;
 }
 
 void Plugin::enablePositionalData(bool enable) {
-	QWriteLocker lock(&this->pluginLock);
+	QWriteLocker lock(&m_pluginLock);
 
-	this->positionalDataIsEnabled = enable;
+	m_positionalDataIsEnabled = enable;
 }
 
 bool Plugin::isPositionalDataActive() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	return this->positionalDataIsActive;
+	return m_positionalDataIsActive;
 }
 
 void Plugin::allowKeyboardMonitoring(bool allow) {
-	QWriteLocker lock(&this->pluginLock);
+	QWriteLocker lock(&m_pluginLock);
 
-	this->mayMonitorKeyboard = allow;
+	m_mayMonitorKeyboard = allow;
 }
 
 bool Plugin::isKeyboardMonitoringAllowed() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	return this->mayMonitorKeyboard;
+	return m_mayMonitorKeyboard;
 }
 
 mumble_error_t Plugin::init() {
-	QWriteLocker lock(&this->pluginLock);
+	QWriteLocker lock(&m_pluginLock);
 
-	if (this->pluginIsLoaded) {
+	if (m_pluginIsLoaded) {
 		return STATUS_OK;
 	}
 
-	this->pluginIsLoaded = true;
+	m_pluginIsLoaded = true;
 
 	// Get Mumble version
 	int mumbleMajor, mumbleMinor, mumblePatch;
 	MumbleVersion::get(&mumbleMajor, &mumbleMinor, &mumblePatch);
 
 	// Require API version 1.0.0 as the minimal supported one
-	this->setMumbleInfo({ mumbleMajor, mumbleMinor, mumblePatch }, MUMBLE_PLUGIN_API_VERSION, { 1, 0, 0 });
+	setMumbleInfo({ mumbleMajor, mumbleMinor, mumblePatch }, MUMBLE_PLUGIN_API_VERSION, { 1, 0, 0 });
 
 	mumble_error_t retStatus;
-	if (this->apiFnc.init) {
-		retStatus = this->apiFnc.init();
+	if (m_apiFnc.init) {
+		retStatus = m_apiFnc.init();
 	} else {
 		// If there's no such function nothing can go wrong because nothing was called
 		retStatus = STATUS_OK;
@@ -235,135 +235,135 @@ mumble_error_t Plugin::init() {
 
 	if (retStatus != STATUS_OK) {
 		// loading failed
-		this->pluginIsLoaded = false;
+		m_pluginIsLoaded = false;
 		return retStatus;
 	}
 
-	this->registerPluginID();
+	registerPluginID();
 
 	return retStatus;
 }
 
 void Plugin::shutdown() {
-	QWriteLocker lock(&this->pluginLock);
+	QWriteLocker lock(&m_pluginLock);
 
-	if (!this->pluginIsLoaded) {
+	if (!m_pluginIsLoaded) {
 		return;
 	}
 
-	if (this->positionalDataIsActive) {
-		this->shutdownPositionalData();
+	if (m_positionalDataIsActive) {
+		shutdownPositionalData();
 	}
 
-	if (this->apiFnc.shutdown) {
-		this->apiFnc.shutdown();
+	if (m_apiFnc.shutdown) {
+		m_apiFnc.shutdown();
 	}
 
-	this->pluginIsLoaded = false;
+	m_pluginIsLoaded = false;
 }
 
 QString Plugin::getName() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	if (this->apiFnc.getName) {
-		return QString::fromUtf8(this->apiFnc.getName());
+	if (m_apiFnc.getName) {
+		return QString::fromUtf8(m_apiFnc.getName());
 	} else {
 		return QString::fromUtf8("Unknown plugin");
 	}
 }
 
 version_t Plugin::getAPIVersion() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	if (this->apiFnc.getAPIVersion) {
-		return this->apiFnc.getAPIVersion();
+	if (m_apiFnc.getAPIVersion) {
+		return m_apiFnc.getAPIVersion();
 	} else {
 		return {-1, -1 , -1};
 	}
 }
 
 void Plugin::registerAPIFunctions(MumbleAPI api) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.registerAPIFunctions) {
-		this->apiFnc.registerAPIFunctions(api);
+	if (m_apiFnc.registerAPIFunctions) {
+		m_apiFnc.registerAPIFunctions(api);
 	}
 }
 
 void Plugin::setMumbleInfo(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	if (this->apiFnc.setMumbleInfo) {
-		this->apiFnc.setMumbleInfo(mumbleVersion, mumbleAPIVersion, minimalExpectedAPIVersion);
+	if (m_apiFnc.setMumbleInfo) {
+		m_apiFnc.setMumbleInfo(mumbleVersion, mumbleAPIVersion, minimalExpectedAPIVersion);
 	}
 }
 
 version_t Plugin::getVersion() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	if (this->apiFnc.getVersion) {
-		return this->apiFnc.getVersion();
+	if (m_apiFnc.getVersion) {
+		return m_apiFnc.getVersion();
 	} else {
 		return VERSION_UNKNOWN;
 	}
 }
 
 QString Plugin::getAuthor() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	if (this->apiFnc.getAuthor) {
-		return QString::fromUtf8(this->apiFnc.getAuthor());
+	if (m_apiFnc.getAuthor) {
+		return QString::fromUtf8(m_apiFnc.getAuthor());
 	} else {
 		return QString::fromUtf8("Unknown");
 	}
 }
 
 QString Plugin::getDescription() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	if (this->apiFnc.getDescription) {
-		return QString::fromUtf8(this->apiFnc.getDescription());
+	if (m_apiFnc.getDescription) {
+		return QString::fromUtf8(m_apiFnc.getDescription());
 	} else {
 		return QString::fromUtf8("No description provided");
 	}
 }
 
 void Plugin::registerPluginID() {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.registerPluginID) {
-		this->apiFnc.registerPluginID(this->pluginID);
+	if (m_apiFnc.registerPluginID) {
+		m_apiFnc.registerPluginID(m_pluginID);
 	}
 }
 
 uint32_t Plugin::getFeatures() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	if (this->apiFnc.getFeatures) {
-		return this->apiFnc.getFeatures();
+	if (m_apiFnc.getFeatures) {
+		return m_apiFnc.getFeatures();
 	} else {
 		return FEATURE_NONE;
 	}
 }
 
 uint32_t Plugin::deactivateFeatures(uint32_t features) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.deactivateFeatures) {
-		return this->apiFnc.deactivateFeatures(features);
+	if (m_apiFnc.deactivateFeatures) {
+		return m_apiFnc.deactivateFeatures(features);
 	} else {
 		return features;
 	}
 }
 
 bool Plugin::showAboutDialog(QWidget *parent) const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
@@ -372,7 +372,7 @@ bool Plugin::showAboutDialog(QWidget *parent) const {
 }
 
 bool Plugin::showConfigDialog(QWidget *parent) const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
@@ -381,14 +381,14 @@ bool Plugin::showConfigDialog(QWidget *parent) const {
 }
 
 uint8_t Plugin::initPositionalData(const char **programNames, const uint64_t *programPIDs, size_t programCount) {
-	QWriteLocker lock(&this->pluginLock);
+	QWriteLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.initPositionalData) {
-		this->positionalDataIsActive = true;
+	if (m_apiFnc.initPositionalData) {
+		m_positionalDataIsActive = true;
 
-		return this->apiFnc.initPositionalData(programNames, programPIDs, programCount);
+		return m_apiFnc.initPositionalData(programNames, programPIDs, programCount);
 	} else {
 		return PDEC_ERROR_PERM;
 	}
@@ -396,15 +396,15 @@ uint8_t Plugin::initPositionalData(const char **programNames, const uint64_t *pr
 
 bool Plugin::fetchPositionalData(Position3D& avatarPos, Vector3D& avatarDir, Vector3D& avatarAxis, Position3D& cameraPos, Vector3D& cameraDir,
 		Vector3D& cameraAxis, QString& context, QString& identity) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.fetchPositionalData) {
+	if (m_apiFnc.fetchPositionalData) {
 		const char *contextPtr = "";
 		const char *identityPtr = "";
 
-		bool retStatus = this->apiFnc.fetchPositionalData(static_cast<float*>(avatarPos), static_cast<float*>(avatarDir),
+		bool retStatus = m_apiFnc.fetchPositionalData(static_cast<float*>(avatarPos), static_cast<float*>(avatarDir),
 				static_cast<float*>(avatarAxis), static_cast<float*>(cameraPos), static_cast<float*>(cameraDir), static_cast<float*>(cameraAxis),
 					&contextPtr, &identityPtr);
 
@@ -427,99 +427,99 @@ bool Plugin::fetchPositionalData(Position3D& avatarPos, Vector3D& avatarDir, Vec
 }
 
 void Plugin::shutdownPositionalData() {
-	QWriteLocker lock(&this->pluginLock);
+	QWriteLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.shutdownPositionalData) {
-		this->positionalDataIsActive = false;
+	if (m_apiFnc.shutdownPositionalData) {
+		m_positionalDataIsActive = false;
 
-		this->apiFnc.shutdownPositionalData();
+		m_apiFnc.shutdownPositionalData();
 	}
 }
 
 void Plugin::onServerConnected(mumble_connection_t connection) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onServerConnected) {
-		this->apiFnc.onServerConnected(connection);
+	if (m_apiFnc.onServerConnected) {
+		m_apiFnc.onServerConnected(connection);
 	}
 }
 
 void Plugin::onServerDisconnected(mumble_connection_t connection) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onServerDisconnected) {
-		this->apiFnc.onServerDisconnected(connection);
+	if (m_apiFnc.onServerDisconnected) {
+		m_apiFnc.onServerDisconnected(connection);
 	}
 }
 
 void Plugin::onChannelEntered(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t previousChannelID,
 		mumble_channelid_t newChannelID) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onChannelEntered) {
-		this->apiFnc.onChannelEntered(connection, userID, previousChannelID, newChannelID);
+	if (m_apiFnc.onChannelEntered) {
+		m_apiFnc.onChannelEntered(connection, userID, previousChannelID, newChannelID);
 	}
 }
 
 void Plugin::onChannelExited(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onChannelExited) {
-		this->apiFnc.onChannelExited(connection, userID, channelID);
+	if (m_apiFnc.onChannelExited) {
+		m_apiFnc.onChannelExited(connection, userID, channelID);
 	}
 }
 
 void Plugin::onUserTalkingStateChanged(mumble_connection_t connection, mumble_userid_t userID, talking_state_t talkingState) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onUserTalkingStateChanged) {
-		this->apiFnc.onUserTalkingStateChanged(connection, userID, talkingState);
+	if (m_apiFnc.onUserTalkingStateChanged) {
+		m_apiFnc.onUserTalkingStateChanged(connection, userID, talkingState);
 	}
 }
 
 bool Plugin::onReceiveData(mumble_connection_t connection, mumble_userid_t sender, const char *data, size_t dataLength, const char *dataID) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onReceiveData) {
-		return this->apiFnc.onReceiveData(connection, sender, data, dataLength, dataID);
+	if (m_apiFnc.onReceiveData) {
+		return m_apiFnc.onReceiveData(connection, sender, data, dataLength, dataID);
 	} else {
 		return false;
 	}
 }
 
 bool Plugin::onAudioInput(short *inputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onAudioInput) {
-		return this->apiFnc.onAudioInput(inputPCM, sampleCount, channelCount, isSpeech);
+	if (m_apiFnc.onAudioInput) {
+		return m_apiFnc.onAudioInput(inputPCM, sampleCount, channelCount, isSpeech);
 	} else {
 		return false;
 	}
 }
 
 bool Plugin::onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, mumble_userid_t userID) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onAudioSourceFetched) {
-		return this->apiFnc.onAudioSourceFetched(outputPCM, sampleCount, channelCount, isSpeech, userID);
+	if (m_apiFnc.onAudioSourceFetched) {
+		return m_apiFnc.onAudioSourceFetched(outputPCM, sampleCount, channelCount, isSpeech, userID);
 	} else {
 		return false;
 	}
@@ -528,95 +528,95 @@ bool Plugin::onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16
 bool Plugin::onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, uint16_t channelCount) {
 	assertPluginLoaded(this);
 
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
-	if (this->apiFnc.onAudioOutputAboutToPlay) {
-		return this->apiFnc.onAudioOutputAboutToPlay(outputPCM, sampleCount, channelCount);
+	if (m_apiFnc.onAudioOutputAboutToPlay) {
+		return m_apiFnc.onAudioOutputAboutToPlay(outputPCM, sampleCount, channelCount);
 	} else {
 		return false;
 	}
 }
 
 void Plugin::onServerSynchronized(mumble_connection_t connection) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onServerSynchronized) {
-		this->apiFnc.onServerSynchronized(connection);
+	if (m_apiFnc.onServerSynchronized) {
+		m_apiFnc.onServerSynchronized(connection);
 	}
 }
 
 void Plugin::onUserAdded(mumble_connection_t connection, mumble_userid_t userID) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onUserAdded) {
-		this->apiFnc.onUserAdded(connection, userID);
+	if (m_apiFnc.onUserAdded) {
+		m_apiFnc.onUserAdded(connection, userID);
 	}
 }
 
 void Plugin::onUserRemoved(mumble_connection_t connection, mumble_userid_t userID) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onUserRemoved) {
-		this->apiFnc.onUserRemoved(connection, userID);
+	if (m_apiFnc.onUserRemoved) {
+		m_apiFnc.onUserRemoved(connection, userID);
 	}
 }
 
 void Plugin::onChannelAdded(mumble_connection_t connection, mumble_channelid_t channelID) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onChannelAdded) {
-		this->apiFnc.onChannelAdded(connection, channelID);
+	if (m_apiFnc.onChannelAdded) {
+		m_apiFnc.onChannelAdded(connection, channelID);
 	}
 }
 
 void Plugin::onChannelRemoved(mumble_connection_t connection, mumble_channelid_t channelID) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onChannelRemoved) {
-		this->apiFnc.onChannelRemoved(connection, channelID);
+	if (m_apiFnc.onChannelRemoved) {
+		m_apiFnc.onChannelRemoved(connection, channelID);
 	}
 }
 
 void Plugin::onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (this->apiFnc.onChannelRenamed) {
-		this->apiFnc.onChannelRenamed(connection, channelID);
+	if (m_apiFnc.onChannelRenamed) {
+		m_apiFnc.onChannelRenamed(connection, channelID);
 	}
 }
 
 void Plugin::onKeyEvent(keycode_t keyCode, bool wasPress) {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 
 	assertPluginLoaded(this);
 
-	if (!this->mayMonitorKeyboard) {
+	if (!m_mayMonitorKeyboard) {
 		// Keyboard monitoring is forbiden for this plugin
 		return;
 	}
 
-	if (this->apiFnc.onKeyEvent) {
-		this->apiFnc.onKeyEvent(keyCode, wasPress);
+	if (m_apiFnc.onKeyEvent) {
+		m_apiFnc.onKeyEvent(keyCode, wasPress);
 	}
 }
 
 bool Plugin::hasUpdate() const {
-	PluginReadLocker lock(&this->pluginLock);
+	PluginReadLocker lock(&m_pluginLock);
 	
-	if (this->apiFnc.hasUpdate) {
-		return this->apiFnc.hasUpdate();
+	if (m_apiFnc.hasUpdate) {
+		return m_apiFnc.hasUpdate();
 	} else {
 		// A plugin that doesn't implement this function is assumed to never know about
 		// any potential updates
@@ -625,7 +625,7 @@ bool Plugin::hasUpdate() const {
 }
 
 QUrl Plugin::getUpdateDownloadURL() const {
-	if (!this->apiFnc.getUpdateDownloadURL) {
+	if (!m_apiFnc.getUpdateDownloadURL) {
 		// Return an empty URL as a fallback
 		return QUrl();
 	}
@@ -642,7 +642,7 @@ QUrl Plugin::getUpdateDownloadURL() const {
 		// Clear buffer
 		std::memset(buffer, 0, bufferSize);
 
-		readCompleteURL = this->apiFnc.getUpdateDownloadURL(buffer, bufferSize, offset);
+		readCompleteURL = m_apiFnc.getUpdateDownloadURL(buffer, bufferSize, offset);
 
 		if (buffer[bufferSize - 1] == 0) {
 			// The buffer is zero-terminated
@@ -670,49 +670,51 @@ bool Plugin::providesConfigDialog() const {
 
 
 /////////////////// Implementation of the PluginReadLocker /////////////////////////
-PluginReadLocker::PluginReadLocker(QReadWriteLock *lock) : lock(lock), unlocked(false) {
-	this->relock();
+PluginReadLocker::PluginReadLocker(QReadWriteLock *lock)
+	: m_lock(lock),
+	  m_unlocked(false) {
+	relock();
 }
 
 void PluginReadLocker::unlock() {
-	if (!this->lock) {
+	if (!m_lock) {
 		// do nothgin for nullptr
 		return;
 	}
 
-	this->unlocked = true;
+	m_unlocked = true;
 
-	this->lock->unlock();
+	m_lock->unlock();
 }
 
 void PluginReadLocker::relock() {
-	if (!this->lock) {
+	if (!m_lock) {
 		// do nothing for a nullptr
 		return;
 	}
 
 	// First try to lock for read-access
-	if (!this->lock->tryLockForRead()) {
+	if (!m_lock->tryLockForRead()) {
 		// if that fails, we'll try to lock for write-access
 		// That will only succeed in the case that the current thread holds the write-access to this lock already which caused
 		// the previous attempt to lock for reading to fail (by design of the QtReadWriteLock).
 		// As we are in the thread with the write-access, it means that this threads has asked for read-access on top of it which we will
 		// grant (in contrast of QtReadLocker) because if you have the permission to change something you surely should have permission
 		// to read it. This assumes that the thread won't try to read data it temporarily has corrupted.
-		if (!this->lock->tryLockForWrite()) {
+		if (!m_lock->tryLockForWrite()) {
 			// If we couldn't lock for write at this point, it means another thread has write-access granted by the lock so we'll have to wait
 			// in order to gain regular read-access as would be with QtReadLocker
-			this->lock->lockForRead();
+			m_lock->lockForRead();
 		}
 	}
 
-	this->unlocked = false;
+	m_unlocked = false;
 }
 
 PluginReadLocker::~PluginReadLocker() {
-	if (this->lock && !this->unlocked) {
+	if (m_lock && !m_unlocked) {
 		// unlock the lock if it isn't nullptr
-		this->lock->unlock();
+		m_lock->unlock();
 	}
 }
 

@@ -30,12 +30,12 @@ class LegacyPlugin : public Plugin {
 		Q_DISABLE_COPY(LegacyPlugin)
 
 	protected:
-		QString name;
-		QString description;
-		version_t version;
-		MumblePlugin *mumPlug;
-		MumblePlugin2 *mumPlug2;
-		MumblePluginQt *mumPlugQt;
+		QString m_name;
+		QString m_description;
+		version_t m_version;
+		MumblePlugin *m_mumPlug;
+		MumblePlugin2 *m_mumPlug2;
+		MumblePluginQt *m_mumPlugQt;
 
 		virtual void resolveFunctionPointers() Q_DECL_OVERRIDE;
 		virtual bool doInitialize() Q_DECL_OVERRIDE;

@@ -110,24 +110,24 @@ class PositionalData {
 	friend class PluginManager; // needed in order for PluginManager::fetch to write to the contained fields
 	protected:
 		/// The player's position in the 3D world
-		Position3D playerPos;
+		Position3D m_playerPos;
 		/// The direction in which the player is looking
-		Vector3D playerDir;
+		Vector3D m_playerDir;
 		/// The connection vector between the player's feet and his/her head
-		Vector3D playerAxis;
+		Vector3D m_playerAxis;
 		/// The camera's position un the 3D world
-		Position3D cameraPos;
+		Position3D m_cameraPos;
 		/// The direction in which the camera is looking
-		Vector3D cameraDir;
+		Vector3D m_cameraDir;
 		/// The connection from the camera's bottom to its top
-		Vector3D cameraAxis;
+		Vector3D m_cameraAxis;
 		/// The context of this positional data. This might include the game's name, the server currently connected to, etc. and is used
 		/// to determine which players can hear one another
-		QString context;
+		QString m_context;
 		/// The player's ingame identity (name)
-		QString identity;
+		QString m_identity;
 		/// The lock guarding all fields of this class
-		mutable QReadWriteLock lock;
+		mutable QReadWriteLock m_lock;
 
 	public:
 		/// Default constructor

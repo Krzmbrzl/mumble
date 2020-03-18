@@ -18,7 +18,7 @@
 class PluginInstallException : public QException {
 	protected:
 		/// The exception's message
-		QString msg;
+		QString m_msg;
 	public:
 		/// @param msg The message stating why this exception has been thrown
 		PluginInstallException(const QString& msg);
@@ -36,16 +36,16 @@ class PluginInstaller : public QDialog, public Ui::PluginInstaller {
 		Q_DISABLE_COPY(PluginInstaller);
 	protected:
 		/// The file the installer has been invoked on
-		QFileInfo pluginArchive;
+		QFileInfo m_pluginArchive;
 		/// A pointer to the plugin instance created from the plugin library that shall be installed
-		Plugin *plugin;
+		Plugin *m_plugin;
 		/// The actual plugin library file
-		QFileInfo pluginSource;
+		QFileInfo m_pluginSource;
 		/// The destinaton file to which the plugin library shall be copied
-		QFileInfo pluginDestination;
+		QFileInfo m_pluginDestination;
 		/// A flag indicating that the plugin library shall be copied instead of moved in order
 		/// to install it.
-		bool copyPlugin;
+		bool m_copyPlugin;
 
 		/// Initializes this installer by processing the provided plugin source and filling all
 		/// internal fields. This function is called from the constructor.

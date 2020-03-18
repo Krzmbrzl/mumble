@@ -80,8 +80,8 @@ class PluginError : public std::runtime_error {
 /// that take quite some time and rely on other readers still having access to the locked object.
 class PluginReadLocker {
 	protected:
-		QReadWriteLock *lock;
-		bool unlocked;
+		QReadWriteLock *m_lock;
+		bool m_unlocked;
 	public:
 		/// Constructor of the PluginReadLocker. If the passed lock-pointer is not nullptr, the constructor will
 		/// already lock the provided lock.
@@ -111,9 +111,9 @@ class Plugin : public QObject {
 		Q_DISABLE_COPY(Plugin)
 	protected:
 		/// A mutex guarding Plugin::nextID
-		static QMutex idLock;
+		static QMutex s_idLock;
 		/// The ID of the plugin that will be loaded next. Whenever accessing this field, Plugin::idLock should be locked.
-		static plugin_id_t nextID;
+		static plugin_id_t s_nextID;
 
 		/// Constructor of the Plugin.
 		///
@@ -123,29 +123,29 @@ class Plugin : public QObject {
 		Plugin(QString path, bool isBuiltIn = false, QObject *p = nullptr);
 
 		/// A flag indicating whether this plugin is valid. It is mainly used throughout the plugin's initialization.
-		bool pluginIsValid;
+		bool m_pluginIsValid;
 		/// The QLibrary representing the shared library of this plugin
-		QLibrary lib;
+		QLibrary m_lib;
 		/// The path to the shared library file in the host's filesystem
-		QString pluginPath;
+		QString m_pluginPath;
 		/// The unique ID of this plugin. Note though that this ID is not suitable for uniquely identifying this plugin between restarts of Mumble
 		/// (not even between rescans of the plugins) let alone across clients.
-		plugin_id_t pluginID;
+		plugin_id_t m_pluginID;
 		// a flag indicating whether this plugin has been loaded by calling its init function.
-		bool pluginIsLoaded;
+		bool m_pluginIsLoaded;
 		/// The lock guarding this plugin object. Every time a member is accessed this lock should be locked accordingly.
-		mutable QReadWriteLock pluginLock;
+		mutable QReadWriteLock m_pluginLock;
 		/// The struct holding the function pointers to the functions in the shared library.
-		PluginAPIFunctions apiFnc;
+		PluginAPIFunctions m_apiFnc;
 		/// A flag indicating whether this plugin is built into Mumble and is thus not represented by a shared library.
-		bool isBuiltIn;
+		bool m_isBuiltIn;
 		/// A flag indicating whether positional data gathering is enabled for this plugin (Enabled as in allowed via preferences).
-		bool positionalDataIsEnabled;
+		bool m_positionalDataIsEnabled;
 		/// A flag indicating whether positional data gathering is currently active (Active as in running)
-		bool positionalDataIsActive;
+		bool m_positionalDataIsActive;
 		/// A flag indicating whether this plugin has permission to monitor keyboard events that occur while
 		/// Mumble has the keyboard focus.
-		bool mayMonitorKeyboard;
+		bool m_mayMonitorKeyboard;
 
 		/// Initializes this plugin. This function must be called directly after construction. This is guaranteed when the
 		/// plugin is created via Plugin::createNew

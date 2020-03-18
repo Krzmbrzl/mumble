@@ -47,7 +47,7 @@ Manual::Manual(QWidget *p) : QDialog(p) {
 
 	qgvPosition->viewport()->installEventFilter(this);
 	qgvPosition->scale(1.0f, 1.0f);
-	qgsScene = new QGraphicsScene(QRectF(-5.0f, -5.0f, 10.0f, 10.0f), this);
+	m_qgsScene = new QGraphicsScene(QRectF(-5.0f, -5.0f, 10.0f, 10.0f), this);
 
 	const float indicatorDiameter = 4.0f;
 	QPainterPath indicator;
@@ -57,9 +57,9 @@ Manual::Manual(QWidget *p) : QDialog(p) {
 	indicator.moveTo(0, indicatorDiameter / 2);
 	indicator.lineTo(0,  indicatorDiameter);
 
-	qgiPosition = qgsScene->addPath(indicator);
+	m_qgiPosition = m_qgsScene->addPath(indicator);
 
-	qgvPosition->setScene(qgsScene);
+	qgvPosition->setScene(m_qgsScene);
 	qgvPosition->fitInView(-5.0f, -5.0f, 10.0f, 10.0f, Qt::KeepAspectRatio);
 
 	qdsbX->setRange(-FLT_MAX, FLT_MAX);
@@ -94,7 +94,7 @@ bool Manual::eventFilter(QObject *obj, QEvent *evt) {
 				QPointF qpf = qgvPosition->mapToScene(qme->pos());
 				qdsbX->setValue(qpf.x());
 				qdsbZ->setValue(-qpf.y());
-				qgiPosition->setPos(qpf);
+				m_qgiPosition->setPos(qpf);
 			}
 		}
 	}
@@ -128,7 +128,7 @@ void Manual::on_qpbActivated_clicked(bool b) {
 
 void Manual::on_qdsbX_valueChanged(double d) {
 	my.avatar_pos[0] = my.camera_pos[0] = static_cast<float>(d);
-	qgiPosition->setPos(my.avatar_pos[0], -my.avatar_pos[2]);
+	m_qgiPosition->setPos(my.avatar_pos[0], -my.avatar_pos[2]);
 }
 
 void Manual::on_qdsbY_valueChanged(double d) {
@@ -137,7 +137,7 @@ void Manual::on_qdsbY_valueChanged(double d) {
 
 void Manual::on_qdsbZ_valueChanged(double d) {
 	my.avatar_pos[2] = my.camera_pos[2] = static_cast<float>(d);
-	qgiPosition->setPos(my.avatar_pos[0], -my.avatar_pos[2]);
+	m_qgiPosition->setPos(my.avatar_pos[0], -my.avatar_pos[2]);
 }
 
 void Manual::on_qsbAzimuth_valueChanged(int i) {
@@ -202,7 +202,7 @@ void Manual::updateTopAndFront(int azimuth, int elevation) {
 	iAzimuth = azimuth;
 	iElevation = elevation;
 
-	qgiPosition->setRotation(azimuth);
+	m_qgiPosition->setRotation(azimuth);
 
 	double azim = azimuth * M_PI / 180.;
 	double elev = elevation * M_PI / 180.;
@@ -319,6 +319,6 @@ ManualPlugin::~ManualPlugin() {
 }
 
 void ManualPlugin::resolveFunctionPointers() {
-	this->mumPlug = &manual;
-	this->mumPlugQt = &manualqt;
+	m_mumPlug = &manual;
+	m_mumPlugQt = &manualqt;
 }
