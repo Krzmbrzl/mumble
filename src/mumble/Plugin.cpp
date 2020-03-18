@@ -23,7 +23,7 @@ void assertPluginLoaded(const Plugin* plugin) {
 		throw std::runtime_error("Attempting to access plugin but it is not loaded!");
 	}
 #else
-	qWarning() << "Plugin assertion failed: Assumed plugin with ID" << plugin->getID() << "to be loaded but it wasn't!";
+	qWarning("Plugin assertion failed: Assumed plugin with ID %d to be loaded but it wasn't!", plugin->getID());
 #endif
 }
 
