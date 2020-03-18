@@ -111,7 +111,7 @@ PluginManager::~PluginManager() {
 ///
 /// @param pluginName The name of the plugin that lost link
 void reportLostLink(const QString& pluginName) {
-		g.l->log(Log::Information, QString::fromUtf8("%1 lost link").arg(pluginName.toHtmlEscaped()));
+		g.l->log(Log::Information, QObject::tr("%1 lost link").arg(pluginName.toHtmlEscaped()));
 }
 
 bool PluginManager::eventFilter(QObject *target, QEvent *event) {
@@ -201,14 +201,14 @@ bool PluginManager::selectActivePositionalDataPlugin() {
 					// the plugin is ready to provide positional data
 					m_activePositionalDataPlugin = currentPlugin;
 
-					g.l->log(Log::Information, QString::fromUtf8("%1 linked").arg(currentPlugin->getName().toHtmlEscaped()));
+					g.l->log(Log::Information, QObject::tr("%1 linked").arg(currentPlugin->getName().toHtmlEscaped()));
 
 					return true;
 
 				case PDEC_ERROR_PERM:
 					// the plugin encountered a permanent error -> disable it
-					g.l->log(Log::Warning, QString::fromUtf8("Plugin ") + currentPlugin->getName() +
-							QString::fromUtf8(" encountered a permanent error in positional data gathering"));
+					g.l->log(Log::Warning, QObject::tr(
+								"Plugin \"%1\" encountered a permanent error in positional data gathering").arg(currentPlugin->getName()));
 
 					currentPlugin->enablePositionalData(false);
 					break;
@@ -276,7 +276,8 @@ void PluginManager::rescanPlugins() {
 						
 						// At the time this function is running the MainWindow is not necessarily created yet, so we can't use
 						// the normal Log::log function
-						Log::logOrDefer(Log::Warning, QString::fromUtf8("Non-plugin found in plugin directory: ") + currentInfo.absoluteFilePath());
+						Log::logOrDefer(Log::Warning,
+								QObject::tr("Non-plugin found in plugin directory: \"%1\"").arg(currentInfo.absoluteFilePath()));
 					}
 				}
 			}
@@ -294,7 +295,7 @@ void PluginManager::rescanPlugins() {
 		} catch(const PluginError& e) {
 			// At the time this function is running the MainWindow is not necessarily created yet, so we can't use
 			// the normal Log::log function
-			Log::logOrDefer(Log::Warning, QString::fromUtf8("Failed at loading manual plugin: ") + QString::fromUtf8(e.what()));
+			Log::logOrDefer(Log::Warning, QObject::tr("Failed at loading manual plugin: %1").arg(QString::fromUtf8(e.what())));
 		}
 #endif
 	}

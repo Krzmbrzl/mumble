@@ -113,13 +113,13 @@ void PluginConfig::save() const {
 						uint32_t remainingFeatures = g.pluginManager->deactivateFeaturesFor(plugin->getID(), featuresToDeactivate);
 
 						if (remainingFeatures != FEATURE_NONE) {
-							g.l->log(Log::Warning, QString::fromUtf8("Unable to deactivate all requested features for plugin ") + plugin->getName());
+							g.l->log(Log::Warning, QObject::tr("Unable to deactivate all requested features for plugin \"%1\"").arg(plugin->getName()));
 						}
 					}
 				} else {
 					// loading failed
 					enable = false;
-					g.l->log(Log::Warning, QString::fromUtf8("Unable to load plugin ") + plugin->getName());
+					g.l->log(Log::Warning, QObject::tr("Unable to load plugin \"%1\"").arg(plugin->getName()));
 				}
 			} else {
 				g.pluginManager->unloadPlugin(plugin->getID());
@@ -178,9 +178,9 @@ void PluginConfig::refillPluginList() {
 		
 		if (currentPlugin->getFeatures() & FEATURE_POSITIONAL) {
 			i->setCheckState(2, currentPlugin->isPositionalDataEnabled() ? Qt::Checked : Qt::Unchecked);
-			i->setToolTip(2, QString::fromUtf8("Whether the positional audio feature of this plugin should be enabled"));
+			i->setToolTip(2, QObject::tr("Whether the positional audio feature of this plugin should be enabled"));
 		} else {
-			i->setToolTip(2, QString::fromUtf8("This plugin does not provide support for positional audio"));
+			i->setToolTip(2, QObject::tr("This plugin does not provide support for positional audio"));
 		}
 
 		i->setCheckState(3, currentPlugin->isKeyboardMonitoringAllowed() ? Qt::Checked : Qt::Unchecked);
@@ -188,7 +188,7 @@ void PluginConfig::refillPluginList() {
 
 		i->setText(0, currentPlugin->getName());
 		i->setToolTip(0, currentPlugin->getDescription().toHtmlEscaped());
-		i->setToolTip(1, QString::fromUtf8("Whether this plugin should be enabled"));
+		i->setToolTip(1, QObject::tr("Whether this plugin should be enabled"));
 		i->setData(0, Qt::UserRole, currentPlugin->getID());
 	}
 
