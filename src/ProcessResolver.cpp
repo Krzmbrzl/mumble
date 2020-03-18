@@ -6,43 +6,45 @@
 #include "ProcessResolver.h"
 #include <cstring>
 
-ProcessResolver::ProcessResolver(bool resolveImmediately) : processNames(), processPIDs() {
+ProcessResolver::ProcessResolver(bool resolveImmediately)
+	: m_processNames(),
+	  m_processPIDs() {
 	if (resolveImmediately) {
-		this->resolve();
+		resolve();
 	}
 }
 
 ProcessResolver::~ProcessResolver() {
-	this->freeAndClearData();
+	freeAndClearData();
 }
 
 void ProcessResolver::freeAndClearData() {
 	// delete all names
-	foreach(const char *currentName, this->processNames) {
+	foreach(const char *currentName, m_processNames) {
 		delete currentName;
 	}
 
-	this->processNames.clear();
-	this->processPIDs.clear();
+	m_processNames.clear();
+	m_processPIDs.clear();
 }
 
 const QVector<const char*>& ProcessResolver::getProcessNames() const {
-	return this->processNames;
+	return m_processNames;
 }
 
 const QVector<uint64_t>& ProcessResolver::getProcessPIDs() const {
-	return this->processPIDs;
+	return m_processPIDs;
 }
 
 void ProcessResolver::resolve() {
 	// first clear the current lists
-	this->freeAndClearData();
+	freeAndClearData();
 
-	this->doResolve();
+	doResolve();
 }
 
 size_t ProcessResolver::amountOfProcesses() const {
-	return this->processPIDs.size();
+	return m_processPIDs.size();
 }
 
 
@@ -113,10 +115,10 @@ void addName(const char *stackName, QVector<const char*>& destVec) {
 		while (ok) {
 			if (utf16ToUtf8(pe.szExeFile, sizeof(name), name)) {
 				// Store name
-				addName(name, this->processNames);
+				addName(name, m_processNames);
 
 				// Store corresponding PID
-				this->processPIDs.append(pe.th32ProcessID);
+				m_processPIDs.append(pe.th32ProcessID);
 			}
 #ifndef QT_NO_DEBUG
 			 else {
@@ -188,10 +190,10 @@ void addName(const char *stackName, QVector<const char*>& destVec) {
 
 			if (!baseName.isEmpty()) {
 				// add name
-				addName(baseName.toUtf8().data(), this->processNames);
+				addName(baseName.toUtf8().data(), m_processNames);
 
 				// add corresponding PID
-				this->processPIDs.append(pid);
+				m_processPIDs.append(pid);
 			}
 		}
 	}
@@ -210,10 +212,10 @@ void addName(const char *stackName, QVector<const char*>& destVec) {
 								 &proc, PROC_PIDTBSDINFO_SIZE);
 			if (st == PROC_PIDTBSDINFO_SIZE) {
 				// add name
-				addName(proc.pbi_name, this->processNames);
+				addName(proc.pbi_name, m_processNames);
 
 				// add corresponding PID
-				this->processPIDs.append(pids[i]);
+				m_processPIDs.append(pids[i]);
 			}       
 		}
 	}
@@ -235,10 +237,10 @@ void addName(const char *stackName, QVector<const char*>& destVec) {
 
 		for (int i = 0; i < n_procs; ++i) {
 			// Add name
-			addName(procs_info[i].ki_comm, this->processNames);
+			addName(procs_info[i].ki_comm, m_processNames);
 
 			// Add corresponding PID
-			this->processPIDs.append(procs_info[i].ki_pid);
+			m_processPIDs.append(procs_info[i].ki_pid);
 		}
 
 		free(procs_info);
@@ -292,10 +294,10 @@ void addName(const char *stackName, QVector<const char*>& destVec) {
 
 		for (int i = 0; i < n_procs; ++i) {
 			// Add name
-			addName(procs_info[i].ki_comm, this->processNames);
+			addName(procs_info[i].ki_comm, m_processNames);
 
 			// Add corresponding PIDs
-			this->processPIDs.append(procs_info[i].ki_pid);
+			m_processPIDs.append(procs_info[i].ki_pid);
 		}
 
 		kvm_cleanup(kd);

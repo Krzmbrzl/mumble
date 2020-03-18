@@ -79,35 +79,35 @@ class PluginManager : public QObject {
 		Q_DISABLE_COPY(PluginManager)
 	protected:
 		/// Lock for pluginHashMap. This lock has to be aquired when accessing pluginHashMap
-		mutable QReadWriteLock pluginCollectionLock;
+		mutable QReadWriteLock m_pluginCollectionLock;
 		/// A map between plugin-IDs and the actual plugin objects. You have to aquire pluginCollectionLock before
 		/// accessing this map.
-		QHash<plugin_id_t, plugin_ptr_t> pluginHashMap;
+		QHash<plugin_id_t, plugin_ptr_t> m_pluginHashMap;
 		/// The path to the system-directory containing plugins
-		QString systemPluginsPath;
+		QString m_systemPluginsPath;
 		/// The path to the user-directory containing plugins
-		QString userPluginsPath;
+		QString m_userPluginsPath;
 #ifdef Q_OS_WIN
 		// This stuff is apparently needed on Windows in order to deal with DLLs
-		HANDLE hToken;
-		TOKEN_PRIVILEGES tpPrevious;
-		DWORD cbPrevious;
+		HANDLE m_hToken;
+		TOKEN_PRIVILEGES m_tpPrevious;
+		DWORD m_cbPrevious;
 #endif
 		/// The PositionalData object holding the current positional data (as retrieved by the respective plugin)
-		PositionalData positionalData;
+		PositionalData m_positionalData;
 
 		/// The mutex for sentData. This has to be aquired before accessing sentData
-		mutable QMutex sentDataMutex;
+		mutable QMutex m_sentDataMutex;
 		/// The bits of the positional data that have already been sent to the server. It is used to determine whether
 		/// the new data has to be sent to the server (in case it has changed). You have ti aquire sentDataMutex before
 		/// accessing this field.
-		PluginManager_SentData sentData;
+		PluginManager_SentData m_sentData;
 
 		/// The lock for activePositionalDataPlugin. It has to be aquired before accessing the respective field.
-		mutable QReadWriteLock activePosDataPluginLock;
+		mutable QReadWriteLock m_activePosDataPluginLock;
 		/// The plugin that is currently used to retrieve positional data. You have to aquire activePosDataPluginLock before
 		/// accessing this field.
-		plugin_ptr_t activePositionalDataPlugin;
+		plugin_ptr_t m_activePositionalDataPlugin;
 		/// The PluginUpdater used to handle plugin updates.
 		PluginUpdater m_updater;
 

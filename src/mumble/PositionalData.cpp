@@ -24,11 +24,11 @@ Vector3D::~Vector3D() {
 float Vector3D::operator[](Coord coord) const {
 	switch(coord) {
 		case Coord::X:
-			return this->x;
+			return x;
 		case Coord::Y:
-			return this->y;
+			return y;
 		case Coord::Z:
-			return this->z;
+			return z;
 		default:
 			// invalid index
 			throw std::out_of_range("May only access x, y or z");
@@ -36,93 +36,108 @@ float Vector3D::operator[](Coord coord) const {
 }
 
 Vector3D Vector3D::operator*(float factor) const {
-	return { this->x * factor, this->y * factor, this->z * factor };
+	return { x * factor, y * factor, z * factor };
 }
 
 Vector3D Vector3D::operator/(float divisor) const {
-	return { this->x / divisor, this->y / divisor, this->z / divisor };
+	return { x / divisor, y / divisor, z / divisor };
 }
 
 void Vector3D::operator*=(float factor) {
-	this->x *= factor;
-	this->y *= factor;
-	this->z *= factor;
+	x *= factor;
+	y *= factor;
+	z *= factor;
 }
 
 void Vector3D::operator/=(float divisor) {
-	this->x /= divisor;
-	this->y /= divisor;
-	this->z /= divisor;
+	x /= divisor;
+	y /= divisor;
+	z /= divisor;
 }
 
 bool Vector3D::operator==(const Vector3D& other) const {
-	return this->equals(other, 0.0f);
+	return equals(other, 0.0f);
 }
 
 Vector3D Vector3D::operator-(const Vector3D& other) const {
-	return { this->x - other.x, this->y - other.y, this->z - other.z };
+	return { x - other.x, y - other.y, z - other.z };
 }
 
 Vector3D Vector3D::operator+(const Vector3D& other) const {
-	return { this->x + other.x, this->y + other.y, this->z + other.z };
+	return { x + other.x, y + other.y, z + other.z };
 }
 
 float Vector3D::normSquared() const {
-	return this->x * this->x + this->y * this->y + this->z * this->z;
+	return x * x + y * y + z * z;
 }
 
 float Vector3D::norm() const {
-	return sqrt(this->normSquared());
+	return sqrt(normSquared());
 }
 
 float Vector3D::dotProduct(const Vector3D& other) const {
-	return this->x * other.x + this->y * other.y + this->z * other.z;
+	return x * other.x + y * other.y + z * other.z;
 }
 
 Vector3D Vector3D::crossProduct(const Vector3D& other) const {
-	return { this->y * other.z - this->z * other.y, this->z * other.x - this->x * other.z, this->x * other.y - this->y * other.x };
+	return { y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x };
 }
 
 bool Vector3D::equals(const Vector3D& other, float threshold) const {
 	if (threshold == 0.0f) {
-		return this->x == other.x && this->y == other.y && this->z == other.z;
+		return x == other.x && y == other.y && z == other.z;
 	} else {
 		threshold = abs(threshold);
 
-		return abs(this->x - other.x) < threshold && abs(this->y - other.y) < threshold && abs(this->z - other.z) < threshold;
+		return abs(x - other.x) < threshold && abs(y - other.y) < threshold && abs(z - other.z) < threshold;
 	}
 }
 
 bool Vector3D::isZero(float threshold) const {
 	if (threshold == 0.0f) {
-		return this->x == 0.0f && this->y == 0.0f && this->z == 0.0f;
+		return x == 0.0f && y == 0.0f && z == 0.0f;
 	} else {
-		return abs(this->x) < threshold && abs(this->y) < threshold && abs(this->z) < threshold;
+		return abs(x) < threshold && abs(y) < threshold && abs(z) < threshold;
 	}
 }
 
 void Vector3D::normalize() {
-	float len = this->norm();
+	float len = norm();
 
-	this->x /= len;
-	this->y /= len;
-	this->z /= len;
+	x /= len;
+	y /= len;
+	z /= len;
 }
 
 void Vector3D::toZero() {
-	this->x = 0.0f;
-	this->y = 0.0f;
-	this->z = 0.0f;
+	x = 0.0f;
+	y = 0.0f;
+	z = 0.0f;
 }
 
-PositionalData::PositionalData() : playerPos(), playerDir(), playerAxis(), cameraPos(), cameraDir(), cameraAxis(),
-	context(), identity(), lock(QReadWriteLock::Recursive) {
+PositionalData::PositionalData()
+	: m_playerPos(),
+	  m_playerDir(),
+	  m_playerAxis(),
+	  m_cameraPos(),
+	  m_cameraDir(),
+	  m_cameraAxis(),
+	  m_context(),
+	  m_identity(),
+	  m_lock(QReadWriteLock::Recursive) {
 }
 
 PositionalData::PositionalData(Position3D playerPos, Vector3D playerDir, Vector3D playerAxis, Position3D cameraPos,
-	Vector3D cameraDir, Vector3D cameraAxis, QString context, QString identity) : playerPos(playerPos), playerDir(playerDir),
-		playerAxis(playerAxis), cameraPos(cameraPos), cameraDir(cameraDir), cameraAxis(cameraAxis), context(context), identity(identity),
-			lock(QReadWriteLock::Recursive) {
+	Vector3D cameraDir, Vector3D cameraAxis, QString context, QString identity)
+	: m_playerPos(playerPos),
+	  m_playerDir(playerDir),
+	  m_playerAxis(playerAxis),
+	  m_cameraPos(cameraPos),
+	  m_cameraDir(cameraDir),
+	  m_cameraAxis(cameraAxis),
+	  m_context(context),
+	  m_identity(identity),
+	  m_lock(QReadWriteLock::Recursive) {
 }
 
 PositionalData::~PositionalData() {
@@ -130,96 +145,96 @@ PositionalData::~PositionalData() {
 
 
 void PositionalData::getPlayerPos(Position3D& pos) const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	pos = this->playerPos;
+	pos = m_playerPos;
 }
 
 Position3D PositionalData::getPlayerPos() const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	return this->playerPos;
+	return m_playerPos;
 }
 
 void PositionalData::getPlayerDir(Vector3D& vec) const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	vec = this->playerDir;
+	vec = m_playerDir;
 }
 
 Vector3D PositionalData::getPlayerDir() const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	return this->playerDir;
+	return m_playerDir;
 }
 
 void PositionalData::getPlayerAxis(Vector3D& vec) const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	vec = this->playerAxis;
+	vec = m_playerAxis;
 }
 
 Vector3D PositionalData::getPlayerAxis() const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	return this->playerAxis;
+	return m_playerAxis;
 }
 
 void PositionalData::getCameraPos(Position3D& pos) const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	pos = this->cameraPos;
+	pos = m_cameraPos;
 }
 
 Position3D PositionalData::getCameraPos() const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	return this->cameraPos;
+	return m_cameraPos;
 }
 
 void PositionalData::getCameraDir(Vector3D& vec) const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	vec = this->cameraDir;
+	vec = m_cameraDir;
 }
 
 Vector3D PositionalData::getCameraDir() const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	return this->cameraDir;
+	return m_cameraDir;
 }
 
 void PositionalData::getCameraAxis(Vector3D& vec) const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	vec = this->cameraAxis;
+	vec = m_cameraAxis;
 }
 
 Vector3D PositionalData::getCameraAxis() const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	return this->cameraAxis;
+	return m_cameraAxis;
 }
 
 QString PositionalData::getPlayerIdentity() const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	return this->identity;
+	return m_identity;
 }
 
 QString PositionalData::getContext() const {
-	QReadLocker lock(&this->lock);
+	QReadLocker lock(&m_lock);
 
-	return this->context;
+	return m_context;
 }
 
 void PositionalData::reset() {
-	this->playerPos.toZero();
-	this->playerDir.toZero();
-	this->playerAxis.toZero();
-	this->cameraPos.toZero();
-	this->cameraDir.toZero();
-	this->cameraAxis.toZero();
-	this->context = QString();
-	this->identity = QString();
+	m_playerPos.toZero();
+	m_playerDir.toZero();
+	m_playerAxis.toZero();
+	m_cameraPos.toZero();
+	m_cameraDir.toZero();
+	m_cameraAxis.toZero();
+	m_context = QString();
+	m_identity = QString();
 }

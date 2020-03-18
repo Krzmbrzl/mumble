@@ -14,9 +14,9 @@
 class ProcessResolver {
 	protected:
 		/// The vector for the pointers to the process names
-		QVector<const char*> processNames;
+		QVector<const char*> m_processNames;
 		/// The vector for the process PIDs
-		QVector<uint64_t> processPIDs;
+		QVector<uint64_t> m_processPIDs;
 
 		/// Deletes all names currently stored in processNames and clears processNames and processPIDs
 		void freeAndClearData();
