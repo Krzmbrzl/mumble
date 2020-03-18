@@ -312,7 +312,7 @@ MumblePluginQt *ManualPlugin_getMumblePluginQt() {
 
 
 /////////// Implementation of the ManualPlugin class //////////////
-ManualPlugin::ManualPlugin(QObject *p) : LegacyPlugin(QString::fromUtf8("manual.builtin"), true, p) {
+ManualPlugin::ManualPlugin(QObject *p) : LegacyPlugin(QString::fromLatin1("manual.builtin"), true, p) {
 }
 
 ManualPlugin::~ManualPlugin() {

@@ -122,7 +122,7 @@ QString LegacyPlugin::getName() const {
 	if (!m_name.isEmpty()) {
 		return m_name;
 	} else {
-		return QString::fromUtf8("Unknown Legacy Plugin");
+		return QString::fromLatin1("Unknown Legacy Plugin");
 	}	
 }
 
@@ -132,7 +132,7 @@ QString LegacyPlugin::getDescription() const {
 	if (!m_description.isEmpty()) {
 		return m_description;
 	} else {
-		return QString::fromUtf8("No description provided by the legacy plugin");
+		return QString::fromLatin1("No description provided by the legacy plugin");
 	}
 }
 
