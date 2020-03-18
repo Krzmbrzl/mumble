@@ -106,6 +106,9 @@ typedef std::shared_ptr<const Plugin> const_plugin_ptr_t;
 
 /// A class representing a plugin library attached to Mumble. It can be used to manage (load/unload) and access plugin libraries.
 class Plugin : public QObject {
+	friend class PluginManager;
+	friend class PluginConfig;
+
 	private:
 		Q_OBJECT
 		Q_DISABLE_COPY(Plugin)
@@ -147,103 +150,43 @@ class Plugin : public QObject {
 		/// Mumble has the keyboard focus.
 		bool m_mayMonitorKeyboard;
 
+
 		/// Initializes this plugin. This function must be called directly after construction. This is guaranteed when the
 		/// plugin is created via Plugin::createNew
 		virtual bool doInitialize();
 		/// Resolves the function pointers in the shared library and sets the respective fields in Plugin::apiFnc
 		virtual void resolveFunctionPointers();
 		/// Tells the plugin backend about its ID
-		virtual void registerPluginID();
-
-	public:
-		virtual ~Plugin() Q_DECL_OVERRIDE;
-		/// @returns Whether this plugin is in a valid state
-		virtual bool isValid() const;
-		/// @returns Whether this plugin is loaded (has been initialized via Plugin::init())
-		virtual bool isLoaded() const Q_DECL_FINAL;
-		/// @returns The unique ID of this plugin. This ID holds only as long as this plugin isn't "reconstructed".
-		virtual plugin_id_t getID() const Q_DECL_FINAL;
-		/// @returns Whether this plugin is built into Mumble (thus not backed by a shared library)
-		virtual bool isBuiltInPlugin() const Q_DECL_FINAL;
-		/// @returns The path to the shared library in the host's filesystem
-		virtual QString getFilePath() const;
-		/// @returns Whether positional data gathering is enabled (as in allowed via preferences)
-		virtual bool isPositionalDataEnabled() const Q_DECL_FINAL;
+		virtual void registerPluginID() const;
 		/// Enables positional data gathering for this plugin (as in allowing)
 		///
 		/// @param enable Whether to enable the data gathering
 		virtual void enablePositionalData(bool enable = true);
-		/// @returns Whether positional data gathering is currently active (as in running)
-		virtual bool isPositionalDataActive() const Q_DECL_FINAL;
 		/// Allows or forbids the monitoring of keyboard events for this plugin.
 		///
 		/// @param allow Whether to allow or forbid it
 		virtual void allowKeyboardMonitoring(bool allow);
-		/// @returns Whether this plugin is currently allowed to monitor keyboard events
-		virtual bool isKeyboardMonitoringAllowed() const Q_DECL_FINAL;
 
-		/// A template function for instantiating new plugin objects and initializing them. The plugin will be allocated on the heap and has
-		/// thus to be deleted via the delete instruction.
-		///
-		/// @tparam T The type of the plugin to be instantiated
-		/// @tparam Ts The types of the contructor arguments
-		/// @param args A list of args passed to the contructor of the plugin object
-		/// @returns A pointer to the allocated plugin
-		///
-		/// @throws PluginError if the plugin could not be loaded
-		template<typename T, typename ... Ts>
-		static T* createNew(Ts&&...args) {
-			static_assert(std::is_base_of<Plugin, T>::value, "The Plugin::create() can only be used to instantiate objects of base-type Plugin");
-			static_assert(!std::is_pointer<T>::value, "Plugin::create() can't be used to instantiate pointers. It will return a pointer automatically");
-
-			T *instancePtr = new T(std::forward<Ts>(args)...);
-
-			// call the initialize-method and throw an exception of it doesn't succeed
-			if (!instancePtr->doInitialize()) {
-				delete instancePtr;
-				// Delete the constructed object to prevent a memory leak
-				throw PluginError("Failed to initialize plugin");
-			}
-
-			return instancePtr;
-		}
-
-		// Note that most of the functions below aren't marked as const even though they could be. This is intentional
-		// in order to prevent anything but the PluginManager from accessing them. If you find yourself needing to call
-		// a non-const function on a const plugin, go look for a way to achieve what you want through the PluginManager.
 
 		/// Initializes this plugin
 		virtual mumble_error_t init();
 		/// Shuts this plugin down
 		virtual void shutdown();
-		/// @returns The name of this plugin
-		virtual QString getName() const;
-		/// @returns The API version this plugin intends to use
-		virtual version_t getAPIVersion() const;
 		/// Delegates the struct of API function pointers to the plugin backend
 		///
 		/// @param api The respective MumbleAPI struct
-		virtual void registerAPIFunctions(MumbleAPI api);
-
+		virtual void registerAPIFunctions(MumbleAPI api) const;
 		/// Provides the plugin backend with some version information about Mumble
 		///
 		/// @param mumbleVersion The version of the Mumble client
 		/// @param mumbleAPIVersion The API version used by the Mumble client
 		/// @param minimalExpectedAPIVersion The minimal API version expected to be used by the plugin backend
-		virtual void setMumbleInfo(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion);
-		/// @returns The version of this plugin
-		virtual version_t getVersion() const;
-		/// @returns The author of this plugin
-		virtual QString getAuthor() const;
-		/// @returns The plugin's description
-		virtual QString getDescription() const;
-		/// @returns The plugin's features or'ed together (See the PluginFeature enum in MumblePlugin.h for what features are available)
-		virtual uint32_t getFeatures() const;
+		virtual void setMumbleInfo(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion) const;
 		/// Asks the plugin to deactivate certain features
 		///
 		/// @param features The feature list or'ed together
 		/// @returns The list of features that couldn't be deactivated or'ed together
-		virtual uint32_t deactivateFeatures(uint32_t features);
+		virtual uint32_t deactivateFeatures(uint32_t features) const;
 		/// Shows an about-dialog
 		///
 		/// @parent A pointer to the QWidget that should be used as a parent
@@ -271,17 +214,17 @@ class Plugin : public QObject {
 		/// @param[out] context The context of the current game-session (includes server/squad info)
 		/// @param[out] identity The ingame identity of the player (name)
 		virtual bool fetchPositionalData(Position3D& avatarPos, Vector3D& avatarDir, Vector3D& avatarAxis, Position3D& cameraPos, Vector3D& cameraDir,
-				Vector3D& cameraAxis, QString& context, QString& identity);
+				Vector3D& cameraAxis, QString& context, QString& identity) const;
 		/// Shuts down positional data gathering
 		virtual void shutdownPositionalData();
 		/// Called to indicate that the client has connected to a server
 		///
 		/// @param connection An object used to identify the current connection
-		virtual void onServerConnected(mumble_connection_t connection);
+		virtual void onServerConnected(mumble_connection_t connection) const;
 		/// Called to indicate that the client disconnected from a server
 		///
 		/// @param connection An object used to identify the connection that has been disconnected
-		virtual void onServerDisconnected(mumble_connection_t connection);
+		virtual void onServerDisconnected(mumble_connection_t connection) const;
 		/// Called to indicate that a user has switched its channel
 		///
 		/// @param connection An object used to identify the current connection
@@ -289,19 +232,19 @@ class Plugin : public QObject {
 		/// @param previousChannelID The ID of the channel the user came from (-1 if there is no previous channel)
 		/// æparam newChannelID The ID of the channel the user has switched to
 		virtual void onChannelEntered(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t previousChannelID,
-				mumble_channelid_t newChannelID);
+				mumble_channelid_t newChannelID) const;
 		/// Called to indicate that a user exited a channel.
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param userID The ID of the user that switched channel
 		/// @param channelID The ID of the channel the user exited
-		virtual void onChannelExited(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID);
+		virtual void onChannelExited(mumble_connection_t connection, mumble_userid_t userID, mumble_channelid_t channelID) const;
 		/// Called to indicate that a user has changed its talking state
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param userID The ID of the user that switched channel
 		/// @param talkingState The new talking state of the user
-		virtual void onUserTalkingStateChanged(mumble_connection_t connection, mumble_userid_t userID, talking_state_t talkingState);
+		virtual void onUserTalkingStateChanged(mumble_connection_t connection, mumble_userid_t userID, talking_state_t talkingState) const;
 		/// Called to indicate that a data packet has been received
 		///
 		/// @param connection An object used to identify the current connection
@@ -310,7 +253,7 @@ class Plugin : public QObject {
 		/// @param dataLength The length of the data array
 		/// @param datID The ID of the data used to determine whether this plugin handles this data or not
 		/// @returns Whether this plugin handled the data
-		virtual bool onReceiveData(mumble_connection_t connection, mumble_userid_t sender, const char *data, size_t dataLength, const char *dataID);
+		virtual bool onReceiveData(mumble_connection_t connection, mumble_userid_t sender, const char *data, size_t dataLength, const char *dataID) const;
 		/// Called to indicate that there is audio input
 		///
 		/// @param inputPCM A pointer to a short array representing the input PCM
@@ -318,7 +261,7 @@ class Plugin : public QObject {
 		/// @param channelCount The amount of channels in the PCM
 		/// @param isSpeech Whether Mumble considers the input as speech
 		/// @returns Whether this pluign has modified the audio
-		virtual bool onAudioInput(short *inputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech);
+		virtual bool onAudioInput(short *inputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech) const;
 		/// Called to indicate that an audio source has been fetched
 		///
 		/// @param outputPCM A pointer to a short array representing the output PCM
@@ -327,52 +270,52 @@ class Plugin : public QObject {
 		/// @param isSpeech Whether Mumble considers the output as speech
 		/// @param userID The ID of the user responsible for the output (only relevant if isSpeech == true)
 		/// @returns Whether this pluign has modified the audio
-		virtual bool onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, mumble_userid_t userID);
+		virtual bool onAudioSourceFetched(float *outputPCM, uint32_t sampleCount, uint16_t channelCount, bool isSpeech, mumble_userid_t userID) const;
 		/// Called to indicate that audio is about to be played
 		///
 		/// @param outputPCM A pointer to a short array representing the output PCM
 		/// @param sampleCount The amount of samples per channel
 		/// @param channelCount The amount of channels in the PCM
 		/// @returns Whether this pluign has modified the audio
-		virtual bool onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, uint16_t channelCount);
+		virtual bool onAudioOutputAboutToPlay(float *outputPCM, uint32_t sampleCount, uint16_t channelCount) const;
 		/// Called when the server has synchronized with the client
 		///
 		/// @param connection An object used to identify the current connection
-		virtual void onServerSynchronized(mumble_connection_t connection);
+		virtual void onServerSynchronized(mumble_connection_t connection) const;
 		/// Called when a new user gets added to the user model. This is the case when that new user freshly connects to the server the
 		/// local user is on but also when the local user connects to a server other clients are already connected to (in this case this
 		/// method will be called for every client already on that server).
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param userID The ID of the user that has been added
-		virtual void onUserAdded(mumble_connection_t connection, mumble_userid_t userID);
+		virtual void onUserAdded(mumble_connection_t connection, mumble_userid_t userID) const;
 		/// Called when a user gets removed from the user model. This is the case when that user disconnects from the server the
 		/// local user is on but also when the local user disconnects from a server other clients are connected to (in this case this
 		/// method will be called for every client on that server).
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param userID The ID of the user that has been removed
-		virtual void onUserRemoved(mumble_connection_t connection, mumble_userid_t userID);
+		virtual void onUserRemoved(mumble_connection_t connection, mumble_userid_t userID) const;
 		/// Called when a new channel gets added to the user model. This is the case when a new channel is created on the server the local
 		/// user is on but also when the local user connects to a server that contains channels other than the root-channel (in this case
 		/// this method will be called for ever non-root channel on that server).
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param channelID The ID of the channel that has been added
-		virtual void onChannelAdded(mumble_connection_t connection, mumble_channelid_t channelID);
+		virtual void onChannelAdded(mumble_connection_t connection, mumble_channelid_t channelID) const;
 		/// Called when a channel gets removed from the user model. This is the case when a channel is removed on the server the local
 		/// user is on but also when the local user disconnects from a server that contains channels other than the root-channel (in this case
 		/// this method will be called for ever non-root channel on that server).
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param channelID The ID of the channel that has been removed
-		virtual void onChannelRemoved(mumble_connection_t connection, mumble_channelid_t channelID);
+		virtual void onChannelRemoved(mumble_connection_t connection, mumble_channelid_t channelID) const;
 		/// Called when a channel gets renamed. This also applies when a new channel is created (thus assigning it an initial name is
 		/// also considered renaming).
 		///
 		/// @param connection An object used to identify the current connection
 		/// @param channelID The ID of the channel that has been renamed
-		virtual void onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID);
+		virtual void onChannelRenamed(mumble_connection_t connection, mumble_channelid_t channelID) const;
 		/// Called when a key has been pressed or released while Mumble has keyboard focus.
 		///
 		/// @param keyCode The key code of the respective key. The character codes are defined
@@ -380,16 +323,76 @@ class Plugin : public QObject {
 		/// 	to the ASCII code-page with the only difference that case is not distinguished. Therefore
 		/// 	always the upper-case letter code will be used for letters.
 		/// @param wasPress Whether the key has been pressed (instead of released)
-		virtual void onKeyEvent(keycode_t keyCode, bool wasPress);
-		/// @return Whether the plugin has found a new/updated version of itself available for download
-		virtual bool hasUpdate() const;
-		/// @return The URL to download the updated plugin. May be empty
-		virtual QUrl getUpdateDownloadURL() const;
+		virtual void onKeyEvent(keycode_t keyCode, bool wasPress) const;
+
+
+	public:
+		/// A template function for instantiating new plugin objects and initializing them. The plugin will be allocated on the heap and has
+		/// thus to be deleted via the delete instruction.
+		///
+		/// @tparam T The type of the plugin to be instantiated
+		/// @tparam Ts The types of the contructor arguments
+		/// @param args A list of args passed to the contructor of the plugin object
+		/// @returns A pointer to the allocated plugin
+		///
+		/// @throws PluginError if the plugin could not be loaded
+		template<typename T, typename ... Ts>
+		static T* createNew(Ts&&...args) {
+			static_assert(std::is_base_of<Plugin, T>::value, "The Plugin::create() can only be used to instantiate objects of base-type Plugin");
+			static_assert(!std::is_pointer<T>::value, "Plugin::create() can't be used to instantiate pointers. It will return a pointer automatically");
+
+			T *instancePtr = new T(std::forward<Ts>(args)...);
+
+			// call the initialize-method and throw an exception of it doesn't succeed
+			if (!instancePtr->doInitialize()) {
+				delete instancePtr;
+				// Delete the constructed object to prevent a memory leak
+				throw PluginError("Failed to initialize plugin");
+			}
+
+			return instancePtr;
+		}
+
+		/// Destructor
+		virtual ~Plugin() Q_DECL_OVERRIDE;
+		/// @returns Whether this plugin is in a valid state
+		virtual bool isValid() const;
+		/// @returns Whether this plugin is loaded (has been initialized via Plugin::init())
+		virtual bool isLoaded() const Q_DECL_FINAL;
+		/// @returns The unique ID of this plugin. This ID holds only as long as this plugin isn't "reconstructed".
+		virtual plugin_id_t getID() const Q_DECL_FINAL;
+		/// @returns Whether this plugin is built into Mumble (thus not backed by a shared library)
+		virtual bool isBuiltInPlugin() const Q_DECL_FINAL;
+		/// @returns The path to the shared library in the host's filesystem
+		virtual QString getFilePath() const;
+		/// @returns Whether positional data gathering is enabled (as in allowed via preferences)
+		virtual bool isPositionalDataEnabled() const Q_DECL_FINAL;
+		/// @returns Whether positional data gathering is currently active (as in running)
+		virtual bool isPositionalDataActive() const Q_DECL_FINAL;
+		/// @returns Whether this plugin is currently allowed to monitor keyboard events
+		virtual bool isKeyboardMonitoringAllowed() const Q_DECL_FINAL;
+
 
 		/// @returns Whether this plugin provides an about-dialog
 		virtual bool providesAboutDialog() const;
 		/// @returns Whether this plugin provides an config-dialog
 		virtual bool providesConfigDialog() const;
+		/// @returns The name of this plugin
+		virtual QString getName() const;
+		/// @returns The API version this plugin intends to use
+		virtual version_t getAPIVersion() const;
+		/// @returns The version of this plugin
+		virtual version_t getVersion() const;
+		/// @returns The author of this plugin
+		virtual QString getAuthor() const;
+		/// @returns The plugin's description
+		virtual QString getDescription() const;
+		/// @returns The plugin's features or'ed together (See the PluginFeature enum in MumblePlugin.h for what features are available)
+		virtual uint32_t getFeatures() const;
+		/// @return Whether the plugin has found a new/updated version of itself available for download
+		virtual bool hasUpdate() const;
+		/// @return The URL to download the updated plugin. May be empty
+		virtual QUrl getUpdateDownloadURL() const;
 };
 
 #endif
