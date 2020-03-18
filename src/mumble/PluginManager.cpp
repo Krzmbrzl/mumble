@@ -793,7 +793,7 @@ void PluginManager::on_userRemoved(mumble_userid_t userID) const {
 
 void PluginManager::on_channelAdded(mumble_channelid_t channelID) const {
 #ifdef MUMBLE_PLUGIN_DEBUG
-	qDebug() << "PluginManager: Added channel with ID" << channel->channelID;
+	qDebug() << "PluginManager: Added channel with ID" << channelID;
 #endif
 
 	const mumble_connection_t connectionID = g.sh->getConnectionID();
