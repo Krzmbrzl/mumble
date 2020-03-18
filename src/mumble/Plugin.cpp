@@ -17,13 +17,13 @@ plugin_id_t Plugin::nextID = 1;
 QMutex Plugin::idLock(QMutex::Recursive);
 
 void assertPluginLoaded(const Plugin* plugin) {
-	// don't do the checking in release build
+	// don't throw and exception in release build
 #ifdef QT_DEBUG
 	if (!plugin->isLoaded()) {
 		throw std::runtime_error("Attempting to access plugin but it is not loaded!");
 	}
 #else
-	Q_UNUSED(plugin);
+	qWarning() << "Plugin assertion failed: Assumed plugin with ID" << plugin->getID() << "to be loaded but it wasn't!";
 #endif
 }
 
