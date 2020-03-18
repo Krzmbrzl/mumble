@@ -229,7 +229,7 @@ bool PluginManager::selectActivePositionalDataPlugin() {
 	qDebug() << "Its description:" << qUtf8Printable(plugin->getDescription())
 #define LOG_FOUND_PLUGIN(plugin, path) LOG_FOUND(plugin, path, "")
 #define LOG_FOUND_LEGACY_PLUGIN(plugin, path) LOG_FOUND(plugin, path, "legacy ")
-#define LOG_FOUND_BUILTIN(plugin) LOG_FOUND(plugin, QString::fromUtf8("<builtin>"), "built-in ")
+#define LOG_FOUND_BUILTIN(plugin) LOG_FOUND(plugin, QString::fromLatin1("<builtin>"), "built-in ")
 void PluginManager::rescanPlugins() {
 	clearPlugins();
 
@@ -639,16 +639,16 @@ void PluginManager::on_channelExited(const Channel *channel, const User *user) c
 QString getTalkingStateStr(Settings::TalkState ts) {
 	switch(ts) {
 		case Settings::TalkState::Passive:
-			return QString::fromUtf8("Passive");
+			return QString::fromLatin1("Passive");
 		case Settings::TalkState::Talking:
-			return QString::fromUtf8("Talking");
+			return QString::fromLatin1("Talking");
 		case Settings::TalkState::Whispering:
-			return QString::fromUtf8("Whispering");
+			return QString::fromLatin1("Whispering");
 		case Settings::TalkState::Shouting:
-			return QString::fromUtf8("Shouting");
+			return QString::fromLatin1("Shouting");
 	}
 
-	return QString::fromUtf8("Unknown");
+	return QString::fromLatin1("Unknown");
 }
 
 void PluginManager::on_userTalkingStateChanged() const {

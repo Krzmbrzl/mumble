@@ -474,7 +474,7 @@ namespace API {
 		}
 
 		Log::logOrDefer(Log::PluginMessage,
-			QString::fromUtf8("<b>%1:</b> %2").arg(plugin->getName().toHtmlEscaped()).arg(QString::fromUtf8(message).toHtmlEscaped())
+			QString::fromLatin1("<b>%1:</b> %2").arg(plugin->getName().toHtmlEscaped()).arg(QString::fromUtf8(message).toHtmlEscaped())
 		);
 
 		return STATUS_OK;

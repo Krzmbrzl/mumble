@@ -268,7 +268,7 @@ QString Plugin::getName() const {
 	if (m_apiFnc.getName) {
 		return QString::fromUtf8(m_apiFnc.getName());
 	} else {
-		return QString::fromUtf8("Unknown plugin");
+		return QString::fromLatin1("Unknown plugin");
 	}
 }
 
@@ -316,7 +316,7 @@ QString Plugin::getAuthor() const {
 	if (m_apiFnc.getAuthor) {
 		return QString::fromUtf8(m_apiFnc.getAuthor());
 	} else {
-		return QString::fromUtf8("Unknown");
+		return QString::fromLatin1("Unknown");
 	}
 }
 
@@ -326,7 +326,7 @@ QString Plugin::getDescription() const {
 	if (m_apiFnc.getDescription) {
 		return QString::fromUtf8(m_apiFnc.getDescription());
 	} else {
-		return QString::fromUtf8("No description provided");
+		return QString::fromLatin1("No description provided");
 	}
 }
 

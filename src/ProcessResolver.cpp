@@ -144,7 +144,7 @@ void addName(const char *stackName, QVector<const char*>& destVec) {
 	#define PROC_DIR "/proc/"
 
 	void ProcessResolver::doResolve() {
-		QDir procDir(QString::fromUtf8(PROC_DIR));
+		QDir procDir(QString::fromLatin1(PROC_DIR));
 		QStringList entries = procDir.entryList();
 
 		bool ok;
@@ -156,7 +156,7 @@ void addName(const char *stackName, QVector<const char*>& destVec) {
 				continue;
 			}
 
-			QString exe = QFile::symLinkTarget(QString::fromUtf8(PROC_DIR) + currentEntry + QString::fromUtf8("/exe"));
+			QString exe = QFile::symLinkTarget(QString::fromLatin1(PROC_DIR) + currentEntry + QString::fromLatin1("/exe"));
 			QFileInfo fi(exe);
 			QString firstPart = fi.baseName();
 			QString completeSuffix = fi.completeSuffix();
@@ -168,7 +168,7 @@ void addName(const char *stackName, QVector<const char*>& destVec) {
 			}
 
 			if (baseName == QLatin1String("wine-preloader") || baseName == QLatin1String("wine64-preloader")) {
-				QFile f(QString::fromUtf8(PROC_DIR) + currentEntry + QString::fromUtf8("/cmdline"));
+				QFile f(QString::fromLatin1(PROC_DIR) + currentEntry + QString::fromLatin1("/cmdline"));
 				if (f.open(QIODevice::ReadOnly)) {
 					QByteArray cmdline = f.readAll();
 					f.close();
