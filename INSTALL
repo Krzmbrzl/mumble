@@ -213,3 +213,7 @@ CONFIG+=no-plugin-installer
 
 CONFIG+=bundled-zlib
  Use the bundled zlib version instead of the system's one.
+
+CONFIG+=plugin-debug
+ Add debug statements to the build that are useful for debugging
+ custom plugins written for Mumble.
