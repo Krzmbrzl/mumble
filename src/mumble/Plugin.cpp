@@ -90,12 +90,13 @@ void Plugin::resolveFunctionPointers() {
 		if (!m_pluginIsValid) {
 			// Don't bother trying to resolve any other functions
 #ifdef MUMBLE_PLUGIN_DEBUG
-#define CHECK_AND_LOG(name) if (!m_apiFnc.name) { qDebug("\t\"%s\" is missing the %s() function", qPrintable(pluginPath), #name); }
+#define CHECK_AND_LOG(name) if (!m_apiFnc.name) { qDebug("\t\"%s\" is missing the %s() function", qPrintable(m_pluginPath), #name); }
 			CHECK_AND_LOG(init);
 			CHECK_AND_LOG(shutdown);
 			CHECK_AND_LOG(getName);
 			CHECK_AND_LOG(getAPIVersion);
 			CHECK_AND_LOG(registerAPIFunctions);
+#undef CHECK_AND_LOG
 #endif
 
 			return;
@@ -131,19 +132,49 @@ void Plugin::resolveFunctionPointers() {
 		m_apiFnc.hasUpdate = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("hasUpdate"));
 		m_apiFnc.getUpdateDownloadURL = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(char*, uint16_t, uint16_t)>(m_lib.resolve("getUpdateDownloadURL"));
 
+#ifdef MUMBLE_PLUGIN_DEBUG
+#define CHECK_AND_LOG(name) qDebug("\t" #name ": %s", (m_apiFnc.name == nullptr ? "no" : "yes"))
+		qDebug(">>>> Found optional functions for plugin \"%s\"", qUtf8Printable(m_pluginPath));
+		CHECK_AND_LOG(setMumbleInfo);
+		CHECK_AND_LOG(getVersion);
+		CHECK_AND_LOG(getAuthor);
+		CHECK_AND_LOG(getDescription);
+		CHECK_AND_LOG(registerPluginID);
+		CHECK_AND_LOG(getFeatures);
+		CHECK_AND_LOG(deactivateFeatures);
+		CHECK_AND_LOG(initPositionalData);
+		CHECK_AND_LOG(fetchPositionalData);
+		CHECK_AND_LOG(shutdownPositionalData);
+		CHECK_AND_LOG(onServerConnected);
+		CHECK_AND_LOG(onServerDisconnected);
+		CHECK_AND_LOG(onChannelEntered);
+		CHECK_AND_LOG(onChannelExited);
+		CHECK_AND_LOG(onUserTalkingStateChanged);
+		CHECK_AND_LOG(onReceiveData);
+		CHECK_AND_LOG(onAudioInput);
+		CHECK_AND_LOG(onAudioSourceFetched);
+		CHECK_AND_LOG(onAudioOutputAboutToPlay);
+		CHECK_AND_LOG(onServerSynchronized);
+		CHECK_AND_LOG(onUserAdded);
+		CHECK_AND_LOG(onUserRemoved);
+		CHECK_AND_LOG(onChannelAdded);
+		CHECK_AND_LOG(onChannelRemoved);
+		CHECK_AND_LOG(onChannelRenamed);
+		CHECK_AND_LOG(onKeyEvent);
+		CHECK_AND_LOG(hasUpdate);
+		CHECK_AND_LOG(getUpdateDownloadURL);
+		qDebug("<<<<");
+#endif
+
 		// If positional audio is to be supported, all three corresponding functions have to be implemented
 		// For PA it is all or nothing
 		if (!(m_apiFnc.initPositionalData && m_apiFnc.fetchPositionalData && m_apiFnc.shutdownPositionalData)
 				&& (m_apiFnc.initPositionalData || m_apiFnc.fetchPositionalData || m_apiFnc.shutdownPositionalData)) {
-#ifdef MUMBLE_PLUGIN_DEBUG
-			qDebug() << "Not all three functions for positional data gathering are implemented => not using any of the existing one";
-#endif
-
 			m_apiFnc.initPositionalData = nullptr;
 			m_apiFnc.fetchPositionalData = nullptr;
 			m_apiFnc.shutdownPositionalData = nullptr;
 #ifdef MUMBLE_PLUGIN_DEBUG
-			qDebug("\t\"%s\" has only partially implemented positional audio functions -> deactivating all of them", qPrintable(pluginPath));
+			qDebug("\t\"%s\" has only partially implemented positional data functions -> deactivating all of them", qPrintable(m_pluginPath));
 #endif
 		}
 	}
