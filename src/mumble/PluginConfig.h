@@ -1,4 +1,4 @@
-// Copyright 2005-2019 The Mumble Developers. All rights reserved.
+// Copyright 2019-2020 The Mumble Developers. All rights reserved.
 // Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
@@ -17,7 +17,6 @@
 #include <QtCore/QObject>
 #include <QtCore/QMutex>
 #include <QtCore/QReadWriteLock>
-#include <QtCore/QUrl>
 
 struct PluginInfo;
 
@@ -60,7 +59,5 @@ class PluginConfig : public ConfigWidget, public Ui::PluginConfig {
 		/// @param old The previously selected item (if applicable - otherwise NULL/nullptr)
 		void on_qtwPlugins_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *old);
 };
-
-struct PluginFetchMeta;
 
 #endif

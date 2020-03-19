@@ -516,7 +516,7 @@ bool AudioOutput::mix(void *outbuff, unsigned int nsamp) {
 			}
 
 			// For now the transmitted audio is always mono -> channelCount = 1
-			// As the events may casue the output PCM to change, the connection has to be direct in any case
+			// As the events may cause the output PCM to change, the connection has to be direct in any case
 			if (user) {
 				emit audioSourceFetched(pfBuffer, nsamp, 1, true, user);
 			} else {

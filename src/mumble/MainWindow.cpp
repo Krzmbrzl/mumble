@@ -2478,7 +2478,6 @@ void MainWindow::on_qaAudioStats_triggered() {
 }
 
 void MainWindow::on_qaAudioUnlink_triggered() {
-	// g.p->bUnlink = true;
 	g.pluginManager->unlinkPositionalData();
 }
 

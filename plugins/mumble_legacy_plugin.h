@@ -4,7 +4,7 @@
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
 
 // This header describes the deprecated "plugin" API from the times in which "plugins" could only be used
-// alongside the positional feature of Mumble
+// alongside the positional audio feature of Mumble.
 // By default translation units including this file will not compile due to a preprocessor error. This is intended
 // behaviour as you shouldn't be using this API any longer. Use the API from MumblePlugin.h instead.
 //

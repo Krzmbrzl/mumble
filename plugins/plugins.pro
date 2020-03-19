@@ -27,5 +27,3 @@ win32|linux {
 win32 {
   SUBDIRS += css dods hl2dm sto tf2
 }
-
-

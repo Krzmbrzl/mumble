@@ -322,6 +322,7 @@ class MainWindow : public QMainWindow, public MessageHandler, public Ui::MainWin
 		void removeContextAction(const MumbleProto::ContextActionModify &msg);
 
 	signals:
+		/// Signal emitted once the client and the server are done synchronizing data after connection.
 		void serverSynchronized();
 };
 

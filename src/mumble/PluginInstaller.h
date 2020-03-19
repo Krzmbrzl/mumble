@@ -1,4 +1,4 @@
-// Copyright 2005-2019 The Mumble Developers. All rights reserved.
+// Copyright 2019-2020 The Mumble Developers. All rights reserved.
 // Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
@@ -66,13 +66,16 @@ class PluginInstaller : public QDialog, public Ui::PluginInstaller {
 		///
 		/// @throws PluginInstallException If something isn't right or goes wrong
 		PluginInstaller(const QFileInfo& fileInfo, QWidget *p = nullptr);
+		/// Destructor
 		~PluginInstaller();
 
 		/// Performs the actual installation (moving/copying of the library) of the plugin
 		void install() const;
 
 	public slots:
+		/// Slot called when the user clicks the yes button
 		void on_qpbYesClicked();
+		/// Slot called when the user clicks the no button
 		void on_qpbNoClicked();
 };
 

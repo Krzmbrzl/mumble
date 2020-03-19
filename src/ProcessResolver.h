@@ -1,4 +1,4 @@
-// Copyright 2005-2019 The Mumble Developers. All rights reserved.
+// Copyright 2019-2020 The Mumble Developers. All rights reserved.
 // Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <QtCore/QVector>
 
-/// This ProcessResolver can be used to get a QVector of running process names and associated PIDs on multiple platforms
+/// This ProcessResolver can be used to get a QVector of running process names and associated PIDs on multiple platforms.
 /// This object is by no means thread-safe!
 class ProcessResolver {
 	protected:
@@ -37,4 +37,4 @@ class ProcessResolver {
 		size_t amountOfProcesses() const;
 };
 
-#endif
+#endif // MUMBLE_PROCESS_RESOLVER_H_

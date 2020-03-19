@@ -16,6 +16,7 @@
 	#include <QString>
 #endif
 
+// define the calling convention macro based on the compiler being used
 #if defined(_MSC_VER)
 	#define PLUGIN_CALLING_CONVENTION __cdecl
 #elif defined(__MINGW32__)
@@ -25,9 +26,14 @@
 #endif
 
 
+/// A macro holding the exit status of a successful operation
 #define STATUS_OK EC_OK
+/// A macro holding the version object that is considered to correspond to an unknown version
 #define VERSION_UNKNOWN Version({0,0,0})
 
+
+/// This enum's values correspond to special feature sets a plugin may provide.
+/// They are meant to be or'ed together to represent the total feature set of a plugin.
 enum PluginFeature {
 	/// None of the below
 	FEATURE_NONE = 0,
@@ -37,6 +43,7 @@ enum PluginFeature {
 	FEATURE_AUDIO = 1 << 1
 };
 
+/// This enum's values represent talking states a user can be in when using Mumble.
 enum TalkingState {
 	INVALID=-1,
 	PASSIVE=0,
@@ -45,12 +52,17 @@ enum TalkingState {
 	SHOUTING
 };
 
+/// This enum's values represent transmission modes a user might have configured. Transmission mode
+/// in this context is referring to a method that determines when a user is speaking and thus when
+/// to transmit audio packets.
 enum TransmissionMode {
 	TM_CONTINOUS,
 	TM_VOICE_ACTIVATION,
 	TM_PUSH_TO_TALK
 };
 
+/// This enum's values represent the error codes that are being used by the MumbleAPI.
+/// You can get a string-representation for each error code via the errorMessage function.
 enum ErrorCode {
 	EC_GENERIC_ERROR = -1,
 	EC_OK = 0,
@@ -65,6 +77,8 @@ enum ErrorCode {
 	EC_INVALID_PLUGIN_ID
 };
 
+/// This enum's values represent error codes specific to the framework of handling positional data
+/// gathering (needed for Mumble's positional audio feature).
 enum PositionalDataErrorCode {
 	/// Positional data has been initialized properly
 	PDEC_OK = 0,
@@ -75,6 +89,7 @@ enum PositionalDataErrorCode {
 	PDEC_ERROR_PERM
 };
 
+/// This enum's values represent the key-codes Mumble's API uses to reference keys on the keyboard.
 enum KeyCode {
 	KC_INVALID           = -1,
 
@@ -204,6 +219,7 @@ enum KeyCode {
 	KC_F19               = 274,
 };
 
+/// A struct for representing a version of the form major.minor.patch
 struct Version {
 	int32_t major;
 	int32_t minor;
@@ -275,17 +291,23 @@ inline const char* errorMessage(int16_t errorCode) {
 }
 
 
+/// Typedef for the type of a talking state
 typedef enum TalkingState talking_state_t;
+/// Typedef for the type of a transmission mode
 typedef enum TransmissionMode transmission_mode_t;
+/// Typedef for the type of a version
 typedef struct Version version_t;
+/// Typedef for the type of a connection
 typedef int32_t mumble_connection_t;
+/// Typedef for the type of a user
 typedef uint32_t mumble_userid_t;
+/// Typedef for the type of a channel
 typedef int32_t mumble_channelid_t;
+/// Typedef for the type of an error (code)
 typedef enum ErrorCode mumble_error_t;
+/// Typedef for the type of a plugin ID
 typedef uint32_t plugin_id_t;
+/// Typedef for the type of a key-code
 typedef KeyCode keycode_t;
 
-
-
-
-#endif
+#endif // MUMBLE_PLUGINCOMPONENT_H_
