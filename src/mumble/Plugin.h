@@ -6,6 +6,7 @@
 #ifndef MUMBLE_MUMBLE_PLUGIN_H_
 #define MUMBLE_MUMBLE_PLUGIN_H_
 
+#include "MumbleAPI.h"
 #include "PluginComponents.h"
 #include "PositionalData.h"
 

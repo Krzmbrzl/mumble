@@ -19,7 +19,7 @@
 #include "NetworkConfig.h"
 #include "Utils.h"
 #include "VoiceRecorder.h"
-#include "MumbleAPI.h"
+#include "API.h"
 
 #ifdef USE_RNNOISE
 extern "C" {

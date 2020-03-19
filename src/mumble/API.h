@@ -1,4 +1,4 @@
-// Copyright 2005-2019 The Mumble Developers. All rights reserved.
+// Copyright 2019-2020 The Mumble Developers. All rights reserved.
 // Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
@@ -7,7 +7,7 @@
 #define MUMBLE_MUMBLE_API_H_
 
 // In here the MumbleAPI struct is defined
-#include "PluginComponents.h"
+#include "MumbleAPI.h"
 
 #include <atomic>
 
