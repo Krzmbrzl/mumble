@@ -51,6 +51,7 @@ public:
 	 */
 	Database *db;
 	Log *l;
+	/// A pointer to the PluginManager that is used in this session
 	PluginManager *pluginManager;
 	QSettings *qs;
 	Overlay *o;

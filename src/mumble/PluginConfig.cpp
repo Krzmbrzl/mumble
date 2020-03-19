@@ -1,4 +1,4 @@
-// Copyright 2005-2020 The Mumble Developers. All rights reserved.
+// Copyright 2019-2020 The Mumble Developers. All rights reserved.
 // Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
@@ -15,16 +15,7 @@
 #include "Utils.h"
 #include "PluginManager.h"
 
-#include <QtCore/QLibrary>
-#include <QtCore/QUrlQuery>
-
 #include <QtWidgets/QMessageBox>
-#include <QtXml/QDomDocument>
-
-#ifdef Q_OS_WIN
-# include <softpub.h>
-# include <tlhelp32.h>
-#endif
 
 // We define a global macro called 'g'. This can lead to issues when included code uses 'g' as a type or parameter name (like protobuf 3.7 does). As such, for now, we have to make this our last include.
 #include "Global.h"
@@ -36,15 +27,6 @@ static ConfigWidget *PluginConfigDialogNew(Settings &st) {
 }
 
 static ConfigRegistrar registrar(5000, PluginConfigDialogNew);
-
-struct PluginFetchMeta {
-	QString hash;
-	QString path;
-	
-	PluginFetchMeta(const QString &hash_ = QString(), const QString &path_ = QString())
-		: hash(hash_)
-		, path(path_) { /* Empty */ }
-};
 
 
 PluginConfig::PluginConfig(Settings &st) : ConfigWidget(st) {

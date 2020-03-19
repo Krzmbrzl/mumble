@@ -1,4 +1,4 @@
-// Copyright 2005-2019 The Mumble Developers. All rights reserved.
+// Copyright 2019-2020 The Mumble Developers. All rights reserved.
 // Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
@@ -81,7 +81,10 @@ class PluginError : public std::runtime_error {
 /// that take quite some time and rely on other readers still having access to the locked object.
 class PluginReadLocker {
 	protected:
+		/// The lock this lock-guard is acting upon
 		QReadWriteLock *m_lock;
+		/// A flag indicating whether the lock has been unlocked (manually) and thus doesn't have to be unlocked
+		/// in the destructor.
 		bool m_unlocked;
 	public:
 		/// Constructor of the PluginReadLocker. If the passed lock-pointer is not nullptr, the constructor will
@@ -151,6 +154,9 @@ class Plugin : public QObject {
 		/// Mumble has the keyboard focus.
 		bool m_mayMonitorKeyboard;
 
+
+		// Most of this class's functions are protected in order to only allow access to them via the PluginManager
+		// as some require additional handling before/after calling them.
 
 		/// Initializes this plugin. This function must be called directly after construction. This is guaranteed when the
 		/// plugin is created via Plugin::createNew

@@ -1,10 +1,15 @@
-/// @file pluginAPI/Plugin.h
+// Copyright 2019-2020 The Mumble Developers. All rights reserved.
+// Use of this source code is governed by a BSD-style license
+// that can be found in the LICENSE file at the root of the
+// Mumble source tree or at <https://www.mumble.info/LICENSE>.
 
+/// This header file specifies the Mumble plugin interface
 
 #ifndef EXTERNAL_MUMBLE_PLUGIN_H_
 #define EXTERNAL_MUMBLE_PLUGIN_H_
 
 #include "PluginComponents.h"
+#include "MumbleAPI.h"
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -23,7 +28,9 @@
 extern "C" {
 #endif
 
-	// functions for init and de-init
+	//////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////// MANDATORY FUNCTIONS ///////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////
 	
 	/// Gets called right after loading the plugin in order to let the plugin initialize.
 	///
@@ -32,6 +39,31 @@ extern "C" {
 	
 	/// Gets called when unloading the plugin in order to allow it to clean up after itself.
 	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION shutdown();
+
+	/// Gets the name of the plugin. The plugin has to guarantee that the returned pointer will still be valid. The string will be copied
+	/// for further usage though.
+	///
+	/// @returns A pointer to the plugin name (encoded as a C-String)
+	PLUGIN_EXPORT const char* PLUGIN_CALLING_CONVENTION getName();
+
+	/// Gets the Version of the plugin-API this plugin intends to use.
+	/// Mumble will decide whether this plugin is loadable or not based on the return value of this function.
+	///
+	/// @return The respective API Version
+	PLUGIN_EXPORT version_t PLUGIN_CALLING_CONVENTION getAPIVersion();
+
+	/// Provides the MumbleAPI struct to the plugin. This struct contains function pointers that can be used
+	/// to interact with the Mumble client. It is up to the plugin to store this struct somewhere if it wants to make use
+	/// of it at some point.
+	///
+	/// @param api The MumbleAPI struct
+	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION registerAPIFunctions(struct MumbleAPI api);
+
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////// GENERAL FUNCTIONS //////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////
 
 	/// Tells the plugin some basic information about the Mumble client loading it.
 	/// This function will be the first one that is being called on this plugin - even before it is decided whether to load
@@ -42,24 +74,10 @@ extern "C" {
 	/// @param minimalExpectedAPIVersion The minimal Version the Mumble clients expects this plugin to meet in order to load it
 	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION setMumbleInfo(version_t mumbleVersion, version_t mumbleAPIVersion, version_t minimalExpectedAPIVersion);
 
-	// functions for general plugin info
-	
-	/// Gets the name of the plugin. The plugin has to guarantee that the returned pointer will still be valid. The string will be copied
-	/// for further usage though.
-	///
-	/// @returns A pointer to the plugin name (encoded as a C-String)
-	PLUGIN_EXPORT const char* PLUGIN_CALLING_CONVENTION getName();
-
 	/// Gets the Version of this plugin
 	///
 	/// @returns The plugin's version
 	PLUGIN_EXPORT version_t PLUGIN_CALLING_CONVENTION getVersion();
-
-	/// Gets the Version of the plugin-API this plugin intends to use.
-	/// Mumble will decide whether this plugin is loadable or not based on the return value of this function.
-	///
-	/// @return The respective API Version
-	PLUGIN_EXPORT version_t PLUGIN_CALLING_CONVENTION getAPIVersion();
 
 	/// Gets the name of the plugin author(s). The plugin has to guarantee that the returned pointer will still be valid. The string will
 	/// be copied for further usage though.
@@ -72,13 +90,6 @@ extern "C" {
 	///
 	/// @returns A pointer to the description (encoded as a C-String)
 	PLUGIN_EXPORT const char* PLUGIN_CALLING_CONVENTION getDescription();
-
-	/// Provides the MumbleAPI struct to the plugin. This struct contains function pointers that can be used
-	/// to interact with the Mumble client. It is up to the plugin to store this struct somewhere if it wants to make use
-	/// of it at some point.
-	///
-	/// @param api The MumbleAPI struct
-	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION registerAPIFunctions(struct MumbleAPI api);
 
 	/// Registers the ID of this plugin. This is the ID Mumble will reference this plugin with and by which this plugin
 	/// can identify itself when communicating with Mumble.
@@ -107,9 +118,13 @@ extern "C" {
 	/// 	FEATURE_NONE. If none of the requested features can be disabled return the unmodified features parameter.
 	PLUGIN_EXPORT uint32_t PLUGIN_CALLING_CONVENTION deactivateFeatures(uint32_t features);
 
-	
-	// -------- Positional Audio --------
-	// If this plugin wants to provide positional audio, all functions of this category have to be implemented
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////// POSITIONAL AUDIO ////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////
+	// If this plugin wants to provide positional audio, all functions of this category
+	// have to be implemented
 
 	/// Indicates that Mumble wants to use this plugin to request positional data. Therefore it should check whether it is currently
 	/// able to do so and allocate memory that is needed for that process.
@@ -157,7 +172,9 @@ extern "C" {
 
 
 
-	// -------- EventHandlers / Callback functions -----------
+	//////////////////////////////////////////////////////////////////////////////////
+	////////////////////// EVENTHANDLERS / CALLBACK FUNCTIONS ////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////
 
 	/// Called when connecting to a server.
 	///
@@ -301,7 +318,11 @@ extern "C" {
 	/// @param wasPres Whether the respective key has been pressed (instead of released)
 	PLUGIN_EXPORT void PLUGIN_CALLING_CONVENTION onKeyEvent(uint32_t keyCode, bool wasPress);
 
-	// -------- Plugin updates -----------
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////// PLUGIN UPDATES ////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////
 
 	/// This function is used to determine whether the plugin can find an update for itself that is available for download.
 	///

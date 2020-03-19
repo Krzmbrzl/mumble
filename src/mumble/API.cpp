@@ -656,7 +656,6 @@ namespace API {
 			MAP(AsciiTilde, TILDE);
 			MAP(degree, DEGREE_SIGN);
 
-
 			default:
 				return KC_INVALID;
 		}

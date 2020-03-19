@@ -247,7 +247,6 @@ int main(int argc, char **argv) {
 #endif
 					return 1;
 				}
-			} else if (args.at(i) == QLatin1String("-install-plugin") || args.at(i) == QLatin1String("--install-plugin")) {
 			} else {
 #ifndef NO_PLUGIN_INSTALLER
 				if (PluginInstaller::canBePluginFile(args.at(i))) {

@@ -1118,9 +1118,9 @@ void AudioInput::flushCheck(const QByteArray &frame, bool terminator, int voiceT
 	if (g.s.bTransmitPosition && g.pluginManager && ! g.bCenterPosition && g.pluginManager->fetchPositionalData()) {
 		Position3D currentPos = g.pluginManager->getPositionalData().getPlayerPos();
 
-		pds << currentPos.x; // g.p->fPosition[0];
-		pds << currentPos.y; // g.p->fPosition[1];
-		pds << currentPos.z; // g.p->fPosition[2];
+		pds << currentPos.x;
+		pds << currentPos.y;
+		pds << currentPos.z;
 	}
 
 	sendAudioFrame(data, pds);

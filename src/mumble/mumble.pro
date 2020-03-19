@@ -64,7 +64,7 @@ CONFIG(static) {
 }
 
 CONFIG(plugin-debug) {
-	DEFINES *= MUMBLE_PLUGIN_DEBUG
+    DEFINES *= MUMBLE_PLUGIN_DEBUG
 }
 
 QT  *= network sql xml svg concurrent
@@ -108,12 +108,12 @@ HEADERS *= BanEditor.h \
     Audio.h \
     ConfigDialog.h \
     PluginConfig.h \
-	Plugin.h \
-	LegacyPlugin.h \
-	PluginManager.h \
-	PluginUpdater.h \
-	PositionalData.h \
-	API.h \
+    Plugin.h \
+    LegacyPlugin.h \
+    PluginManager.h \
+    PluginUpdater.h \
+    PositionalData.h \
+    API.h \
     PTTButtonWidget.h \
     LookConfig.h \
     Overlay.h \
@@ -187,12 +187,12 @@ SOURCES *= BanEditor.cpp \
     Audio.cpp \
     ConfigDialog.cpp \
     PluginConfig.cpp \
-	Plugin.cpp \
-	LegacyPlugin.cpp \
-	PluginManager.cpp \
-	PluginUpdater.cpp \
-	PositionalData.cpp \
-	API.cpp \
+    Plugin.cpp \
+    LegacyPlugin.cpp \
+    PluginManager.cpp \
+    PluginUpdater.cpp \
+    PositionalData.cpp \
+    API.cpp \
     PTTButtonWidget.cpp \
     LookConfig.cpp \
     OverlayClient.cpp \
@@ -283,7 +283,7 @@ FORMS *= ConfigDialog.ui \
     RichTextEditorLink.ui \
     UserInformation.ui \
     VoiceRecorderDialog.ui \
-	PluginUpdater.ui
+    PluginUpdater.ui
 
 # Include TRANSLATIONS variable
 include(translations.pri)
@@ -309,20 +309,20 @@ CONFIG(static) {
 }
 
 !CONFIG(no-plugin-installer) {
-	SOURCES *= PluginInstaller.cpp
-	HEADERS *= PluginInstaller.h
+    SOURCES *= PluginInstaller.cpp
+    HEADERS *= PluginInstaller.h
 
-	DEFINES *= QUAZIP_STATIC
+    DEFINES *= QUAZIP_STATIC
 
-	INCLUDEPATH *= ../../3rdparty/quazip-src/quazip
-	INCLUDEPATH *= ../../3rdparty/zlib-src
+    INCLUDEPATH *= ../../3rdparty/quazip-src/quazip
+    INCLUDEPATH *= ../../3rdparty/zlib-src
 
-	LIBS *= -lquazip
-	LIBS *= -lz
+    LIBS *= -lquazip
+    LIBS *= -lz
 
-	FORMS *= PluginInstaller.ui
+    FORMS *= PluginInstaller.ui
 } else {
-	DEFINES *= NO_PLUGIN_INSTALLER
+    DEFINES *= NO_PLUGIN_INSTALLER
 }
 
 !CONFIG(no-manual-plugin) {
@@ -813,12 +813,12 @@ CONFIG(static_qt_plugins) {
 
 # On FreeBSD we need the util library for src/ProcessResolver.cpp to work
 freebsd {
-	LIBS *= -lutil
+    LIBS *= -lutil
 }
 
 # On any other BSD we need the kvm library for src/ProcessResolver.cpp to work
 !freebsd:bsd {
-	LIBS *= -lkvm
+    LIBS *= -lkvm
 }
 
 lrel.output = ${QMAKE_FILE_BASE}.qm

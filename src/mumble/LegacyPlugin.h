@@ -1,4 +1,4 @@
-// Copyright 2005-2019 The Mumble Developers. All rights reserved.
+// Copyright 2019-2020 The Mumble Developers. All rights reserved.
 // Use of this source code is governed by a BSD-style license
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
@@ -23,6 +23,9 @@ typedef std::shared_ptr<LegacyPlugin> legacy_plugin_ptr_t;
 /// Typedef for a const LegacyPlugin pointer
 typedef std::shared_ptr<const LegacyPlugin> const_legacy_plugin_ptr_t;
 
+
+/// This class is meant for compatibility for old Mumble "plugins" that stem from before the plugin framework has been
+/// introduced. Thus the "plugins" represented by this class are for positional data gathering only.
 class LegacyPlugin : public Plugin {
 	friend class Plugin; // needed in order for Plugin::createNew to access LegacyPlugin::doInitialize()
 	private:
@@ -30,11 +33,17 @@ class LegacyPlugin : public Plugin {
 		Q_DISABLE_COPY(LegacyPlugin)
 
 	protected:
+		/// The name of the "plugin"
 		QString m_name;
+		/// The description of the "plugin"
 		QString m_description;
+		/// The Version of the "plugin"
 		version_t m_version;
+		/// A pointer to the PluginStruct in its initial version
 		MumblePlugin *m_mumPlug;
+		/// A pointer to the PluginStruct in its second, enhanced version
 		MumblePlugin2 *m_mumPlug2;
+		/// A pointer to the PluginStruct that encorporates Qt functionality
 		MumblePluginQt *m_mumPlugQt;
 
 		virtual void resolveFunctionPointers() Q_DECL_OVERRIDE;
