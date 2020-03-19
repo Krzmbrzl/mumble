@@ -238,6 +238,39 @@ struct Version {
 #endif
 };
 
+/// @param errorCode The error code to get a message for
+/// @returns The error message coresponding to the given error code. The message
+/// 	is encoded as a C-string and are static meaning that it is safe to use the
+/// 	returned pointer in your code.
+inline const char* errorMessage(int16_t errorCode) {
+	switch (errorCode) {
+		case EC_GENERIC_ERROR:
+			return "Generic error";
+		case EC_OK:
+			return "Ok - this is not an error";
+		case EC_POINTER_NOT_FOUND:
+			return "Can't find the passed pointer";
+		case EC_NO_ACTIVE_CONNECTION:
+			return "There is currently no active connection to a server";
+		case EC_USER_NOT_FOUND:
+			return "Can't find the requested user";
+		case EC_CHANNEL_NOT_FOUND:
+			return "Can't find the requested channel";
+		case EC_CONNECTION_NOT_FOUND:
+			return "Can't identify the requested connection";
+		case EC_UNKNOWN_TRANSMISSION_MODE:
+			return "Unknown transmission mode encountered";
+		case EC_AUDIO_NOT_AVAILABLE:
+			return "There is currently no audio output available";
+		case EC_INVALID_SAMPLE:
+			return "Attempted to use invalid sample (can't play it)";
+		case EC_INVALID_PLUGIN_ID:
+			return "Used an invalid plugin ID";
+		default:
+			return "Unknown error code";
+	}
+}
+
 
 typedef enum TalkingState talking_state_t;
 typedef enum TransmissionMode transmission_mode_t;
