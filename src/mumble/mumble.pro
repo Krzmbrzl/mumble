@@ -113,7 +113,7 @@ HEADERS *= BanEditor.h \
 	PluginManager.h \
 	PluginUpdater.h \
 	PositionalData.h \
-	MumbleAPI.h \
+	API.h \
     PTTButtonWidget.h \
     LookConfig.h \
     Overlay.h \
@@ -192,7 +192,7 @@ SOURCES *= BanEditor.cpp \
 	PluginManager.cpp \
 	PluginUpdater.cpp \
 	PositionalData.cpp \
-	MumbleAPI.cpp \
+	API.cpp \
     PTTButtonWidget.cpp \
     LookConfig.cpp \
     OverlayClient.cpp \
