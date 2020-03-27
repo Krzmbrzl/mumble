@@ -278,7 +278,7 @@ const char *Log::msgNames[] = {
 	QT_TRANSLATE_NOOP("Log", "Private text message"),
 	QT_TRANSLATE_NOOP("Log", "User started listening to channel"),
 	QT_TRANSLATE_NOOP("Log", "User stopped listening to channel"),
-	QT_TRANSLATE_NOOP("Log", "Plugin sent a message")
+	QT_TRANSLATE_NOOP("Log", "Plugin message")
 };
 
 QString Log::msgName(MsgType t) const {
