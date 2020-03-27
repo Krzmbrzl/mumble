@@ -3339,6 +3339,10 @@ This field describes the size of an LCD device. The size is given either in pixe
         <source>User stopped listening to channel</source>
         <translation type="unfinished"></translation>
     </message>
+	<message>
+        <source>Plugin message</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>LogConfig</name>
