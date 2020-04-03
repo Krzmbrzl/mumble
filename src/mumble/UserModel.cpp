@@ -18,6 +18,7 @@
 #include "ServerHandler.h"
 #include "Usage.h"
 #include "User.h"
+#include "ChannelListener.h"
 
 // We define a global macro called 'g'. This can lead to issues when included code uses 'g' as a type or parameter name (like protobuf 3.7 does). As such, for now, we have to make this our last include.
 #include "Global.h"
@@ -1218,8 +1219,7 @@ void UserModel::addChannelListener(ClientUser *p, Channel *c) {
 	int row = citem->insertIndex(p, true);
 
 	beginInsertRows(index(citem), row, row);
-	p->addListeningChannel(c);
-	c->addListeningUser(p);
+	ChannelListener::addListener(p, c);
 	citem->qlChildren.insert(row, item);
 	endInsertRows();
 
@@ -1306,8 +1306,7 @@ void UserModel::removeChannelListener(ModelItem *item, ModelItem *citem) {
 	int row = citem->qlChildren.indexOf(item);
 
 	beginRemoveRows(index(citem), row, row);
-	p->removeListeningChannel(c);
-	c->removeListeningUser(p);
+	ChannelListener::removeListener(p, c);
 	citem->qlChildren.removeAt(row);
 	endRemoveRows();
 

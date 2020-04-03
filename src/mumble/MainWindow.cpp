@@ -47,6 +47,7 @@
 #include "SSLCipherInfo.h"
 #include "SvgIcon.h"
 #include "ListenerLocalVolumeDialog.h"
+#include "ChannelListener.h"
 
 #ifdef Q_OS_WIN
 #include "TaskList.h"
@@ -1620,7 +1621,7 @@ void MainWindow::qmListener_aboutToShow() {
 		qmListener->addAction(qaListenerLocalVolume);
 		if (cContextChannel) {
 			qmListener->addAction(qaChannelListen);
-			qaChannelListen->setChecked(cContextChannel->isListening(ClientUser::get(g.uiSession)));
+			qaChannelListen->setChecked(ChannelListener::isListening(g.uiSession, cContextChannel->iId));
 		}
 	} else {
 		qmListener->addAction(qaEmpty);
@@ -2001,7 +2002,7 @@ void MainWindow::qmChannel_aboutToShow() {
 			// If the server's version is less than 1.3, the listening feature is not supported yet
 			// and thus it doesn't make sense to show the action for it
 			qmChannel->addAction(qaChannelListen);
-			qaChannelListen->setChecked(c->isListening(ClientUser::get(g.uiSession)));
+			qaChannelListen->setChecked(ChannelListener::isListening(g.uiSession, c->iId));
 		}
 
 		qmChannel->addSeparator();
