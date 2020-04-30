@@ -913,7 +913,9 @@ void Server::msgUserState(ServerUser *uSource, MumbleProto::UserState &msg) {
 		}
 	}
 
-	bBroadcast = bBroadcast || !listeningChannelsAdd.isEmpty() || msg.listening_channel_remove_size() > 0;
+	bool listenerChanged = !listeningChannelsAdd.isEmpty() || msg.listening_channel_remove_size() > 0;
+
+	bBroadcast = bBroadcast || listenerChanged;
 
 
 	bool bDstAclChanged = false;
@@ -965,8 +967,13 @@ void Server::msgUserState(ServerUser *uSource, MumbleProto::UserState &msg) {
 
 		sendAll(msg, 0x010202);
 
-		if (bDstAclChanged)
+		if (bDstAclChanged) {
 			clearACLCache(pDstServerUser);
+		} else if (listenerChanged) {
+			// We only have to do this if the ACLs didn't change as
+			// clearACLCache calls clearWhisperTargetChache anyways
+			clearWhisperTargetCache();
+		}
 	}
 
 	emit userStateChanged(pDstServerUser);
