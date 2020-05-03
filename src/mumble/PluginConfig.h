@@ -32,12 +32,16 @@ class PluginConfig : public ConfigWidget, public Ui::PluginConfig {
 		/// @returns The plugin corresponding to the provided item
 		const_plugin_ptr_t pluginForItem(QTreeWidgetItem *item) const;
 	public:
+		/// The unique name of this ConfigWidget
+		static const QString name;
 		/// Constructor
 		///
 		/// @param st The settings object to work on
 		PluginConfig(Settings &st);
 		/// @returns The title of this widget
 		virtual QString title() const Q_DECL_OVERRIDE;
+		/// @returns The name of this ConfigWidget
+		const QString &getName() const Q_DECL_OVERRIDE;
 		/// @returns The icon for this widget
 		virtual QIcon icon() const Q_DECL_OVERRIDE;
 	public slots:
