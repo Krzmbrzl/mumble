@@ -77,11 +77,11 @@ void Plugin::resolveFunctionPointers() {
 		// the missing ones
 		
 		// resolve the mandatory functions first
-		m_apiFnc.init = reinterpret_cast<mumble_error_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("init"));
-		m_apiFnc.shutdown = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("shutdown"));
-		m_apiFnc.getName = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getName"));
-		m_apiFnc.getAPIVersion = reinterpret_cast<version_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getAPIVersion"));
-		m_apiFnc.registerAPIFunctions = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleAPI)>(m_lib.resolve("registerAPIFunctions"));
+		m_apiFnc.init = reinterpret_cast<mumble_error_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("mumble_init"));
+		m_apiFnc.shutdown = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("mumble_shutdown"));
+		m_apiFnc.getName = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("mumble_getName"));
+		m_apiFnc.getAPIVersion = reinterpret_cast<version_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("mumble_getAPIVersion"));
+		m_apiFnc.registerAPIFunctions = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(MumbleAPI)>(m_lib.resolve("mumble_registerAPIFunctions"));
 
 		// validate that all those functions are available in the loaded lib
 		m_pluginIsValid = m_apiFnc.init && m_apiFnc.shutdown && m_apiFnc.getName && m_apiFnc.getAPIVersion
@@ -103,34 +103,34 @@ void Plugin::resolveFunctionPointers() {
 		}
 
 		// The mandatory functions are there, now see if any optional functions are implemented as well
-		m_apiFnc.setMumbleInfo = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(version_t, version_t, version_t)>(m_lib.resolve("setMumbleInfo"));
-		m_apiFnc.getVersion = reinterpret_cast<version_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getVersion"));
-		m_apiFnc.getAuthor = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getAuthor"));
-		m_apiFnc.getDescription = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getDescription"));
-		m_apiFnc.registerPluginID = reinterpret_cast<void  (PLUGIN_CALLING_CONVENTION *)(uint32_t)>(m_lib.resolve("registerPluginID"));
-		m_apiFnc.getFeatures = reinterpret_cast<uint32_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("getFeatures"));
-		m_apiFnc.deactivateFeatures = reinterpret_cast<uint32_t (PLUGIN_CALLING_CONVENTION *)(uint32_t)>(m_lib.resolve("deactivateFeatures"));
-		m_apiFnc.initPositionalData = reinterpret_cast<uint8_t (PLUGIN_CALLING_CONVENTION *)(const char**, const uint64_t *, size_t)>(m_lib.resolve("initPositionalData"));
-		m_apiFnc.fetchPositionalData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, float*, float*, float*, float*, float*, const char**, const char**)>(m_lib.resolve("fetchPositionalData"));
-		m_apiFnc.shutdownPositionalData = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("shutdownPositionalData"));
-		m_apiFnc.onServerConnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(m_lib.resolve("onServerConnected"));
-		m_apiFnc.onServerDisconnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(m_lib.resolve("onServerDisconnected"));
-		m_apiFnc.onChannelEntered = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, mumble_channelid_t, mumble_channelid_t)>(m_lib.resolve("onChannelEntered"));
-		m_apiFnc.onChannelExited = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, mumble_channelid_t)>(m_lib.resolve("onChannelExited"));
-		m_apiFnc.onUserTalkingStateChanged = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, talking_state_t)>(m_lib.resolve("onUserTalkingStateChanged"));
-		m_apiFnc.onReceiveData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, const char*, size_t, const char*)>(m_lib.resolve("onReceiveData"));
-		m_apiFnc.onAudioInput = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(short*, uint32_t, uint16_t, bool)>(m_lib.resolve("onAudioInput"));
-		m_apiFnc.onAudioSourceFetched = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t, bool, mumble_userid_t)>(m_lib.resolve("onAudioSourceFetched"));
-		m_apiFnc.onAudioOutputAboutToPlay = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t)>(m_lib.resolve("onAudioOutputAboutToPlay"));
-		m_apiFnc.onServerSynchronized = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(m_lib.resolve("onServerSynchronized"));
-		m_apiFnc.onUserAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t)>(m_lib.resolve("onUserAdded"));
-		m_apiFnc.onUserRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t)>(m_lib.resolve("onUserRemoved"));
-		m_apiFnc.onChannelAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(m_lib.resolve("onChannelAdded"));
-		m_apiFnc.onChannelRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(m_lib.resolve("onChannelRemoved"));
-		m_apiFnc.onChannelRenamed = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(m_lib.resolve("onChannelRenamed"));
-		m_apiFnc.onKeyEvent = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(uint32_t, bool)>(m_lib.resolve("onKeyEvent"));
-		m_apiFnc.hasUpdate = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("hasUpdate"));
-		m_apiFnc.getUpdateDownloadURL = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(char*, uint16_t, uint16_t)>(m_lib.resolve("getUpdateDownloadURL"));
+		m_apiFnc.setMumbleInfo = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(version_t, version_t, version_t)>(m_lib.resolve("mumble_setMumbleInfo"));
+		m_apiFnc.getVersion = reinterpret_cast<version_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("mumble_getVersion"));
+		m_apiFnc.getAuthor = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("mumble_getAuthor"));
+		m_apiFnc.getDescription = reinterpret_cast<const char* (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("mumble_getDescription"));
+		m_apiFnc.registerPluginID = reinterpret_cast<void  (PLUGIN_CALLING_CONVENTION *)(uint32_t)>(m_lib.resolve("mumble_registerPluginID"));
+		m_apiFnc.getFeatures = reinterpret_cast<uint32_t (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("mumble_getFeatures"));
+		m_apiFnc.deactivateFeatures = reinterpret_cast<uint32_t (PLUGIN_CALLING_CONVENTION *)(uint32_t)>(m_lib.resolve("mumble_deactivateFeatures"));
+		m_apiFnc.initPositionalData = reinterpret_cast<uint8_t (PLUGIN_CALLING_CONVENTION *)(const char**, const uint64_t *, size_t)>(m_lib.resolve("mumble_initPositionalData"));
+		m_apiFnc.fetchPositionalData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, float*, float*, float*, float*, float*, const char**, const char**)>(m_lib.resolve("mumble_fetchPositionalData"));
+		m_apiFnc.shutdownPositionalData = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("mumble_shutdownPositionalData"));
+		m_apiFnc.onServerConnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(m_lib.resolve("mumble_onServerConnected"));
+		m_apiFnc.onServerDisconnected = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(m_lib.resolve("mumble_onServerDisconnected"));
+		m_apiFnc.onChannelEntered = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, mumble_channelid_t, mumble_channelid_t)>(m_lib.resolve("mumble_onChannelEntered"));
+		m_apiFnc.onChannelExited = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, mumble_channelid_t)>(m_lib.resolve("mumble_onChannelExited"));
+		m_apiFnc.onUserTalkingStateChanged = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, talking_state_t)>(m_lib.resolve("mumble_onUserTalkingStateChanged"));
+		m_apiFnc.onReceiveData = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t, const char*, size_t, const char*)>(m_lib.resolve("mumble_onReceiveData"));
+		m_apiFnc.onAudioInput = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(short*, uint32_t, uint16_t, bool)>(m_lib.resolve("mumble_onAudioInput"));
+		m_apiFnc.onAudioSourceFetched = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t, bool, mumble_userid_t)>(m_lib.resolve("mumble_onAudioSourceFetched"));
+		m_apiFnc.onAudioOutputAboutToPlay = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(float*, uint32_t, uint16_t)>(m_lib.resolve("mumble_onAudioOutputAboutToPlay"));
+		m_apiFnc.onServerSynchronized = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t)>(m_lib.resolve("mumble_onServerSynchronized"));
+		m_apiFnc.onUserAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t)>(m_lib.resolve("mumble_onUserAdded"));
+		m_apiFnc.onUserRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_userid_t)>(m_lib.resolve("mumble_onUserRemoved"));
+		m_apiFnc.onChannelAdded = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(m_lib.resolve("mumble_onChannelAdded"));
+		m_apiFnc.onChannelRemoved = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(m_lib.resolve("mumble_onChannelRemoved"));
+		m_apiFnc.onChannelRenamed = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(mumble_connection_t, mumble_channelid_t)>(m_lib.resolve("mumble_onChannelRenamed"));
+		m_apiFnc.onKeyEvent = reinterpret_cast<void (PLUGIN_CALLING_CONVENTION *)(uint32_t, bool)>(m_lib.resolve("mumble_onKeyEvent"));
+		m_apiFnc.hasUpdate = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)()>(m_lib.resolve("mumble_hasUpdate"));
+		m_apiFnc.getUpdateDownloadURL = reinterpret_cast<bool (PLUGIN_CALLING_CONVENTION *)(char*, uint16_t, uint16_t)>(m_lib.resolve("mumble_getUpdateDownloadURL"));
 
 #ifdef MUMBLE_PLUGIN_DEBUG
 #define CHECK_AND_LOG(name) qDebug("\t" #name ": %s", (m_apiFnc.name == nullptr ? "no" : "yes"))
