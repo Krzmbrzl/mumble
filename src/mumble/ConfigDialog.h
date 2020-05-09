@@ -26,6 +26,11 @@ class ConfigDialog : public QDialog, public Ui::ConfigDialog {
 	public:
 		ConfigDialog(QWidget *p = NULL);
 		~ConfigDialog() Q_DECL_OVERRIDE;
+
+	signals:
+		/// Emitted whenever the settings dialog has been accepted. For potential slots this
+		/// means that the settings potentially have changed.
+		void settingsAccepted();
 	public slots:
 		void on_pageButtonBox_clicked(QAbstractButton *);
 		void on_dialogButtonBox_clicked(QAbstractButton *);

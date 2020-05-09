@@ -199,6 +199,8 @@ void ConfigDialog::apply() {
 	g.iPushToTalk = 0;
 
 	Audio::start();
+
+	emit settingsAccepted();
 }
 
 void ConfigDialog::accept() {
