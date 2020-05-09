@@ -50,6 +50,7 @@
 #include "Utils.h"
 #include "ListenerLocalVolumeDialog.h"
 #include "ChannelListener.h"
+#include "TalkingUI.h"
 
 #ifdef Q_OS_WIN
 # include "TaskList.h"
@@ -115,7 +116,7 @@ MainWindow::MainWindow(QWidget *p) : QMainWindow(p) {
 	// current open document (i.e. you can copy the open document anywhere
 	// simply by dragging this icon).
 	qApp->setWindowIcon(qiIcon);
-	
+
 	// Set the icon on the MainWindow directly. This fixes the icon not
 	// being set on the MainWindow in certain environments (Ex: GTK+).
 	setWindowIcon(qiIcon);
@@ -484,7 +485,7 @@ void MainWindow::closeEvent(QCloseEvent *e) {
 	g.bQuit = true;
 
 	QMainWindow::closeEvent(e);
-	
+
 	qApp->exit(restartOnQuit ? MUMBLE_EXIT_CODE_RESTART : 0);
 }
 
@@ -1044,7 +1045,7 @@ void MainWindow::setupView(bool toggle_minimize) {
 			f |= Qt::FramelessWindowHint;
 		}
 	}
-	
+
 	if (g.s.aotbAlwaysOnTop == Settings::OnTopAlways ||
 	        (g.s.bMinimalView && g.s.aotbAlwaysOnTop == Settings::OnTopInMinimal) ||
 	        (!g.s.bMinimalView && g.s.aotbAlwaysOnTop == Settings::OnTopInNormal)) {
@@ -1354,7 +1355,7 @@ void MainWindow::on_qaServerInformation_triggered() {
 	g.sh->getConnectionInfo(host,port,uname,pw);
 
 	const SSLCipherInfo *ci = SSLCipherInfoLookupByOpenSSLName(qsc.name().toLatin1().constData());
-	
+
 	QString cipherDescription;
 	if (ci && ci->message_authentication && ci->encryption && ci->key_exchange_verbose && ci->rfc_name) {
 		if (QString::fromLatin1(ci->message_authentication) == QLatin1String("AEAD")) {
@@ -1956,6 +1957,10 @@ void MainWindow::on_qmConfig_aboutToShow() {
 	qmConfig->addAction(qaAudioTTS);
 	qmConfig->addSeparator();
 	qmConfig->addAction(qaConfigMinimal);
+
+	qaTalkingUIToggle->setChecked(g.talkingUI && g.talkingUI->isVisible());
+
+	qmConfig->addAction(qaTalkingUIToggle);
 	if (g.s.bMinimalView)
 		qmConfig->addAction(qaConfigHideFrame);
 }
@@ -2088,7 +2093,7 @@ void MainWindow::on_qaChannelListen_triggered() {
 
 void MainWindow::on_qaChannelFilter_triggered() {
 	Channel *c = getContextMenuChannel();
-	
+
 	if (c) {
 		UserModel *um = static_cast<UserModel *>(qtvUsers->model());
 		um->toggleChannelFiltered(c);
@@ -2234,7 +2239,7 @@ void MainWindow::on_qaListenerLocalVolume_triggered() {
 		return;
 	}
 
-	ListenerLocalVolumeDialog dialog(user, channel);	
+	ListenerLocalVolumeDialog dialog(user, channel);
 	dialog.exec();
 }
 
@@ -2331,12 +2336,12 @@ void MainWindow::userStateChanged() {
 	if (g.s.bStateInTray) {
 		updateTrayIcon();
 	}
-	
+
 	ClientUser *user = ClientUser::get(g.uiSession);
 	if (user == NULL) {
 		g.bAttenuateOthers = false;
 		g.prioritySpeakerActiveOverride = false;
-		
+
 		return;
 	}
 
@@ -2349,7 +2354,7 @@ void MainWindow::userStateChanged() {
 			g.prioritySpeakerActiveOverride =
 			        g.s.bAttenuateUsersOnPrioritySpeak
 			        && user->bPrioritySpeaker;
-			
+
 			break;
 		case Settings::Passive:
 		default:
@@ -2365,7 +2370,7 @@ void MainWindow::on_qaAudioReset_triggered() {
 		ai->bResetProcessor = true;
 }
 
-void MainWindow::on_qaFilterToggle_triggered() {	
+void MainWindow::on_qaFilterToggle_triggered() {
 	g.s.bFilterActive = qaFilterToggle->isChecked();
 	updateUserModel();
 }
@@ -2470,17 +2475,17 @@ void MainWindow::on_qaConfigDialog_triggered() {
 		updateTransmitModeComboBox();
 		updateTrayIcon();
 		updateUserModel();
-		
+
 		if (g.s.requireRestartToApply) {
 			if (g.s.requireRestartToApply && QMessageBox::question(
 				        this,
 				        tr("Restart Mumble?"),
 				        tr("Some settings will only apply after a restart of Mumble. Restart Mumble now?"),
 				        QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-		
+
 				bSuppressAskOnQuit = true;
 				restartOnQuit = true;
-				
+
 				close();
 			}
 		}
@@ -2840,7 +2845,7 @@ void MainWindow::removeTarget(ShortcutTarget *st)
 
 void MainWindow::on_gsCycleTransmitMode_triggered(bool down, QVariant)
 {
-	if (down) 
+	if (down)
 	{
 		QString qsNewMode;
 
@@ -2915,7 +2920,7 @@ void MainWindow::on_gsSendClipboardTextMessage_triggered(bool down, QVariant) {
 	}
 
 	// call sendChatbarMessage() instead of on_gsSendTextMessage_triggered() to handle
-	// formatting of the content in the clipboard, i.e., href.  
+	// formatting of the content in the clipboard, i.e., href.
 	sendChatbarMessage(QApplication::clipboard()->text());
 }
 
@@ -3277,6 +3282,17 @@ void MainWindow::on_Icon_activated(QSystemTrayIcon::ActivationReason reason) {
 	}
 }
 
+void MainWindow::on_qaTalkingUIToggle_triggered() {
+	if (!g.talkingUI) {
+		qCritical("MainWindow: Attempting to show Talking UI before it has been created!");
+		return;
+	}
+
+	g.talkingUI->setVisible(!g.talkingUI->isVisible());
+
+	g.s.bShowTalkingUI = g.talkingUI->isVisible();
+}
+
 /**
  * This function updates the qteChat bar default text according to
  * the selected user/channel in the users treeview.
@@ -3453,4 +3469,3 @@ void MainWindow::destroyUserInformation() {
 		}
 	}
 }
-

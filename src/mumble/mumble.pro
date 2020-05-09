@@ -143,7 +143,8 @@ HEADERS *= BanEditor.h \
     PathListWidget.h \
     XMLTools.h \
     Screen.h \
-    SvgIcon.h
+    SvgIcon.h \
+    TalkingUI.h
 
 SOURCES *= BanEditor.cpp \
     ACLEditor.cpp \
@@ -214,7 +215,8 @@ SOURCES *= BanEditor.cpp \
     PathListWidget.cpp \
     XMLTools.cpp \
     Screen.cpp \
-    SvgIcon.cpp
+    SvgIcon.cpp \
+    TalkingUI.cpp
 
 CONFIG(qtspeech) {
   SOURCES *= TextToSpeech.cpp
@@ -536,11 +538,11 @@ unix {
   } else {
     HEADERS *= GlobalShortcut_unix.h
     SOURCES *= os_unix.cpp GlobalShortcut_unix.cpp Overlay_unix.cpp SharedMemory_unix.cpp Log_unix.cpp
-    
+
     !CONFIG(qtspeech) {
       SOURCES *= TextToSpeech_unix.cpp
     }
-    
+
     must_pkgconfig(x11)
     linux* {
       LIBS *= -lrt
@@ -725,7 +727,7 @@ CONFIG(no-update) {
 
 CONFIG(static_qt_plugins) {
   DEFINES += USE_STATIC_QT_PLUGINS
-  
+
   # If QSQLite is a plugin we need to import it in order to use the database
   exists($$[QT_INSTALL_PLUGINS]/sqldrivers/*qsqlite*) {
       QTPLUGIN += qsqlite
