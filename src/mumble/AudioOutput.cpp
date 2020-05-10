@@ -406,19 +406,18 @@ bool AudioOutput::mix(void *outbuff, unsigned int nsamp) {
 		prioritySpeakerActive = true;
 	}
 
+	// If the audio backend uses a float-array we can sample and mix the audio sources directly into the output. Otherwise we'll have to
+	// use an intermediate buffer which we will convert to an array of shorts later
+	STACKVAR(float, fOutput, iChannels * nsamp);
+	float *output = (eSampleFormat == SampleFloat) ? reinterpret_cast<float *>(outbuff) : fOutput;
+	memset(output, 0, sizeof(float) * nsamp * iChannels);
+
 	if (! qlMix.isEmpty()) {
 		// There are audio sources available -> mix those sources together and feed them into the audio backend
 		STACKVAR(float, speaker, iChannels*3);
 		STACKVAR(float, svol, iChannels);
 
-		STACKVAR(float, fOutput, iChannels * nsamp);
-
-		// If the audio backend uses a float-array we can sample and mix the audio sources directly into the output. Otherwise we'll have to
-		// use an intermediate buffer which we will convert to an array of shorts later
-		float *output = (eSampleFormat == SampleFloat) ? reinterpret_cast<float *>(outbuff) : fOutput;
 		bool validListener = false;
-
-		memset(output, 0, sizeof(float) * nsamp * iChannels);
 
 		// Initialize recorder if recording is enabled
 		boost::shared_array<float> recbuff;
@@ -598,9 +597,12 @@ bool AudioOutput::mix(void *outbuff, unsigned int nsamp) {
 		if (recorder && recorder->isInMixDownMode()) {
 			recorder->addBuffer(NULL, recbuff, nsamp);
 		}
+	}
 
-		emit audioOutputAboutToPlay(output, nsamp, nchan);
+	bool hasOutput = false;
+	emit audioOutputAboutToPlay(output, nsamp, nchan, &hasOutput);
 
+	if (hasOutput || (! qlMix.isEmpty())) {
 		// Clip the output audio
 		if (eSampleFormat == SampleFloat)
 			for (unsigned int i=0;i<nsamp*iChannels;i++)
@@ -618,7 +620,7 @@ bool AudioOutput::mix(void *outbuff, unsigned int nsamp) {
 		removeBuffer(aop);
 	
 	// Return whether data has been written to the outbuff
-	return (! qlMix.isEmpty());
+	return (hasOutput || (! qlMix.isEmpty()));
 }
 
 bool AudioOutput::isAlive() const {
