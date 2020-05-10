@@ -188,20 +188,29 @@ void ServerHandler::udpReady() {
 		quint16 senderPort;
 		qusUdp->readDatagram(encrypted, qMin(2048U, buflen), &senderAddr, &senderPort);
 
-		if (!(HostAddress(senderAddr) == HostAddress(qhaRemote)) || (senderPort != usResolvedPort))
+		if (!(HostAddress(senderAddr) == HostAddress(qhaRemote)) || (senderPort != usResolvedPort)) {
+			qDebug() << "Dropping UDP packet because of invalid sender/port";
 			continue;
+		}
 
 		ConnectionPtr connection(cConnection);
-		if (! connection)
+		if (! connection) {
+			qDebug() << "Dropping UDP packet because of invalid connection";
 			continue;
+		}
 
-		if (! connection->csCrypt.isValid())
+		if (! connection->csCrypt.isValid()) {
+			qDebug() << "Dropping UDP packet because crypt is invalid";
 			continue;
+		}
 
-		if (buflen < 5)
+		if (buflen < 5) {
+			qDebug() << "Dropping UDP packet because buflen < 5 - it's" << buflen;
 			continue;
+		}
 
 		if (! connection->csCrypt.decrypt(reinterpret_cast<const unsigned char *>(encrypted), reinterpret_cast<unsigned char *>(buffer), buflen)) {
+			qDebug() << "UDP encryption failed";
 			if (connection->csCrypt.tLastGood.elapsed() > 5000000ULL) {
 				if (connection->csCrypt.tLastRequest.elapsed() > 5000000ULL) {
 					connection->csCrypt.tLastRequest.restart();
@@ -237,6 +246,7 @@ void ServerHandler::udpReady() {
 }
 
 void ServerHandler::handleVoicePacket(unsigned int msgFlags, PacketDataStream &pds, MessageHandler::UDPMessageType type) {
+	qDebug() << "Received voice packet";
 	unsigned int uiSession;
 	pds >> uiSession;
 	ClientUser *p = ClientUser::get(uiSession);
@@ -249,6 +259,8 @@ void ServerHandler::handleVoicePacket(unsigned int msgFlags, PacketDataStream &p
 		qba.append(static_cast<char>(msgFlags));
 		qba.append(pds.dataBlock(pds.left()));
 		ao->addFrameToBuffer(p, qba, iSeq, type);
+	} else {
+		qDebug() << "Dropping voice packet because AudioOutput is invaid";
 	}
 }
 

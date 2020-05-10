@@ -122,8 +122,10 @@ AudioOutputSpeech::~AudioOutputSpeech() {
 void AudioOutputSpeech::addFrameToBuffer(const QByteArray &qbaPacket, unsigned int iSeq) {
 	QMutexLocker lock(&qmJitter);
 
-	if (qbaPacket.size() < 2)
+	if (qbaPacket.size() < 2) {
+		qDebug() << "Dropping audio frame because qbaPacket.size() < 2 - it's" << qbaPacket.size();
 		return;
+	}
 
 	PacketDataStream pds(qbaPacket);
 
@@ -136,11 +138,13 @@ void AudioOutputSpeech::addFrameToBuffer(const QByteArray &qbaPacket, unsigned i
 		pds >> size;
 		size &= 0x1fff;
 		if (size == 0) {
+			qDebug() << "Dropping audio frame because it has size 0";
 			return;
 		}
 
 		const QByteArray &qba = pds.dataBlock(size);
 		if (size != qba.size() || !pds.isValid()) {
+			qDebug() << "Dropping audio frame because it is invalid (has weird size?)";
 			return;
 		}
 
@@ -175,6 +179,8 @@ void AudioOutputSpeech::addFrameToBuffer(const QByteArray &qbaPacket, unsigned i
 		jbp.timestamp = iFrameSize * iSeq;
 
 		jitter_buffer_put(jbJitter, &jbp);
+	} else {
+		qDebug() << "Not adding audio packet to jitter buffer";
 	}
 }
 

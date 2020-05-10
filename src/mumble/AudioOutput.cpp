@@ -167,8 +167,11 @@ const float *AudioOutput::getSpeakerPos(unsigned int &speakers) {
 }
 
 void AudioOutput::addFrameToBuffer(ClientUser *user, const QByteArray &qbaPacket, unsigned int iSeq, MessageHandler::UDPMessageType type) {
-	if (iChannels == 0)
+	if (iChannels == 0) {
+		qDebug() << "Dropping audio frame, because iChannels == 0";
 		return;
+	}
+
 	qrwlOutputs.lockForRead();
 	AudioOutputSpeech *aop = qobject_cast<AudioOutputSpeech *>(qmOutputs.value(user));
 
@@ -187,8 +190,10 @@ void AudioOutput::addFrameToBuffer(ClientUser *user, const QByteArray &qbaPacket
 			QThread::yieldCurrentThread();
 		}
 
-		if (! iMixerFreq)
+		if (! iMixerFreq) {
+			qDebug() << "Dropped audio frame because !iMixerFreq";
 			return;
+		}
 
 		qrwlOutputs.lockForWrite();
 		aop = new AudioOutputSpeech(user, iMixerFreq, type);
