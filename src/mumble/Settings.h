@@ -58,6 +58,7 @@ QDataStream &operator>>(QDataStream &, ShortcutTarget &);
 Q_DECLARE_METATYPE(ShortcutTarget)
 
 struct PluginSetting {
+	QString path;
 	bool enabled;
 	bool positionalDataEnabled;
 	bool allowKeyboardMonitoring;

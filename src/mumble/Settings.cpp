@@ -896,12 +896,14 @@ void Settings::load(QSettings* settings_ptr) {
 
 	// Plugins
 	settings_ptr->beginGroup(QLatin1String("plugins"));
-	foreach(const QString &savePath, settings_ptr->childKeys()) {
+	foreach(const QString &pluginHash, settings_ptr->childGroups()) {
 		// Path separators have been converted to NULL-chars
-		QString pluginPath = savePath;
-		pluginPath.replace(QChar::Null, QDir::separator());
-
-		qhPluginSettings.insert(pluginPath, settings_ptr->value(savePath).value<PluginSetting>());
+		PluginSetting pluginSettings;
+		pluginSettings.path = settings_ptr->value(pluginHash + QLatin1String("/path")).toString();
+		pluginSettings.allowKeyboardMonitoring = settings_ptr->value(pluginHash + QLatin1String("/allowKeyboardMonitoring")).toBool();
+		pluginSettings.enabled = settings_ptr->value(pluginHash + QLatin1String("/enabled")).toBool();
+		pluginSettings.positionalDataEnabled = settings_ptr->value(pluginHash + QLatin1String("/positionalDataEnabled")).toBool();
+		qhPluginSettings.insert(pluginHash, pluginSettings);
 	}
 	settings_ptr->endGroup();
 
@@ -1246,15 +1248,20 @@ void Settings::save() {
 	settings_ptr->endGroup();
 	
 	// Plugins
-	settings_ptr->beginGroup(QLatin1String("plugins"));
+	
 	foreach(const QString &pluginPath, qhPluginSettings.keys()) {
 		// replace slashes with NULL-chars in order to not confuse the settings system with additional slashes
-		QString savePath = pluginPath;
-		savePath.replace(QDir::separator(), QChar::Null);
+		QString savePath = QLatin1String("plugins/") + pluginPath;
 
-		settings_ptr->setValue(savePath, QVariant::fromValue(qhPluginSettings.value(pluginPath)));
+		settings_ptr->beginGroup(savePath);
+		PluginSetting settings = qhPluginSettings.value(pluginPath);
+		settings_ptr->setValue(QLatin1String("path"), settings.path);
+		settings_ptr->setValue(QLatin1String("enabled"), settings.enabled);
+		settings_ptr->setValue(QLatin1String("positionalDataEnabled"), settings.positionalDataEnabled);
+		settings_ptr->setValue(QLatin1String("allowKeyboardMonitoring"), settings.allowKeyboardMonitoring);
+		settings_ptr->endGroup();
 	}
-	settings_ptr->endGroup();
+	
 
 	settings_ptr->beginGroup(QLatin1String("overlay"));
 	os.save(settings_ptr);
