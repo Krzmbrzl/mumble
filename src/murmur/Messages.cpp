@@ -907,12 +907,6 @@ void Server::msgUserState(ServerUser *uSource, MumbleProto::UserState &msg) {
 		userEnterChannel(pDstServerUser, c, msg);
 		log(uSource, QString("Moved %1 to %2").arg(QString(*pDstServerUser), QString(*c)));
 		bBroadcast = true;
-
-		if (ChannelListener::isListening(pDstServerUser, c)) {
-			// If a user joins a channel (s)he has been listening to before, it means that this user will no
-			// longer listen into that channel (as joining it can be viewed as promoting the listening to a join)
-			msg.add_listening_channel_remove(c->iId);
-		}
 	}
 
 	// Handle channel listening
@@ -932,7 +926,9 @@ void Server::msgUserState(ServerUser *uSource, MumbleProto::UserState &msg) {
 		}
 	}
 
-	bBroadcast = bBroadcast || !listeningChannelsAdd.isEmpty() || msg.listening_channel_remove_size() > 0;
+	bool listenerChanged = !listeningChannelsAdd.isEmpty() || msg.listening_channel_remove_size() > 0;
+
+	bBroadcast = bBroadcast || listenerChanged;
 
 
 	bool bDstAclChanged = false;
@@ -984,8 +980,13 @@ void Server::msgUserState(ServerUser *uSource, MumbleProto::UserState &msg) {
 
 		sendAll(msg, 0x010202);
 
-		if (bDstAclChanged)
+		if (bDstAclChanged) {
 			clearACLCache(pDstServerUser);
+		} else if (listenerChanged) {
+			// We only have to do this if the ACLs didn't change as
+			// clearACLCache calls clearWhisperTargetChache anyways
+			clearWhisperTargetCache();
+		}
 	}
 
 	emit userStateChanged(pDstServerUser);

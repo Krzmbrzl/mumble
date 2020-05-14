@@ -1092,18 +1092,22 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 
 		buffer[0] = static_cast<char>(type | SpeechFlags::Normal);
 
-		// Send audio to all users in the same channel
-		foreach(User *p, c->qlUsers) {
-			ServerUser *pDst = static_cast<ServerUser *>(p);
-			SENDTO;
-		}
-
 		// Send audio to all users that are listening to the channel
 		foreach(unsigned int currentSession, ChannelListener::getListenersForChannel(c)) {
 			ServerUser *pDst = static_cast<ServerUser *>(qhUsers.value(currentSession));
 			if (pDst) {
 				listeningUsers << pDst;
 			}
+		}
+
+		// Send audio to all users in the same channel
+		foreach(User *p, c->qlUsers) {
+			ServerUser *pDst = static_cast<ServerUser *>(p);
+
+			// As we send the audio to this particular user here, we want to make sure to not send it again due to a listener proxy
+			listeningUsers -= pDst;
+
+			SENDTO;
 		}
 
 		// Send audio to all linked channels the user has speak-permission
@@ -1131,6 +1135,10 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 					foreach(User *p, l->qlUsers) {
 						if (!ChannelListener::isListening(p->uiSession, c->iId)) {
 							ServerUser *pDst = static_cast<ServerUser *>(p);
+
+							// As we send the audio to this particular user here, we want to make sure to not send it again due to a listener proxy
+							listeningUsers -= pDst;
+
 							SENDTO;
 						}
 					}
@@ -1140,11 +1148,13 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 	} else if (u->qmTargets.contains(target)) { // Whisper/Shout
 		QSet<ServerUser *> channel;
 		QSet<ServerUser *> direct;
+		QSet<ServerUser *> listener;
 
 		if (u->qmTargetCache.contains(target)) {
-			const ServerUser::TargetCache &cache = u->qmTargetCache.value(target);
-			channel = cache.first;
-			direct = cache.second;
+			const WhisperTargetCache &cache = u->qmTargetCache.value(target);
+			channel = cache.channelTargets;
+			direct = cache.directTargets;
+			listener = cache.listeningTargets;
 		} else {
 			const WhisperTarget &wt = u->qmTargets.value(target);
 			if (! wt.qlChannels.isEmpty()) {
@@ -1161,6 +1171,14 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 							if (ChanACL::hasPermission(u, wc, ChanACL::Whisper, &acCache)) {
 								foreach(User *p, wc->qlUsers) {
 									channel.insert(static_cast<ServerUser *>(p));
+								}
+
+								foreach(unsigned int currentSession, ChannelListener::getListenersForChannel(wc)) {
+									ServerUser *pDst = static_cast<ServerUser *>(qhUsers.value(currentSession));
+
+									if (pDst) {
+										listener << pDst;
+									}
 								}
 							}
 						} else {
@@ -1181,11 +1199,23 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 											channel.insert(su);
 										}
 									}
+
+									foreach(unsigned int currentSession, ChannelListener::getListenersForChannel(tc)) {
+										ServerUser *pDst = static_cast<ServerUser *>(qhUsers.value(currentSession));
+
+										if (pDst) {
+											listener << pDst;
+										}
+									}
 								}
 							}
 						}
 					}
 				}
+
+				// If a user receives the audio through this shout anyways, we won't send it through the
+				// listening channel again (and thus sending the audio twice)
+				listener -= channel;
 			}
 
 			{
@@ -1203,7 +1233,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 			qrwlVoiceThread.lockForWrite();
 
 			if (qhUsers.contains(uiSession))
-				u->qmTargetCache.insert(target, ServerUser::TargetCache(channel, direct));
+				u->qmTargetCache.insert(target, { channel, direct, listener });
 			qrwlVoiceThread.unlock();
 			qrwlVoiceThread.lockForRead();
 			if (! qhUsers.contains(uiSession))
@@ -1211,26 +1241,13 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 		}
 		if (! channel.isEmpty()) {
 			// These users receive the audio because someone is shouting to their channel
-			Channel *c = nullptr;
 			buffer[0] = static_cast<char>(type | SpeechFlags::Shout);
 			foreach(ServerUser *pDst, channel) {
-				c = pDst->cChannel;
 				SENDTO;
 			}
 			if (! direct.isEmpty()) {
 				qba.clear();
 				qba_npos.clear();
-			}
-
-			// listening to this channel, also forward the audio to them.
-			if (c) {
-				foreach(unsigned int currentSession, ChannelListener::getListenersForChannel(c)) {
-					ServerUser *pDst = static_cast<ServerUser *>(qhUsers.value(currentSession));
-
-					if (pDst) {
-						listeningUsers << pDst;
-					}
-				}
 			}
 		}
 		if (! direct.isEmpty()) {
@@ -1239,6 +1256,9 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 				SENDTO;
 			}
 		}
+
+		// Add the listening users to the set of current listeners
+		listeningUsers += listener;
 	}
 
 	// Send the audio to all listening users
@@ -1936,11 +1956,16 @@ void Server::clearACLCache(User *p) {
 		}
 	}
 
-	{
-		QWriteLocker lock(&qrwlVoiceThread);
+	// A change in ACLs means that the user might be able to whisper
+	// to users it didn't have permission to do before (or vice versa)
+	clearWhisperTargetCache();
+}
 
-		foreach(ServerUser *u, qhUsers)
-			u->qmTargetCache.clear();
+void Server::clearWhisperTargetCache() {
+	QWriteLocker lock(&qrwlVoiceThread);
+
+	foreach(ServerUser *u, qhUsers) {
+		u->qmTargetCache.clear();
 	}
 }
 
