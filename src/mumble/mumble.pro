@@ -63,6 +63,10 @@ CONFIG(static) {
   CONFIG += static_qt_plugins
 }
 
+CONFIG(plugin-debug) {
+    DEFINES *= MUMBLE_PLUGIN_DEBUG
+}
+
 QT  *= network sql xml svg concurrent
 
 isEqual(QT_MAJOR_VERSION, 5) {

@@ -758,10 +758,6 @@ This value allows you to set the maximum number of users allowed in the channel.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cancel echo from speakers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Enabling this will cancel the echo from your speakers. Mixed has low CPU impact, but only works well if your speakers are equally loud and equidistant from the microphone. Multichannel echo cancellation provides much better echo cancellation, but at a higher CPU cost.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3339,7 +3335,7 @@ This field describes the size of an LCD device. The size is given either in pixe
         <source>User stopped listening to channel</source>
         <translation type="unfinished"></translation>
     </message>
-	<message>
+    <message>
         <source>Plugin message</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3810,6 +3806,78 @@ The setting only applies for new messages, the already shown ones will retain th
     </message>
     <message>
         <source>Always keep local user visible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>String to separate a channel name from its parent&apos;s.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channel separator</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abbreviated prefix characters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The names of how many parent channels should be included in the channel&apos;s name when displaying it in the TalkingUI?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How many characters from the original name to display at the end of an abbreviated name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abbreviated postfix characters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Whether to also allow abbreviating the current channel of a user (instead of only its parent channels).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abbreviate current channel name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Channel hierarchy depth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>String that gets used isntead of the cut-out part of an abbreviated name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abbreviation replacement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Whether the channel (hierarchy) name should be abbreviated, if it exceeds the specified maximum length.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abbreviate channel names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The preferred maximum length of a channel (hierarchy) name in the Talking UI. Note that this is not a hard limit though.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Max. channel name length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relative font size to use in the Talking UI in percent.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rel. font size (%)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -5563,6 +5631,43 @@ the channel&apos;s context menu.</source>
         <source>Toggles the visibility of the TalkingUI.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Join user&apos;s channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Joins the channel of this user.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Usage: mumble [options] [&lt;url&gt; | &lt;plugin_list&gt;]
+
+&lt;url&gt; specifies a URL to connect to after startup instead of showing
+the connection window, and has the following form:
+mumble://[&lt;username&gt;[:&lt;password&gt;]@]&lt;host&gt;[:&lt;port&gt;][/&lt;channel&gt;[/&lt;subchannel&gt;...]][?version=&lt;x.y.z&gt;]
+
+&lt;plugin_list&gt; is a list of plugin files that shall be installed
+The version query parameter has to be set in order to invoke the
+correct client version. It currently defaults to 1.2.0.
+
+Valid options are:
+  -h, --help    Show this help text and exit.
+  -m, --multiple
+                Allow multiple instances of the client to be started.
+  -n, --noidentity
+                Suppress loading of identity files (i.e., certificates.)
+  -jn, --jackname
+                Set custom Jack client name.
+  --license
+                Show the Mumble license.
+  --authors
+                Show the Mumble authors.
+  --third-party-licenses
+                Show licenses for third-party software used by Mumble.
+
+</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Manual</name>
@@ -6502,7 +6607,15 @@ To upgrade these files to their latest versions, click the button below.</source
         <source>Talking UI</source>
         <translation type="unfinished"></translation>
     </message>
-	<message>
+    <message>
+        <source>Cancel echo from speakers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Echo cancellation is not supported for the interface combination &quot;%1&quot; (in) and &quot;%2&quot; (out).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unable to deactivate all requested features for plugin &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>

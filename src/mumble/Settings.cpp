@@ -455,8 +455,17 @@ Settings::Settings() {
 	iChatMessageMargins = 3;
 
 	bShowTalkingUI = false;
-	iTalkingUI_SilentUserLifeTime = 5;
 	bTalkingUI_LocalUserStaysVisible = false;
+	bTalkingUI_AbbreviateChannelNames = true;
+	bTalkingUI_AbbreviateCurrentChannel = false;
+	iTalkingUI_RelativeFontSize = 100;
+	iTalkingUI_SilentUserLifeTime = 5;
+	iTalkingUI_ChannelHierarchyDepth = 1;
+	iTalkingUI_MaxChannelNameLength = 20;
+	iTalkingUI_PrefixCharCount = 3;
+	iTalkingUI_PostfixCharCount = 2;
+	qsTalkingUI_ChannelSeparator = QLatin1String("/");
+	qsTalkingUI_AbbreviationReplacement = QLatin1String("...");
 
 	bShortcutEnable = true;
 	bSuppressMacEventTapWarning = false;
@@ -817,8 +826,17 @@ void Settings::load(QSettings* settings_ptr) {
 
 	// TalkingUI
 	SAVELOAD(bShowTalkingUI, "ui/showTalkingUI");
-	SAVELOAD(iTalkingUI_SilentUserLifeTime, "ui/talkingUI_SilentUserLifeTime");
 	SAVELOAD(bTalkingUI_LocalUserStaysVisible, "ui/talkingUI_LocalUserStaysVisible");
+	SAVELOAD(bTalkingUI_AbbreviateChannelNames, "ui/talkingUI_AbbreviateChannelNames");
+	SAVELOAD(bTalkingUI_AbbreviateCurrentChannel, "ui/talkingUI_AbbreviateCurrentChannel");
+	SAVELOAD(iTalkingUI_RelativeFontSize, "ui/talkingUI_RelativeFontSize");
+	SAVELOAD(iTalkingUI_SilentUserLifeTime, "ui/talkingUI_SilentUserLifeTime");
+	SAVELOAD(iTalkingUI_ChannelHierarchyDepth, "ui/talkingUI_ChannelHierarchieDepth");
+	SAVELOAD(iTalkingUI_MaxChannelNameLength, "ui/talkingUI_MaxChannelNameLength");
+	SAVELOAD(iTalkingUI_PrefixCharCount, "ui/talkingUI_PrefixCharCount");
+	SAVELOAD(iTalkingUI_PostfixCharCount, "ui/talkingUI_PostfixCharCount");
+	SAVELOAD(qsTalkingUI_ChannelSeparator, "ui/talkingUI_ChannelSeparator");
+	SAVELOAD(qsTalkingUI_AbbreviationReplacement, "ui/talkingUI_AbbreviationReplacement");
 
 	// PTT Button window
 	SAVELOAD(bShowPTTButtonWindow, "ui/showpttbuttonwindow");
@@ -1170,8 +1188,17 @@ void Settings::save() {
 
 	// TalkingUI
 	SAVELOAD(bShowTalkingUI, "ui/showTalkingUI");
-	SAVELOAD(iTalkingUI_SilentUserLifeTime, "ui/talkingUI_SilentUserLifeTime");
 	SAVELOAD(bTalkingUI_LocalUserStaysVisible, "ui/talkingUI_LocalUserStaysVisible");
+	SAVELOAD(bTalkingUI_AbbreviateChannelNames, "ui/talkingUI_AbbreviateChannelNames");
+	SAVELOAD(bTalkingUI_AbbreviateCurrentChannel, "ui/talkingUI_AbbreviateCurrentChannel");
+	SAVELOAD(iTalkingUI_RelativeFontSize, "ui/talkingUI_RelativeFontSize");
+	SAVELOAD(iTalkingUI_SilentUserLifeTime, "ui/talkingUI_SilentUserLifeTime");
+	SAVELOAD(iTalkingUI_ChannelHierarchyDepth, "ui/talkingUI_ChannelHierarchieDepth");
+	SAVELOAD(iTalkingUI_MaxChannelNameLength, "ui/talkingUI_MaxChannelNameLength");
+	SAVELOAD(iTalkingUI_PrefixCharCount, "ui/talkingUI_PrefixCharCount");
+	SAVELOAD(iTalkingUI_PostfixCharCount, "ui/talkingUI_PostfixCharCount");
+	SAVELOAD(qsTalkingUI_ChannelSeparator, "ui/talkingUI_ChannelSeparator");
+	SAVELOAD(qsTalkingUI_AbbreviationReplacement, "ui/talkingUI_AbbreviationReplacement");
 
 	// PTT Button window
 	SAVELOAD(bShowPTTButtonWindow, "ui/showpttbuttonwindow");
