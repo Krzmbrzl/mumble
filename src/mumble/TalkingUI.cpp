@@ -57,7 +57,7 @@ void TalkingUI::setupUI() {
 
 void TalkingUI::setFontSize(QWidget *widget) {
 	const double fontFactor = g.s.iTalkingUI_RelativeFontSize / 100.0;
-	
+
 	// We have to do this in a complicated way as Qt is very stubborn when it
 	// comes to manipulating fonts.
 	// We have to use stylesheets because this seems to be the only way Qt will
@@ -106,7 +106,7 @@ void TalkingUI::hideUser(unsigned int session) {
 	if (iter == m_entries.end()) {
 		return;
 	}
-	
+
 	Entry &entry = iter.value();
 
 	entry.background->hide();
@@ -212,7 +212,13 @@ void TalkingUI::addUser(const ClientUser *user) {
 		// We initially set the labels to not be visible, so that we'll
 		// enter the code-block further down.
 
-		QWidget *background = new QWidget(m_channels[user->cChannel->iId]);
+		QGroupBox *channelBox = m_channels.value(user->cChannel->iId);
+		if (!channelBox) {
+			qCritical("TalkingUI::addUser requesting unknown channel!");
+			return;
+		}
+
+		QWidget *background = new QWidget(channelBox);
 		QLayout *backgroundLayout = new QHBoxLayout();
 		backgroundLayout->setContentsMargins(2, 3, 2, 3);
 		background->setLayout(backgroundLayout);
@@ -256,25 +262,28 @@ void TalkingUI::addUser(const ClientUser *user) {
 
 		// If this user is currently selected, mark him/her as such
 		if (g.mw && g.mw->pmModel && g.mw->pmModel->getSelectedUser() == user) {
-			setSelection(&m_entries[user->uiSession]);
+			if (m_entries.contains(user->uiSession)) {
+				setSelection(&m_entries[user->uiSession]);
+			} else {
+				setSelection(nullptr);
+				qCritical("TalkingUI::addUser requested entry for unknown user!");
+			}
 		}
 	}
 }
 
 void TalkingUI::ensureVisible(unsigned int userSession, int channelID) {
 	if (!m_entries.contains(userSession)) {
-		qCritical("TalkingUI: Requested visibility for unknown user");
+		qCritical("TalkingUI::ensureVisible Requested visibility for unknown user");
 		return;
 	}
-
 	Entry entry = m_entries[userSession];
 
 	// Get the box we'll want to have the user in (representing the current
 	// channel of the user)
-	QGroupBox *channelBox = m_channels[channelID];
-
+	QGroupBox *channelBox = m_channels.value(channelID);
 	if (!channelBox) {
-		qCritical("TalkingUI: Can't find channel for speaker");
+		qCritical("TalkingUI::ensureVisible Can't find channel for speaker");
 		return;
 	}
 
@@ -288,6 +297,12 @@ void TalkingUI::ensureVisible(unsigned int userSession, int channelID) {
 	}
 
 	ClientUser *self = ClientUser::get(g.uiSession);
+	// In case the locals user (self) has changed channel but this method here was called before on_channelChanged
+	// has been called (e.g. triggered via on_talkingStateChanged of another user), we have to make sure that the
+	// channel of the local user actually exists in the TalkingUI. This is necessary because the channel update of
+	// a user and the call to on_channelChanged happen asynchronously (the latter runs through the event loop and
+	// thus typically (significantly) after the channel has been updated already.
+	addChannel(self->cChannel);
 	QGroupBox *localUserBox = m_channels[self->cChannel->iId];
 
 	bool adjust = false;
@@ -328,7 +343,11 @@ void TalkingUI::ensureVisible(unsigned int userSession, int channelID) {
 		// Make sure the Entry for this user is visible
 		entry.background->show();
 
-		Entry localUserEntry = m_entries[self->uiSession];
+		if (!m_entries.contains(self->uiSession)) {
+			qCritical("TalkingUI::ensureVisible mapping for local user not present!");
+			return;
+		}
+		Entry localUserEntry = m_entries.value(self->uiSession);
 
 		// Sort the users alphabetically
 		QString currentName = entry.background->property("userName").toString();
@@ -356,7 +375,7 @@ void TalkingUI::ensureVisible(unsigned int userSession, int channelID) {
 		}
 
 		if (channelBox == localUserBox) {
-			// Make sure that the local user is always listed first 
+			// Make sure that the local user is always listed first
 			localUserBox->layout()->removeWidget(localUserEntry.background);
 			static_cast<QHBoxLayout *>(localUserBox->layout())->insertWidget(0, localUserEntry.background);
 		}
@@ -484,13 +503,21 @@ void TalkingUI::on_talkingStateChanged() {
 		// the local user or if the local user is not configured to be always
 		// visible.
 		if (g.uiSession != user->uiSession || !g.s.bTalkingUI_LocalUserStaysVisible) {
-			m_timers[user->uiSession]->start();
+			if (m_timers.contains(user->uiSession)) {
+				m_timers[user->uiSession]->start();
+			} else {
+				qCritical("TalkingUI::on_talkingStateChanged Can't find timer for user (wanted to start it)!");
+			}
 		}
 	} else {
 		// User started talking
 		// Stop the timer for this user in case it has been started before but the user
 		// started speaking again before having been removed
-		m_timers[user->uiSession]->stop();
+		if (m_timers.contains(user->uiSession)) {
+			m_timers[user->uiSession]->stop();
+		} else {
+			qCritical("TalkingUI::on_talkingStateChanged Can't find timer for user (wanted to stop it)!");
+		}
 
 		ensureVisible(user->uiSession, user->cChannel->iId);
 	}
@@ -631,7 +658,11 @@ void TalkingUI::on_settingsChanged() {
 		if (m_timers.contains(self->uiSession)) {
 			if (g.s.bTalkingUI_LocalUserStaysVisible) {
 				// Stop any potentially running timers as we don't want to remove the user (anymore)
-				m_timers[self->uiSession]->stop();
+				if (m_timers.contains(self->uiSession)) {
+					m_timers[self->uiSession]->stop();
+				} else {
+					qCritical("TalkingUI::on_settingsChanged Can't find timer for local user (wanted to stop it)");
+				}
 
 				// Make sure local user exists and is visible
 				addUser(self);
@@ -639,7 +670,11 @@ void TalkingUI::on_settingsChanged() {
 			} else if (self->tsState == Settings::Passive) {
 				// Start the timer as the user may not stay around forever and (s)he is currently not
 				// talking.
-				m_timers[self->uiSession]->start();
+				if (m_timers.contains(self->uiSession)) {
+					m_timers[self->uiSession]->start();
+				} else {
+					qCritical("TalkingUI::on_settingsChanged Can't find timer for local user (wanted to start it)");
+				}
 			}
 		}
 	}
