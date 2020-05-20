@@ -231,6 +231,8 @@ void ServerHandler::udpReady() {
 					quint64 t;
 					pds >> t;
 					accUDP(static_cast<double>(tTimestamp.elapsed() - t) / 1000.0);
+
+					qDebug() << "Received ping";
 				}
 				break;
 			case MessageHandler::UDPVoiceCELTAlpha:
