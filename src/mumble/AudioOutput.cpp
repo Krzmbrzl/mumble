@@ -513,15 +513,12 @@ bool AudioOutput::mix(void *outbuff, unsigned int frameCount) {
 			// Check if the audio source is a user speaking (instead of a sample playback) and apply potential volume adjustments
 			AudioOutputSpeech *speech = qobject_cast<AudioOutputSpeech *>(aop);
 			if (speech) {
+				// Apply volume adjustment that was sent with the actual audio data
+				volumeAdjustment *= speech->volumeAdjustment;
+
+				// Apply local volume adjustment
 				const ClientUser *user = speech->p;
 				volumeAdjustment *= user->fLocalVolume;
-
-				if (user->cChannel && ChannelListener::isListening(g.uiSession, user->cChannel->iId) && (speech->ucFlags & SpeechFlags::Listen)) {
-					// We are receiving this audio packet only because we are listening to the channel
-					// the speaking user is in. Thus we receive the audio via our "listener proxy".
-					// Thus we'll apply the volume adjustment for our listener proxy as well
-					volumeAdjustment *= ChannelListener::getListenerLocalVolumeAdjustment(user->cChannel);
-				}
 
 				if (prioritySpeakerActive) {
 

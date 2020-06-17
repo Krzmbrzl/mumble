@@ -584,3 +584,8 @@ message SuggestConfig {
 	// True if the administrator suggests push to talk to be used on this server.
 	optional bool push_to_talk = 3;
 }
+
+message VolumeAdjustment {
+	optional uint32 channel_id = 1;
+	optional float volume_adjustment = 2;
+}

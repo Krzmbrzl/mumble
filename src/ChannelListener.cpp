@@ -125,6 +125,22 @@ QHash<int, float> ChannelListener::getAllListenerLocalVolumeAdjustmentsImpl(bool
 		return volumeMap;
 	}
 }
+#else
+// Server-specific code
+
+void ChannelListener::setListenerVolumeAdjustmentImpl(unsigned int userSession, int channelID, float volumeAdjustment) {
+	QWriteLocker lock(&m_volumeLock);
+
+	m_volumeAdjustments.insert(QPair<unsigned int, int>(userSession, channelID), volumeAdjustment);
+}
+
+float ChannelListener::getListenerVolumeAdjustmentImpl(unsigned int userSession, int channelID) const {
+	const QPair<unsigned int, int> key(userSession, channelID);
+
+	QReadLocker lock(&m_volumeLock);
+
+	return m_volumeAdjustments.value(key, 1.0f);
+}
 #endif
 
 void ChannelListener::clearImpl() {
@@ -137,6 +153,11 @@ void ChannelListener::clearImpl() {
 	{
 		QWriteLocker lock(&m_volumeLock);
 		m_listenerVolumeAdjustments.clear();
+	}
+#else
+	{
+		QWriteLocker lock(&m_volumeLock);
+		m_volumeAdjustments.clear();
 	}
 #endif
 }
@@ -251,6 +272,25 @@ void ChannelListener::saveToDB() {
 	g.db->setChannelListeners(g.sh->qbaDigest, ChannelListener::getListenedChannelsForUser(g.uiSession));
 	// And also the currently set volume adjustments (if they're not set to 1.0)
 	g.db->setChannelListenerLocalVolumeAdjustments(g.sh->qbaDigest, ChannelListener::getAllListenerLocalVolumeAdjustments(true));
+}
+#else
+// Server-specific code
+
+
+void ChannelListener::setListenerVolumeAdjustment(unsigned int userSession, int channelID, float volumeAdjustment) {
+	get().setListenerVolumeAdjustmentImpl(userSession, channelID, volumeAdjustment);
+}
+
+void ChannelListener::setListenerVolumeAdjustment(const User *user, const Channel *channel, float volumeAdjustment) {
+	setListenerVolumeAdjustment(user->uiSession, channel->iId, volumeAdjustment);
+}
+
+float ChannelListener::getListenerVolumeAdjustment(unsigned int userSession, int channelID) {
+	return get().getListenerVolumeAdjustmentImpl(userSession, channelID);
+}
+
+float ChannelListener::getListenerVolumeAdjustment(const User *user, const Channel *channel) {
+	return getListenerVolumeAdjustment(user->uiSession, channel->iId);
 }
 #endif
 

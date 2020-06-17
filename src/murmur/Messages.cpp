@@ -2104,3 +2104,17 @@ void Server::msgServerConfig(ServerUser *, MumbleProto::ServerConfig &) {
 
 void Server::msgSuggestConfig(ServerUser *, MumbleProto::SuggestConfig &) {
 }
+
+void Server::msgVolumeAdjustment(ServerUser *uSource, MumbleProto::VolumeAdjustment &msg) {
+	if (!msg.has_channel_id() || !msg.has_volume_adjustment()) {
+		return;
+	}
+
+	RATELIMIT(uSource);
+
+	ChannelListener::setListenerVolumeAdjustment(uSource->uiSession, msg.channel_id(), msg.volume_adjustment());
+
+	// As whisper targets also contain information about ChannelListeners and their associated volume adjustment,
+	// we have to clear the target cache
+	clearWhisperTargetCache();
+}

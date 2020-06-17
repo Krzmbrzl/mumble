@@ -7,6 +7,8 @@
 #define MUMBLE_MURMUR_SERVERUSER_H_
 
 #include <QtCore/QtGlobal>
+#include <QtCore/QSet>
+#include <QtCore/QHash>
 
 #ifdef Q_OS_WIN
 # include "win.h"
@@ -65,7 +67,7 @@ class ServerUser;
 struct WhisperTargetCache {
 	QSet<ServerUser *> channelTargets;
 	QSet<ServerUser *> directTargets;
-	QSet<ServerUser *> listeningTargets;
+	QHash<ServerUser *, float> listeners;
 };
 
 class Server;

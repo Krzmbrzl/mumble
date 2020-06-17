@@ -64,6 +64,7 @@ class AudioOutputSpeech : public AudioOutputUser {
 		MessageHandler::UDPMessageType umtType;
 		int iMissedFrames;
 		ClientUser *p;
+		float volumeAdjustment;
 
 		/// Fetch and decode frames from the jitter buffer. Called in mix().
 		///

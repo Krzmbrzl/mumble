@@ -29,12 +29,18 @@ class ChannelListener : public QObject {
 		QHash<unsigned int, QSet<int>> m_listeningUsers;
 		/// A map between a channel's ID and a list of all user-sessions of users listening to that channel
 		QHash<int, QSet<unsigned int>> m_listenedChannels;
-#ifdef MUMBLE
-		/// A lock for guarding m_listenerVolumeAdjustments
+		/// A lock for guarding the volume adjustments map (either m_listenerVolumeAdjustments or
+		/// m_volumeAdjustments).
 		mutable QReadWriteLock m_volumeLock;
+#ifdef MUMBLE
 		/// A map between channel IDs and local volume adjustments to be made for ChannelListeners
 		/// in that channel
 		QHash<int, float> m_listenerVolumeAdjustments;
+#else
+		/// A map between a pair of IDs and the associated volume adjustment. The pair consists of the user's
+		/// session ID followed by a channel's ID. This allows to store the volume adjustment a particular user
+		/// has set for a ChannelListener inside a particular channel.
+		QHash<QPair<unsigned int, int>, float> m_volumeAdjustments;
 #endif
 
 		/// The static ChannelListener instance returned by ChannelListener::get()
@@ -99,6 +105,19 @@ class ChannelListener : public QObject {
 		/// @param filter Whether to filter out adjustments of 1 (which have no effect)
 		/// @returns A map between channel IDs and the currently set volume adjustment
 		QHash<int, float> getAllListenerLocalVolumeAdjustmentsImpl(bool filter = false) const;
+#else
+		/// Sets the volume adjustment for the ChannelListener of the given user in the given channel.
+		///
+		/// @param userSession The user's session ID
+		/// @param channelID The channel's ID
+		/// @param volumeAdjustment The volume adjustment to use for that particular ChannelListener
+		void setListenerVolumeAdjustmentImpl(unsigned int userSession, int channelID, float volumeAdjustment);
+
+		/// @param userSession The user's session ID
+		/// @param channelID The channel's ID
+		/// @returns The volume adjustment to for a ChannelListener of the given user in the given channel
+		/// 	or 1.0f, if no adjustment has been set.
+		float getListenerVolumeAdjustmentImpl(unsigned int userSession, int channelID) const;
 #endif
 
 		/// Clears all ChannelListeners and volume adjustments
@@ -230,6 +249,32 @@ class ChannelListener : public QObject {
 		/// Saves the current ChannelListener state to the database.
 		/// NOTE: This function may only be called from the main thread!
 		static void saveToDB();
+#else
+		/// Sets the volume adjustment for the ChannelListener of the given user in the given channel.
+		///
+		/// @param userSession The user's session ID
+		/// @param channelID The channel's ID
+		/// @param volumeAdjustment The volume adjustment to use for that particular ChannelListener
+		static void setListenerVolumeAdjustment(unsigned int userSession, int channelID, float volumeAdjustment);
+
+		/// Sets the volume adjustment for the ChannelListener of the given user in the given channel.
+		///
+		/// @param user A pointer to the User object
+		/// @param channel A pointer to the Channel object
+		/// @param volumeAdjustment The volume adjustment to use for that particular ChannelListener
+		static void setListenerVolumeAdjustment(const User *user, const Channel *channel, float volumeAdjustment);
+
+		/// @param userSession The user's session ID
+		/// @param channelID The channel's ID
+		/// @returns The volume adjustment to for a ChannelListener of the given user in the given channel
+		/// 	or 1.0f, if no adjustment has been set.
+		static float getListenerVolumeAdjustment(unsigned int userSession, int channelID);
+
+		/// @param user A pointer to the User object
+		/// @param channel A pointer to the Channel object
+		/// @returns The volume adjustment to for a ChannelListener of the given user in the given channel
+		/// 	or 1.0f, if no adjustment has been set.
+		static float getListenerVolumeAdjustment(const User *user, const Channel *channel);
 #endif
 
 		/// Clears all ChannelListeners and volume adjustments

@@ -162,7 +162,7 @@ void AudioOutputSpeech::addFrameToBuffer(const QByteArray &qbaPacket, unsigned i
 		return;
 
 	// Voice data is transmitted through UDP packets and is not formatted by protobuf.
-	// Structure is: flags + size + audio data + pos*3
+	// Structure is: flags + size + audio data + pos*3 + volumeAdjustment
 	PacketDataStream pds(qbaPacket);
 
 	// skip flags
@@ -282,7 +282,7 @@ bool AudioOutputSpeech::prepareSampleBuffer(unsigned int frameCount) {
 
 				if (jitter_buffer_get(jbJitter, &jbp, iFrameSize, &startofs) == JITTER_BUFFER_OK) {
 					PacketDataStream pds(jbp.data, jbp.len);
-					// pds structure is: flags + size (14-16 terminator + 1-15 size) + audio data + pos*3
+					// pds structure is: flags + size (14-16 terminator + 1-15 size) + audio data + pos*3 + VolumeAdjustments
 
 					iMissCount = 0;
 					ucFlags = static_cast<unsigned char>(pds.next());
@@ -311,8 +311,17 @@ bool AudioOutputSpeech::prepareSampleBuffer(unsigned int frameCount) {
 						pds >> fPos[0];
 						pds >> fPos[1];
 						pds >> fPos[2];
+
+						pds >> volumeAdjustment;
+
+						if (!pds.isValid()) {
+							// Fall back to a value of 1.0 if something went wrong
+							volumeAdjustment = 1.0f;
+							qWarning() << "Invalid message format for volume adjustments!";
+						}
 					} else {
 						fPos[0] = fPos[1] = fPos[2] = 0.0f;
+						volumeAdjustment = 1.0;
 					}
 
 					if (p) {

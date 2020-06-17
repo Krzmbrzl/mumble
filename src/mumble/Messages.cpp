@@ -192,10 +192,17 @@ void MainWindow::msgServerSync(const MumbleProto::ServerSync &msg) {
 		
 		QHash<int, float> volumeMap = g.db->getChannelListenerLocalVolumeAdjustments(g.sh->qbaDigest);
 
+		MumbleProto::VolumeAdjustment mpva;
+
 		QHashIterator<int, float> it(volumeMap);
 		while(it.hasNext()) {
 			it.next();
 			ChannelListener::setListenerLocalVolumeAdjustment(it.key(), it.value());
+
+			mpva.set_channel_id(it.key());
+			mpva.set_volume_adjustment(it.value());
+
+			g.sh->sendMessage(mpva);
 		}
 	});
 
@@ -1190,4 +1197,9 @@ void MainWindow::msgSuggestConfig(const MumbleProto::SuggestConfig &msg) {
 		else
 			g.l->log(Log::Warning, tr("The server requests Push-to-Talk be disabled."));
 	}
+}
+
+/// This message is only sent by the client in order to set its volume adjustments
+/// on the server. Thus the client does not need to actually implement this function.
+void MainWindow::msgVolumeAdjustment(const MumbleProto::VolumeAdjustment &) {
 }

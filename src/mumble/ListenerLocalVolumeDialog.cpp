@@ -7,6 +7,7 @@
 #include "ClientUser.h"
 #include "Channel.h"
 #include "ChannelListener.h"
+#include "ServerHandler.h"
 
 #include <QtWidgets/QPushButton>
 
@@ -49,6 +50,12 @@ void ListenerLocalVolumeDialog::on_qbbUserLocalVolume_clicked(QAbstractButton *b
 		qsUserLocalVolume->setValue(0);
 	}
 	if (button == qbbUserLocalVolume->button(QDialogButtonBox::Ok)) {
+		MumbleProto::VolumeAdjustment mpva;
+		mpva.set_channel_id(m_channel->iId);
+		mpva.set_volume_adjustment(ChannelListener::getListenerLocalVolumeAdjustment(m_channel));
+
+		g.sh->sendMessage(mpva);
+
 		ListenerLocalVolumeDialog::accept();
 	}
 	if (button == qbbUserLocalVolume->button(QDialogButtonBox::Cancel)) {
