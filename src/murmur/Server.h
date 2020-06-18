@@ -343,6 +343,7 @@ class Server : public QThread {
 		void clearTempGroups(User *user, Channel *cChannel = NULL, bool recurse = true);
 		void startListeningToChannel(ServerUser *user, Channel *cChannel);
 		void stopListeningToChannel(ServerUser *user, Channel *cChannel);
+		void setListenerVolumeAdjustment(ServerUser *user, const Channel *cChannel, float volumeAdjustment);
 	signals:
 		void registerUserSig(int &, const QMap<int, QString> &);
 		void unregisterUserSig(int &, int);

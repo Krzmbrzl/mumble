@@ -216,6 +216,17 @@ namespace Murmur {
 										::Ice::Int,
 										const Ice::Current&);
 
+			virtual void getListenerVolumeAdjustment_async(const ::Murmur::AMD_Server_getListenerVolumeAdjustmentPtr&,
+										::Ice::Int,
+										::Ice::Int,
+										const Ice::Current&);
+
+			virtual void setListenerVolumeAdjustment_async(const ::Murmur::AMD_Server_setListenerVolumeAdjustmentPtr&,
+										::Ice::Int,
+										::Ice::Int,
+										::Ice::Float,
+										const Ice::Current&);
+
 			virtual void ice_ping(const Ice::Current&) const;
 	};
 

@@ -1707,6 +1707,24 @@ static void impl_Server_getListeningUsers(const ::Murmur::AMD_Server_getListenin
 	cb->ice_response(userSessions);
 }
 
+static void impl_Server_getListenerVolumeAdjustment(const ::Murmur::AMD_Server_getListenerVolumeAdjustmentPtr cb, int server_id, int channelid, int session) {
+	NEED_SERVER;
+	NEED_CHANNEL;
+	NEED_PLAYER;
+
+	cb->ice_response(ChannelListener::getListenerVolumeAdjustment(user, channel));
+}
+
+static void impl_Server_setListenerVolumeAdjustment(const ::Murmur::AMD_Server_setListenerVolumeAdjustmentPtr cb, int server_id, int channelid, int session, float volumeAdjustment) {
+	NEED_SERVER;
+	NEED_CHANNEL;
+	NEED_PLAYER;
+
+	server->setListenerVolumeAdjustment(user, channel, volumeAdjustment);
+
+	cb->ice_response();
+}
+
 static void impl_Server_addUserToGroup(const ::Murmur::AMD_Server_addUserToGroupPtr cb, int server_id, ::Ice::Int channelid,  ::Ice::Int session,  const ::std::string& group) {
 	NEED_SERVER;
 	NEED_PLAYER;

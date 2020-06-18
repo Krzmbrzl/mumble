@@ -1199,7 +1199,16 @@ void MainWindow::msgSuggestConfig(const MumbleProto::SuggestConfig &msg) {
 	}
 }
 
-/// This message is only sent by the client in order to set its volume adjustments
-/// on the server. Thus the client does not need to actually implement this function.
-void MainWindow::msgVolumeAdjustment(const MumbleProto::VolumeAdjustment &) {
+/// This message is received if the server wants to inform the client about a change in volume adjustment
+/// for a ChannelListener in a given channel (probably because the new adjustment was set via the ICE interface)
+void MainWindow::msgVolumeAdjustment(const MumbleProto::VolumeAdjustment &msg) {
+	if (!msg.has_channel_id() || !msg.has_volume_adjustment()) {
+		return;
+	}
+
+	const Channel *channel = Channel::get(msg.channel_id());
+
+	if (channel) {
+		ChannelListener::setListenerLocalVolumeAdjustment(channel, msg.volume_adjustment());
+	}
 }

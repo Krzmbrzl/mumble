@@ -823,6 +823,20 @@ module Murmur
 		  * @returns An ID-list of users listening to the given channel
 		  */
 		 idempotent IntList getListeningUsers(int channelid);
+
+		 /**
+		  * @param channelid The ID of the channel
+		  * @param userid The ID of the user
+		  * @returns The volume adjustment set for a listener of the given user in the given channel
+		  */
+		 idempotent float getListenerVolumeAdjustment(int channelid, int userid);
+
+		 /**
+		  * Sets the volume adjustment set for a listener of the given user in the given channel
+		  * @param channelid The ID of the channel
+		  * @param userid The ID of the user
+		  */
+		 idempotent void setListenerVolumeAdjustment(int channelid, int userid, float volumeAdjustment);
 	};
 
 	/** Callback interface for Meta. You can supply an implementation of this to receive notifications

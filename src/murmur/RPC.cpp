@@ -550,6 +550,17 @@ void Server::stopListeningToChannel(ServerUser *user, Channel *cChannel) {
 	sendAll(mpus);
 }
 
+void Server::setListenerVolumeAdjustment(ServerUser *user, const Channel *cChannel, float volumeAdjustment) {
+	ChannelListener::setListenerVolumeAdjustment(user, cChannel, volumeAdjustment);
+
+	// Inform the client about this change
+	MumbleProto::VolumeAdjustment mpva;
+	mpva.set_channel_id(cChannel->iId);
+	mpva.set_volume_adjustment(volumeAdjustment);
+
+	sendMessage(user, mpva);
+}
+
 void Meta::connectListener(QObject *obj) {
 	connect(this, SIGNAL(started(Server *)), obj, SLOT(started(Server *)));
 	connect(this, SIGNAL(stopped(Server *)), obj, SLOT(stopped(Server *)));
