@@ -1163,8 +1163,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 			foreach(Channel *l, chans) {
 				if (ChanACL::hasPermission(u, l, ChanACL::Speak, &acCache)) {
 					// Send the audio stream to all users that are listening to the linked channel but are not
-					// in the original channel the audio is coming from nor are they listening to the orignal
-					// channel (in these cases they have received the audio already).
+					// in the original channel the audio is coming from.
 					foreach(unsigned int currentSession, ChannelListener::getListenersForChannel(l)) {
 						ServerUser *pDst = static_cast<ServerUser *>(qhUsers.value(currentSession));
 						if (pDst && pDst->cChannel != c) {
@@ -1176,14 +1175,12 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 					// haven't received the audio already (because they are listening
 					// to the original channel).
 					foreach(User *p, l->qlUsers) {
-						if (!ChannelListener::isListening(p->uiSession, c->iId)) {
-							ServerUser *pDst = static_cast<ServerUser *>(p);
+						ServerUser *pDst = static_cast<ServerUser *>(p);
 
-							// As we send the audio to this particular user here, we want to make sure to not send it again due to a listener proxy
-							listeners.remove(pDst);
+						// As we send the audio to this particular user here, we want to make sure to not send it again due to a listener proxy
+						listeners.remove(pDst);
 
-							SENDTO;
-						}
+						SENDTO;
 					}
 				}
 			}
