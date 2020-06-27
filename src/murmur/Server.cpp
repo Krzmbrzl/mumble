@@ -1029,16 +1029,41 @@ void Server::sendMessage(ServerUser *u, const char *data, int len, QByteArray &c
 				sendMessage(pDst, buffer, len - poslen, qba_npos); \
 		}
 
-/// Helper function to add a listener to the given hash while making sure the highest volume adjustment
+struct ReceiverDetail {
+	float volumeAdjustment;
+	char  headerByte;
+};
+
+/// Helper function to add a receiver to the given hash while making sure the highest volume adjustment
 /// is stored along its side.
+void addReceiver(QHash<ServerUser *, ReceiverDetail> &receivers, ServerUser *user, const Channel *channel, const char headerByte) {
+	// If the user doesn't have a listener proxy in that channel, this function will return 1.0f, which is
+	// exactly what we want as the default.
+	const float volumeAdjustment = channel ? ChannelListener::getListenerVolumeAdjustment(user, channel) : 1.0f;
+
+	if (!receivers.contains(user)) {
+		receivers.insert(user, { volumeAdjustment, headerByte });
+	} else {
+		ReceiverDetail detail = receivers[user];
+
+		// Use the highest volume adjustment
+		if (volumeAdjustment > detail.volumeAdjustment) {
+			detail.volumeAdjustment = volumeAdjustment;
+			// Also overwrite the header byte in order for it to always be "most recent"
+			detail.headerByte = headerByte;
+
+			receivers.insert(user, detail);
+		}
+	}
+}
+
 void addListener(QHash<ServerUser *, float> &listeners, ServerUser *user, const Channel *channel) {
 	const float volumeAdjustment = ChannelListener::getListenerVolumeAdjustment(user, channel);
 
 	if (!listeners.contains(user)) {
-		listeners.insert(user, volumeAdjustment);
+		listeners[user] = volumeAdjustment;
 	} else {
-		// Use the highest volume adjustment
-		listeners.insert(user, std::max(volumeAdjustment, listeners[user]));
+		listeners[user] = std::max(volumeAdjustment, listeners[user]);
 	}
 }
 
@@ -1124,7 +1149,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 	/// A map of users that'll receive the audio buffer, because they are listening
 	/// to a channel that received that audio and the loudest volume adjustment the
 	/// user has set for any listener proxy touched by this audio buffer.
-	QHash<ServerUser *, float> listeners;
+	QHash<ServerUser *, ReceiverDetail> receivers;
 
 	if (target == 0x1f) { // Server loopback
 		buffer[0] = static_cast<char>(type | SpeechFlags::Normal);
@@ -1133,13 +1158,14 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 	} else if (target == 0) { // Normal speech
 		Channel *c = u->cChannel;
 
-		buffer[0] = static_cast<char>(type | SpeechFlags::Normal);
+		const char normalSpeechHeader = static_cast<char>(type | SpeechFlags::Normal);
+		const char listenedSpeechHeader = static_cast<char>(type | SpeechFlags::Listen);
 
 		// Send audio to all users that are listening to the channel
 		foreach(unsigned int currentSession, ChannelListener::getListenersForChannel(c)) {
 			ServerUser *pDst = static_cast<ServerUser *>(qhUsers.value(currentSession));
 			if (pDst) {
-				addListener(listeners, pDst, c);
+				addReceiver(receivers, pDst, c, listenedSpeechHeader);
 			}
 		}
 
@@ -1147,10 +1173,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 		foreach(User *p, c->qlUsers) {
 			ServerUser *pDst = static_cast<ServerUser *>(p);
 
-			// As we send the audio to this particular user here, we want to make sure to not send it again due to a listener proxy
-			listeners.remove(pDst);
-
-			SENDTO;
+			addReceiver(receivers, pDst, nullptr, normalSpeechHeader);
 		}
 
 		// Send audio to all linked channels the user has speak-permission
@@ -1166,8 +1189,8 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 					// in the original channel the audio is coming from.
 					foreach(unsigned int currentSession, ChannelListener::getListenersForChannel(l)) {
 						ServerUser *pDst = static_cast<ServerUser *>(qhUsers.value(currentSession));
-						if (pDst && pDst->cChannel != c) {
-							addListener(listeners, pDst, l);
+						if (pDst) {
+							addReceiver(receivers, pDst, l, listenedSpeechHeader);
 						}
 					}
 
@@ -1177,10 +1200,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 					foreach(User *p, l->qlUsers) {
 						ServerUser *pDst = static_cast<ServerUser *>(p);
 
-						// As we send the audio to this particular user here, we want to make sure to not send it again due to a listener proxy
-						listeners.remove(pDst);
-
-						SENDTO;
+						addReceiver(receivers, pDst, nullptr, normalSpeechHeader);
 					}
 				}
 			}
@@ -1190,7 +1210,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 		QSet<ServerUser *> direct;
 		QHash<ServerUser *, float> cachedListeners;
 
-		if (u->qmTargetCache.contains(target)) {
+		if (u->qmTargetCache.contains(target) && false) {
 			const WhisperTargetCache &cache = u->qmTargetCache.value(target);
 			channel = cache.channelTargets;
 			direct = cache.directTargets;
@@ -1231,6 +1251,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 								channels.unite(wc->allChildren());
 							const QString &redirect = u->qmWhisperRedirect.value(wtc.qsGroup);
 							const QString &qsg = redirect.isEmpty() ? wtc.qsGroup : redirect;
+
 							foreach(Channel *tc, channels) {
 								if (ChanACL::hasPermission(u, tc, ChanACL::Whisper, &acCache)) {
 									foreach(User *p, tc->qlUsers) {
@@ -1251,13 +1272,6 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 							}
 						}
 					}
-				}
-
-				// If a user receives the audio through this shout anyways, we won't send it through the
-				// listening channel again (and thus sending the audio twice)
-				QSetIterator<ServerUser *> it(channel);
-				while (it.hasNext()) {
-					cachedListeners.remove(it.next());
 				}
 			}
 
@@ -1284,9 +1298,9 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 		}
 		if (! channel.isEmpty()) {
 			// These users receive the audio because someone is shouting to their channel
-			buffer[0] = static_cast<char>(type | SpeechFlags::Shout);
+			const char shoutedSpeechHeader  = static_cast<char>(type | SpeechFlags::Shout);
 			foreach(ServerUser *pDst, channel) {
-				SENDTO;
+				addReceiver(receivers, pDst, nullptr, shoutedSpeechHeader);
 			}
 			if (! direct.isEmpty()) {
 				qba.clear();
@@ -1294,39 +1308,46 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 			}
 		}
 		if (! direct.isEmpty()) {
-			buffer[0] = static_cast<char>(type | SpeechFlags::Whisper);
+			const char whisperedSpeechHeader  = static_cast<char>(type | SpeechFlags::Whisper);
 			foreach(ServerUser *pDst, direct) {
-				SENDTO;
+				addReceiver(receivers, pDst, nullptr, whisperedSpeechHeader);
 			}
 		}
 
-		// Add the listening users to the set of current listeners
+		const char listenedShoutHeader = static_cast<char>(type | SpeechFlags::Listen);
+		// Add the listening users to the set of current receivers
 		QHashIterator<ServerUser *, float> it(cachedListeners);
 		while (it.hasNext()) {
 			it.next();
-			if (listeners.contains(it.key())) {
+			ServerUser *user = it.key();
+			float volumeAdjustment = it.value();
+
+			if (receivers.contains(user)) {
 				// Use the highest volume adjustment
-				listeners.insert(it.key(), std::max(listeners[it.key()], it.value()));
+				if (volumeAdjustment > receivers[user].volumeAdjustment) {
+					receivers[user] = { volumeAdjustment, listenedShoutHeader };
+				}
 			} else {
 				// Just insert the element
-				listeners.insert(it.key(), it.value());
+				receivers[user] = { volumeAdjustment, listenedShoutHeader };
 			}
 		}
 	}
 
-	// Send the audio to all listening users
-	buffer[0] = static_cast<char>(type | SpeechFlags::Listen); 
-	QHashIterator<ServerUser *, float> it(listeners);
+	// Send the audio to all receivers
+	QHashIterator<ServerUser *, ReceiverDetail> it(receivers);
 	while (it.hasNext()) {
 		it.next();
 
 		ServerUser *pDst = it.key();
-		const float volumeAdjustment = it.value();
+		const ReceiverDetail detail = it.value();
+
+		buffer[0] = detail.headerByte;
 
 		// Write the volume adjustment to the last 4 bytes (size of a float) of the buffer
 		// Convert float to bytes by writing it to the tempBuffer
 		unsigned char tempBuffer[sizeof(float)];
-		*(reinterpret_cast<float *>(tempBuffer)) = volumeAdjustment;
+		*(reinterpret_cast<float *>(tempBuffer)) = detail.volumeAdjustment;
 
 		// Now write the tempBuffer to the actual buffer (replacing the last bytes that hold the old volume adjustment
 		std::memcpy(buffer + len - sizeof(tempBuffer), tempBuffer, sizeof(tempBuffer));
