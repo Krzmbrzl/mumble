@@ -505,6 +505,12 @@ bool AudioOutput::mix(void *outbuff, unsigned int frameCount) {
 			validListener = true;
 		}
 
+		if (validListener) {
+			qDebug() << "Own pos: {" << g.p->fCameraPosition[0] << "," << g.p->fCameraPosition[1] << "," << g.p->fCameraPosition[2] << "}";
+		} else {
+			qDebug() << "Positional audio disabled";
+		}
+
 		foreach(AudioOutputUser *aop, qlMix) {
 			// Iterate through all audio sources and mix them together into the output (or the intermediate array)
 			const float * RESTRICT pfBuffer = aop->pfBuffer;
@@ -562,6 +568,8 @@ bool AudioOutput::mix(void *outbuff, unsigned int frameCount) {
 			}
 
 			if (validListener && ((aop->fPos[0] != 0.0f) || (aop->fPos[1] != 0.0f) || (aop->fPos[2] != 0.0f))) {
+				qDebug() << "Pos of" << aop->qsName << ": {" << aop->fPos[0] << "," << aop->fPos[1] << "," << aop->fPos[2] << "}";
+
 				// If positional audio is enabled, calculate the respective audio effect here
 				float dir[3] = { aop->fPos[0] - g.p->fCameraPosition[0], aop->fPos[1] - g.p->fCameraPosition[1], aop->fPos[2] - g.p->fCameraPosition[2] };
 				float len = sqrtf(dir[0] * dir[0] + dir[1] * dir[1] + dir[2] * dir[2]);
