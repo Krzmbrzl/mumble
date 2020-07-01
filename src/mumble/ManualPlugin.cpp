@@ -114,6 +114,7 @@ void Manual::changeEvent(QEvent *e) {
 void Manual::on_qpbUnhinge_pressed() {
 	qpbUnhinge->setEnabled(false);
 	mDlg->setParent(nullptr);
+	mDlg->setWindowFlags(Qt::WindowStaysOnTopHint);
 	mDlg->show();
 }
 
