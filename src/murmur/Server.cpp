@@ -1031,28 +1031,33 @@ void Server::sendMessage(ServerUser *u, const char *data, int len, QByteArray &c
 
 struct ReceiverDetail {
 	float volumeAdjustment;
-	char  headerByte;
+	char speechFlag;
 };
 
 /// Helper function to add a receiver to the given hash while making sure the highest volume adjustment
 /// is stored along its side.
-void addReceiver(QHash<ServerUser *, ReceiverDetail> &receivers, ServerUser *user, const Channel *channel, const char headerByte) {
+void addReceiver(QHash<ServerUser *, ReceiverDetail> &receivers, ServerUser *user, const Channel *channel, const char speechFlag) {
 	// If the user doesn't have a listener proxy in that channel, this function will return 1.0f, which is
 	// exactly what we want as the default.
 	const float volumeAdjustment = channel ? ChannelListener::getListenerVolumeAdjustment(user, channel) : 1.0f;
 
 	if (!receivers.contains(user)) {
-		receivers.insert(user, { volumeAdjustment, headerByte });
+		receivers.insert(user, { volumeAdjustment, speechFlag });
 	} else {
-		ReceiverDetail detail = receivers[user];
+		ReceiverDetail &detail = receivers[user];
 
 		// Use the highest volume adjustment
 		if (volumeAdjustment > detail.volumeAdjustment) {
 			detail.volumeAdjustment = volumeAdjustment;
-			// Also overwrite the header byte in order for it to always be "most recent"
-			detail.headerByte = headerByte;
-
-			receivers.insert(user, detail);
+			// Also overwrite the speech flag in order for it to always be "most recent"
+			detail.speechFlag = speechFlag;
+		} else if (volumeAdjustment == detail.volumeAdjustment) {
+			if (detail.speechFlag == SpeechFlags::Listen) {
+				// Always overwrite the Listen speech flag if another source with the same volume adjustment
+				// is available. Listen should only be used if there is no other way to get the audio at this
+				// volume.
+				detail.speechFlag = speechFlag;
+			}
 		}
 	}
 }
@@ -1158,14 +1163,11 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 	} else if (target == 0) { // Normal speech
 		Channel *c = u->cChannel;
 
-		const char normalSpeechHeader = static_cast<char>(type | SpeechFlags::Normal);
-		const char listenedSpeechHeader = static_cast<char>(type | SpeechFlags::Listen);
-
 		// Send audio to all users that are listening to the channel
 		foreach(unsigned int currentSession, ChannelListener::getListenersForChannel(c)) {
 			ServerUser *pDst = static_cast<ServerUser *>(qhUsers.value(currentSession));
 			if (pDst) {
-				addReceiver(receivers, pDst, c, listenedSpeechHeader);
+				addReceiver(receivers, pDst, c, SpeechFlags::Listen);
 			}
 		}
 
@@ -1173,7 +1175,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 		foreach(User *p, c->qlUsers) {
 			ServerUser *pDst = static_cast<ServerUser *>(p);
 
-			addReceiver(receivers, pDst, nullptr, normalSpeechHeader);
+			addReceiver(receivers, pDst, nullptr, SpeechFlags::Normal);
 		}
 
 		// Send audio to all linked channels the user has speak-permission
@@ -1190,7 +1192,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 					foreach(unsigned int currentSession, ChannelListener::getListenersForChannel(l)) {
 						ServerUser *pDst = static_cast<ServerUser *>(qhUsers.value(currentSession));
 						if (pDst) {
-							addReceiver(receivers, pDst, l, listenedSpeechHeader);
+							addReceiver(receivers, pDst, l, SpeechFlags::Listen);
 						}
 					}
 
@@ -1200,7 +1202,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 					foreach(User *p, l->qlUsers) {
 						ServerUser *pDst = static_cast<ServerUser *>(p);
 
-						addReceiver(receivers, pDst, nullptr, normalSpeechHeader);
+						addReceiver(receivers, pDst, nullptr, SpeechFlags::Normal);
 					}
 				}
 			}
@@ -1298,9 +1300,8 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 		}
 		if (! channel.isEmpty()) {
 			// These users receive the audio because someone is shouting to their channel
-			const char shoutedSpeechHeader  = static_cast<char>(type | SpeechFlags::Shout);
 			foreach(ServerUser *pDst, channel) {
-				addReceiver(receivers, pDst, nullptr, shoutedSpeechHeader);
+				addReceiver(receivers, pDst, nullptr, SpeechFlags::Shout);
 			}
 			if (! direct.isEmpty()) {
 				qba.clear();
@@ -1308,13 +1309,11 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 			}
 		}
 		if (! direct.isEmpty()) {
-			const char whisperedSpeechHeader  = static_cast<char>(type | SpeechFlags::Whisper);
 			foreach(ServerUser *pDst, direct) {
-				addReceiver(receivers, pDst, nullptr, whisperedSpeechHeader);
+				addReceiver(receivers, pDst, nullptr, SpeechFlags::Whisper);
 			}
 		}
 
-		const char listenedShoutHeader = static_cast<char>(type | SpeechFlags::Listen);
 		// Add the listening users to the set of current receivers
 		QHashIterator<ServerUser *, float> it(cachedListeners);
 		while (it.hasNext()) {
@@ -1325,11 +1324,11 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 			if (receivers.contains(user)) {
 				// Use the highest volume adjustment
 				if (volumeAdjustment > receivers[user].volumeAdjustment) {
-					receivers[user] = { volumeAdjustment, listenedShoutHeader };
+					receivers[user] = { volumeAdjustment, SpeechFlags::Listen };
 				}
 			} else {
 				// Just insert the element
-				receivers[user] = { volumeAdjustment, listenedShoutHeader };
+				receivers[user] = { volumeAdjustment, SpeechFlags::Listen };
 			}
 		}
 	}
@@ -1342,7 +1341,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 		ServerUser *pDst = it.key();
 		const ReceiverDetail detail = it.value();
 
-		buffer[0] = detail.headerByte;
+		buffer[0] = type | detail.speechFlag;
 
 		// Write the volume adjustment to the last 4 bytes (size of a float) of the buffer
 		// Convert float to bytes by writing it to the tempBuffer
