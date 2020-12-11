@@ -10,6 +10,7 @@
 #include "MainWindow.h"
 #include "TalkingUIComponent.h"
 #include "UserModel.h"
+#include "widgets/MultiStyleWidgetWrapper.h"
 
 #include <QGroupBox>
 #include <QGuiApplication>
@@ -236,7 +237,7 @@ void TalkingUI::setupUI() {
 			&TalkingUI::on_mainWindowSelectionChanged);
 }
 
-void TalkingUI::setFontSize(QWidget *widget) {
+void TalkingUI::setFontSize(MultiStyleWidgetWrapper &widgetWrapper) {
 	const double fontFactor = g.s.iTalkingUI_RelativeFontSize / 100.0;
 
 	// We have to do this in a complicated way as Qt is very stubborn when it
@@ -246,17 +247,17 @@ void TalkingUI::setFontSize(QWidget *widget) {
 	// won't update the moment the stylesheet is applied, so we have to copy the font
 	// of the widget, set the size and use that to calculate the line height for that
 	// particular font (needed to size the icons appropriately).
-	QFont newFont = widget->font();
+	QFont newFont = widgetWrapper->font();
 	if (font().pixelSize() >= 0) {
 		// font specified in pixels
-		widget->setStyleSheet(QString::fromLatin1("font-size: %1px;")
-								  .arg(static_cast< int >(std::max(fontFactor * font().pixelSize(), 1.0))));
-		newFont.setPixelSize(std::max(fontFactor * font().pixelSize(), 1.0));
+		uint32_t pixelSize = static_cast< uint32_t >(std::max(fontFactor * font().pixelSize(), 1.0));
+		widgetWrapper.setFontSize(pixelSize, true);
+		newFont.setPixelSize(pixelSize);
 	} else {
 		// font specified in points
-		widget->setStyleSheet(QString::fromLatin1("font-size: %1pt;")
-								  .arg(static_cast< int >(std::max(fontFactor * font().pointSize(), 1.0))));
-		newFont.setPointSize(std::max(fontFactor * font().pointSize(), 1.0));
+		uint32_t pointSize =  static_cast< uint32_t >(std::max(fontFactor * font().pointSize(), 1.0));
+		widgetWrapper.setFontSize(pointSize, false);
+		newFont.setPointSize(pointSize);
 	}
 
 	m_currentLineHeight = QFontMetrics(newFont).height();
@@ -351,7 +352,7 @@ void TalkingUI::addChannel(const Channel *channel) {
 
 		QWidget *channelWidget = channelContainer->getWidget();
 
-		setFontSize(channelWidget);
+		setFontSize(channelContainer->getStylableWidget());
 
 		layout()->addWidget(channelWidget);
 
@@ -716,7 +717,7 @@ void TalkingUI::on_settingsChanged() {
 		// The font size might have changed as well -> update it
 		// By the hierarchy in the UI the font-size should propagate to all
 		// sub-elements (entries) as well.
-		setFontSize(currentContainer->getWidget());
+		setFontSize(currentContainer->getStylableWidget());
 
 		if (currentContainer->getType() != ContainerType::CHANNEL) {
 			continue;
