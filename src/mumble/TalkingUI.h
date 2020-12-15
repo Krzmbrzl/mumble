@@ -29,6 +29,12 @@ class ClientUser;
 class TalkingUIComponent;
 class MultiStyleWidgetWrapper;
 
+enum class TalkingUIMicState {
+	DEACTIVATED,
+	READY,
+	ACTIVE
+};
+
 /// The talking UI is a widget that will display the users you are currently
 /// hearing to you.
 class TalkingUI : public QWidget {
@@ -104,6 +110,8 @@ private:
 
 	void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
+	void updateMicState(Settings::TalkState talkState);
+
 public:
 	TalkingUI(QWidget *parent = nullptr);
 
@@ -124,6 +132,8 @@ public slots:
 	void on_channelListenerAdded(const ClientUser *user, const Channel *channel);
 	void on_channelListenerRemoved(const ClientUser *user, const Channel *channel);
 	void on_channelListenerLocalVolumeAdjustmentChanged(int channelID, float newAdjustment, float oldAdjustment);
+
+	void on_stateChanged(TalkingUIMicState state);
 };
 
 #endif // MUMBLE_MUMBLE_TALKINGUI_H_

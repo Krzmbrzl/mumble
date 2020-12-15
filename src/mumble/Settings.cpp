@@ -16,7 +16,7 @@
 #include <QtCore/QStandardPaths>
 #include <QtGui/QImageReader>
 #include <QtWidgets/QSystemTrayIcon>
-#if QT_VERSION >= QT_VERSION_CHECK(5,9,0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 9, 0)
 #	include <QOperatingSystemVersion>
 #endif
 
@@ -363,7 +363,7 @@ Settings::Settings() {
 	bLockLayout          = false;
 #ifdef Q_OS_WIN
 	// Don't enable minimize to tray by default on Windows >= 7
-#	if QT_VERSION >= QT_VERSION_CHECK(5,9,0)
+#	if QT_VERSION >= QT_VERSION_CHECK(5, 9, 0)
 	// Since Qt 5.9 QOperatingSystemVersion is preferred over QSysInfo::WinVersion
 	bHideInTray = QOperatingSystemVersion::current() < QOperatingSystemVersion::Windows7;
 #	else
@@ -484,20 +484,21 @@ Settings::Settings() {
 	bLog24HourClock     = true;
 	iChatMessageMargins = 3;
 
-	qpTalkingUI_Position                = UNSPECIFIED_POSITION;
-	bShowTalkingUI                      = false;
-	bTalkingUI_LocalUserStaysVisible    = false;
-	bTalkingUI_AbbreviateChannelNames   = true;
-	bTalkingUI_AbbreviateCurrentChannel = false;
-	bTalkingUI_ShowLocalListeners       = false;
-	iTalkingUI_RelativeFontSize         = 100;
-	iTalkingUI_SilentUserLifeTime       = 10;
-	iTalkingUI_ChannelHierarchyDepth    = 1;
-	iTalkingUI_MaxChannelNameLength     = 20;
-	iTalkingUI_PrefixCharCount          = 3;
-	iTalkingUI_PostfixCharCount         = 2;
-	qsTalkingUI_ChannelSeparator        = QLatin1String("/");
-	qsTalkingUI_AbbreviationReplacement = QLatin1String("...");
+	qpTalkingUI_Position                  = UNSPECIFIED_POSITION;
+	bShowTalkingUI                        = false;
+	bTalkingUI_LocalUserStaysVisible      = false;
+	bTalkingUI_AbbreviateChannelNames     = true;
+	bTalkingUI_AbbreviateCurrentChannel   = false;
+	bTalkingUI_ShowLocalListeners         = false;
+	bTalkingUI_experimentalStateColorCode = false;
+	iTalkingUI_RelativeFontSize           = 100;
+	iTalkingUI_SilentUserLifeTime         = 10;
+	iTalkingUI_ChannelHierarchyDepth      = 1;
+	iTalkingUI_MaxChannelNameLength       = 20;
+	iTalkingUI_PrefixCharCount            = 3;
+	iTalkingUI_PostfixCharCount           = 2;
+	qsTalkingUI_ChannelSeparator          = QLatin1String("/");
+	qsTalkingUI_AbbreviationReplacement   = QLatin1String("...");
 
 	manualPlugin_silentUserDisplaytime = 1;
 
@@ -888,6 +889,7 @@ void Settings::load(QSettings *settings_ptr) {
 	SAVELOAD(bTalkingUI_AbbreviateChannelNames, "ui/talkingUI_AbbreviateChannelNames");
 	SAVELOAD(bTalkingUI_AbbreviateCurrentChannel, "ui/talkingUI_AbbreviateCurrentChannel");
 	SAVELOAD(bTalkingUI_ShowLocalListeners, "ui/talkingUI_ShowLocalListeners");
+	SAVELOAD(bTalkingUI_experimentalStateColorCode, "ui/talkingUI_experimentalStateColorCode");
 	SAVELOAD(iTalkingUI_RelativeFontSize, "ui/talkingUI_RelativeFontSize");
 	SAVELOAD(iTalkingUI_SilentUserLifeTime, "ui/talkingUI_SilentUserLifeTime");
 	SAVELOAD(iTalkingUI_ChannelHierarchyDepth, "ui/talkingUI_ChannelHierarchieDepth");
@@ -1258,6 +1260,7 @@ void Settings::save() {
 	SAVELOAD(bTalkingUI_AbbreviateChannelNames, "ui/talkingUI_AbbreviateChannelNames");
 	SAVELOAD(bTalkingUI_AbbreviateCurrentChannel, "ui/talkingUI_AbbreviateCurrentChannel");
 	SAVELOAD(bTalkingUI_ShowLocalListeners, "ui/talkingUI_ShowLocalListeners");
+	SAVELOAD(bTalkingUI_experimentalStateColorCode, "ui/talkingUI_experimentalStateColorCode");
 	SAVELOAD(iTalkingUI_RelativeFontSize, "ui/talkingUI_RelativeFontSize");
 	SAVELOAD(iTalkingUI_SilentUserLifeTime, "ui/talkingUI_SilentUserLifeTime");
 	SAVELOAD(iTalkingUI_ChannelHierarchyDepth, "ui/talkingUI_ChannelHierarchieDepth");

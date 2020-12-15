@@ -562,6 +562,31 @@ void TalkingUI::mousePressEvent(QMouseEvent *event) {
 	updateUI();
 }
 
+void TalkingUI::updateMicState(Settings::TalkState talkState) {
+	if (g.s.bMute) {
+		on_stateChanged(TalkingUIMicState::DEACTIVATED);
+		return;
+	}
+
+	switch (talkState) {
+		case Settings::Passive:
+			if (g.s.atTransmit == Settings::VAD) {
+				on_stateChanged(TalkingUIMicState::READY);
+			} else {
+				on_stateChanged(TalkingUIMicState::DEACTIVATED);
+			}
+			break;
+		case Settings::Talking:
+		case Settings::Whispering:
+		case Settings::Shouting:
+			on_stateChanged(TalkingUIMicState::ACTIVE);
+			break;
+		case Settings::MutedTalking:
+			// Should never happen for the local user
+			break;
+	}
+}
+
 void TalkingUI::setVisible(bool visible) {
 	if (visible) {
 		adjustSize();
@@ -612,6 +637,11 @@ void TalkingUI::on_talkingStateChanged() {
 	TalkingUIUser *userEntry = static_cast< TalkingUIUser * >(channel->get(user->uiSession, EntryType::USER));
 
 	userEntry->setTalkingState(user->tsState);
+
+	bool isSelf = user->uiSession == g.uiSession;
+	if (isSelf) {
+		updateMicState(user->tsState);
+	}
 
 	updateUI();
 }
@@ -675,6 +705,8 @@ void TalkingUI::on_serverSynchronized() {
 		// a server, we have to add it manually.
 		ClientUser *self = ClientUser::get(g.uiSession);
 		addUser(self);
+
+		updateMicState(Settings::Passive);
 	}
 }
 
@@ -768,6 +800,11 @@ void TalkingUI::on_settingsChanged() {
 		}
 	}
 
+	// Update mic status
+	if (self) {
+		updateMicState(self->tsState);
+	}
+
 
 	// Furthermore whether or not to display the local user's listeners might have changed -> clear all
 	// listeners from the TalkingUI and add them again if appropriate
@@ -797,6 +834,12 @@ void TalkingUI::on_muteDeafStateChanged() {
 	if (user) {
 		// Update icons for local user only
 		updateStatusIcons(user);
+
+		if (user->uiSession == g.uiSession) {
+			// Update the mic status as we could e.g. switch from ready to deactivated without changing the
+			// user's talk state (at which point the mic state is updated anyways)
+			updateMicState(user->tsState);
+		}
 	}
 }
 
@@ -830,4 +873,41 @@ void TalkingUI::on_channelListenerLocalVolumeAdjustmentChanged(int channelID, fl
 	if (listenerEntry && channel && self) {
 		listenerEntry->setDisplayString(UserModel::createDisplayString(*self, true, channel));
 	}
+}
+
+void TalkingUI::on_stateChanged(TalkingUIMicState state) {
+	TalkingUIUser *localUserEntry = findUser(g.uiSession);
+	if (!localUserEntry) {
+		return;
+	}
+	TalkingUIContainer *channelEntry = localUserEntry->getContainer();
+	if (!channelEntry) {
+		return;
+	}
+
+	MultiStyleWidgetWrapper &widgetWrapper = channelEntry->getStylableWidget();
+
+	if (!g.s.bTalkingUI_experimentalStateColorCode) {
+		widgetWrapper.clearBackgroundColor();
+	} else {
+		QString color;
+		switch (state) {
+			case TalkingUIMicState::DEACTIVATED:
+				// mute
+				color = "yellow";
+				break;
+			case TalkingUIMicState::READY:
+				// Currently not transmitting but as soon as you make a noise Mumble will
+				// start transmitting -> VAD
+				color = "#f28943";
+				break;
+			case TalkingUIMicState::ACTIVE:
+				// You are currently transmitting audio
+				color = "#44a3f2";
+				break;
+		}
+
+		widgetWrapper.setBackgroundColor(color);
+	}
+
 }

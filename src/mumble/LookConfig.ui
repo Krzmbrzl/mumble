@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>728</width>
-    <height>1148</height>
+    <height>1243</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,56 +35,20 @@
       <property name="horizontalSpacing">
        <number>6</number>
       </property>
-      <item row="7" column="0">
-       <widget class="QLabel" name="qlChannelHierarchyDepth">
-        <property name="toolTip">
-         <string>The names of how many parent channels should be included in the channel's name when displaying it in the TalkingUI?</string>
-        </property>
-        <property name="text">
-         <string>Channel hierarchy depth</string>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
+      <item row="8" column="1">
        <widget class="QSpinBox" name="qsbChannelHierarchyDepth">
         <property name="toolTip">
          <string>The names of how many parent channels should be included in the channel's name when displaying it in the TalkingUI?</string>
         </property>
        </widget>
       </item>
-      <item row="14" column="1">
-       <widget class="QLineEdit" name="qleAbbreviationReplacement">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
+      <item row="8" column="0">
+       <widget class="QLabel" name="qlChannelHierarchyDepth">
         <property name="toolTip">
-         <string>String that gets used instead of the cut-out part of an abbreviated name.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="0">
-       <widget class="QLabel" name="qlChannelSeparator">
-        <property name="toolTip">
-         <string>String to separate a channel name from its parent's.</string>
+         <string>The names of how many parent channels should be included in the channel's name when displaying it in the TalkingUI?</string>
         </property>
         <property name="text">
-         <string>Channel separator</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="1">
-       <widget class="QSpinBox" name="qsbRelFontSize">
-        <property name="toolTip">
-         <string>Relative font size to use in the Talking UI in percent.</string>
-        </property>
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>500</number>
+         <string>Channel hierarchy depth</string>
         </property>
        </widget>
       </item>
@@ -98,24 +62,17 @@
         </property>
        </widget>
       </item>
-      <item row="9" column="1">
-       <widget class="QSpinBox" name="qsbMaxNameLength">
+      <item row="10" column="0">
+       <widget class="QLabel" name="qlMaxNameLength">
         <property name="toolTip">
          <string>The preferred maximum length of a channel (hierarchy) name in the Talking UI. Note that this is not a hard limit though.</string>
         </property>
-       </widget>
-      </item>
-      <item row="10" column="0">
-       <widget class="QLabel" name="qlPrefixCharCount">
-        <property name="toolTip">
-         <string>How many characters from the original name to display at the beginning of an abbreviated name.</string>
-        </property>
         <property name="text">
-         <string>Abbreviated prefix characters</string>
+         <string>Max. channel name length</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="1">
+      <item row="6" column="1">
        <widget class="QSpinBox" name="qsbSilentUserLifetime">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -128,34 +85,103 @@
         </property>
        </widget>
       </item>
-      <item row="11" column="1">
-       <widget class="QSpinBox" name="qsbPostfixCharCount">
+      <item row="14" column="1">
+       <widget class="QLineEdit" name="qleChannelSeparator">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>String to separate a channel name from its parent's.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="0">
+       <widget class="QLabel" name="qlAbbreviationReplacement">
+        <property name="toolTip">
+         <string>String that gets used instead of the cut-out part of an abbreviated name.</string>
+        </property>
+        <property name="text">
+         <string>Abbreviation replacement</string>
+        </property>
+       </widget>
+      </item>
+      <item row="11" column="0">
+       <widget class="QLabel" name="qlPrefixCharCount">
+        <property name="toolTip">
+         <string>How many characters from the original name to display at the beginning of an abbreviated name.</string>
+        </property>
+        <property name="text">
+         <string>Abbreviated prefix characters</string>
+        </property>
+       </widget>
+      </item>
+      <item row="15" column="1">
+       <widget class="QLineEdit" name="qleAbbreviationReplacement">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>String that gets used instead of the cut-out part of an abbreviated name.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QSpinBox" name="qsbRelFontSize">
+        <property name="toolTip">
+         <string>Relative font size to use in the Talking UI in percent.</string>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>500</number>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="0">
+       <widget class="QLabel" name="qlPostfixCharCount">
         <property name="toolTip">
          <string>How many characters from the original name to display at the end of an abbreviated name.</string>
         </property>
+        <property name="text">
+         <string>Abbreviated postfix characters</string>
+        </property>
        </widget>
       </item>
-      <item row="9" column="0">
-       <widget class="QLabel" name="qlMaxNameLength">
+      <item row="14" column="0">
+       <widget class="QLabel" name="qlChannelSeparator">
         <property name="toolTip">
-         <string>The preferred maximum length of a channel (hierarchy) name in the Talking UI. Note that this is not a hard limit though.</string>
+         <string>String to separate a channel name from its parent's.</string>
         </property>
         <property name="text">
-         <string>Max. channel name length</string>
+         <string>Channel separator</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QCheckBox" name="qcbAbbreviateCurrentChannel">
+      <item row="11" column="1">
+       <widget class="QSpinBox" name="qsbPrefixCharCount">
         <property name="toolTip">
-         <string>Whether to also allow abbreviating the current channel of a user (instead of only its parent channels).</string>
+         <string>How many characters from the original name to display at the beginning of an abbreviated name.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QCheckBox" name="qcbAbbreviateChannelNames">
+        <property name="toolTip">
+         <string>Whether the channel (hierarchy) name should be abbreviated, if it exceeds the specified maximum length.</string>
         </property>
         <property name="text">
-         <string>Abbreviate current channel name</string>
+         <string>Abbreviate channel names</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="0">
+      <item row="6" column="0">
        <widget class="QLabel" name="qlSilentUserLifetime">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -171,57 +197,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="QCheckBox" name="qcbAbbreviateChannelNames">
-        <property name="toolTip">
-         <string>Whether the channel (hierarchy) name should be abbreviated, if it exceeds the specified maximum length.</string>
-        </property>
-        <property name="text">
-         <string>Abbreviate channel names</string>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QLabel" name="qlPostfixCharCount">
-        <property name="toolTip">
-         <string>How many characters from the original name to display at the end of an abbreviated name.</string>
-        </property>
-        <property name="text">
-         <string>Abbreviated postfix characters</string>
-        </property>
-       </widget>
-      </item>
-      <item row="14" column="0">
-       <widget class="QLabel" name="qlAbbreviationReplacement">
-        <property name="toolTip">
-         <string>String that gets used instead of the cut-out part of an abbreviated name.</string>
-        </property>
-        <property name="text">
-         <string>Abbreviation replacement</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="1">
-       <widget class="QSpinBox" name="qsbPrefixCharCount">
-        <property name="toolTip">
-         <string>How many characters from the original name to display at the beginning of an abbreviated name.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="13" column="1">
-       <widget class="QLineEdit" name="qleChannelSeparator">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>String to separate a channel name from its parent's.</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="qlRelFontSize">
         <property name="toolTip">
          <string>Relative font size to use in the Talking UI in percent.</string>
@@ -238,6 +214,40 @@
         </property>
         <property name="text">
          <string>Show local user's listeners (ears)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
+       <widget class="QCheckBox" name="qcbAbbreviateCurrentChannel">
+        <property name="toolTip">
+         <string>Whether to also allow abbreviating the current channel of a user (instead of only its parent channels).</string>
+        </property>
+        <property name="text">
+         <string>Abbreviate current channel name</string>
+        </property>
+       </widget>
+      </item>
+      <item row="12" column="1">
+       <widget class="QSpinBox" name="qsbPostfixCharCount">
+        <property name="toolTip">
+         <string>How many characters from the original name to display at the end of an abbreviated name.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="10" column="1">
+       <widget class="QSpinBox" name="qsbMaxNameLength">
+        <property name="toolTip">
+         <string>The preferred maximum length of a channel (hierarchy) name in the Talking UI. Note that this is not a hard limit though.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QCheckBox" name="qcbExperimentalColorCode">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to enable the experimental color-encoding of the microphone state (muted, ready to transmit, transmitting).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="text">
+         <string>Experimental mic state color codes</string>
         </property>
        </widget>
       </item>
