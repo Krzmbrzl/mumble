@@ -447,6 +447,18 @@ void TalkingUI::moveUserToChannel(unsigned int userSession, int channelID) {
 
 		targetChannel->addEntry(oldContainer->removeEntry(userEntry));
 
+		if (userSession == g.uiSession) {
+			// The local user has switched channel
+			// -> Make sure to keep mic state in sync
+			MultiStyleWidgetWrapper &widgetWrapper = oldContainer->getStylableWidget();
+
+			// Remove coloring from old channel
+			widgetWrapper.clearBackgroundColor();
+
+			// Make sure the new channel is colored accordingly
+			updateMicState(ClientUser::get(g.uiSession)->tsState);
+		}
+
 		removeIfSuperfluous(*oldContainer);
 
 		sortContainers();
