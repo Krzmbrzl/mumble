@@ -575,23 +575,27 @@ void TalkingUI::mousePressEvent(QMouseEvent *event) {
 }
 
 void TalkingUI::updateMicState(Settings::TalkState talkState) {
+	if (g.s.bDeaf) {
+		on_stateChanged(TalkingUIState::DEAFENED);
+		return;
+	}
 	if (g.s.bMute) {
-		on_stateChanged(TalkingUIMicState::DEACTIVATED);
+		on_stateChanged(TalkingUIState::MUTED);
 		return;
 	}
 
 	switch (talkState) {
 		case Settings::Passive:
-			if (g.s.atTransmit == Settings::VAD) {
-				on_stateChanged(TalkingUIMicState::READY);
+			if (g.s.atTransmit == Settings::VAD || g.s.atTransmit == Settings::Continuous) {
+				on_stateChanged(TalkingUIState::MIC_LIVE);
 			} else {
-				on_stateChanged(TalkingUIMicState::DEACTIVATED);
+				on_stateChanged(TalkingUIState::MIC_DEACTIVED);
 			}
 			break;
 		case Settings::Talking:
 		case Settings::Whispering:
 		case Settings::Shouting:
-			on_stateChanged(TalkingUIMicState::ACTIVE);
+			on_stateChanged(TalkingUIState::MIC_LIVE);
 			break;
 		case Settings::MutedTalking:
 			// Should never happen for the local user
@@ -907,7 +911,7 @@ void TalkingUI::on_channelListenerLocalVolumeAdjustmentChanged(int channelID, fl
 	}
 }
 
-void TalkingUI::on_stateChanged(TalkingUIMicState state) {
+void TalkingUI::on_stateChanged(TalkingUIState state) {
 	TalkingUIUser *localUserEntry = findUser(g.uiSession);
 	if (!localUserEntry) {
 		return;
@@ -924,19 +928,21 @@ void TalkingUI::on_stateChanged(TalkingUIMicState state) {
 	} else {
 		QString color;
 		switch (state) {
-			case TalkingUIMicState::DEACTIVATED:
-				// mute
+			case TalkingUIState::MIC_LIVE:
+				color = "red";
+				break;
+			case TalkingUIState::MUTED:
 				color = "yellow";
 				break;
-			case TalkingUIMicState::READY:
-				// Currently not transmitting but as soon as you make a noise Mumble will
-				// start transmitting -> VAD
-				color = "#f28943";
-				break;
-			case TalkingUIMicState::ACTIVE:
+			case TalkingUIState::DEAFENED:
 				// You are currently transmitting audio
-				color = "#44a3f2";
+				color = "gray";
 				break;
+			case TalkingUIState::MIC_DEACTIVED:
+				// Don't do anything special if the mic is simply inactive (aka: this shall be
+				// treated as if we don't display state info in the first place)
+				resetMicStateColoring();
+				return;
 		}
 
 		if (g.s.bTalkingUI_showExperimentalStateColorCodeOnBackground) {

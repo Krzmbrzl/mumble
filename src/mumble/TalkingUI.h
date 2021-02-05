@@ -29,10 +29,11 @@ class ClientUser;
 class TalkingUIComponent;
 class MultiStyleWidgetWrapper;
 
-enum class TalkingUIMicState {
-	DEACTIVATED,
-	READY,
-	ACTIVE
+enum class TalkingUIState {
+	MIC_DEACTIVED,
+	MIC_LIVE,
+	MUTED,
+	DEAFENED
 };
 
 /// The talking UI is a widget that will display the users you are currently
@@ -134,7 +135,7 @@ public slots:
 	void on_channelListenerRemoved(const ClientUser *user, const Channel *channel);
 	void on_channelListenerLocalVolumeAdjustmentChanged(int channelID, float newAdjustment, float oldAdjustment);
 
-	void on_stateChanged(TalkingUIMicState state);
+	void on_stateChanged(TalkingUIState state);
 };
 
 #endif // MUMBLE_MUMBLE_TALKINGUI_H_
