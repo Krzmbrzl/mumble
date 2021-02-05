@@ -294,6 +294,7 @@ struct Settings {
 	bool bTalkingUI_AbbreviateCurrentChannel;
 	bool bTalkingUI_ShowLocalListeners;
 	bool bTalkingUI_experimentalStateColorCode;
+	bool bTalkingUI_showExperimentalStateColorCodeOnBackground;
 	/// relative font size in %
 	int iTalkingUI_RelativeFontSize;
 	int iTalkingUI_SilentUserLifeTime;

@@ -599,6 +599,25 @@ void TalkingUI::updateMicState(Settings::TalkState talkState) {
 	}
 }
 
+void TalkingUI::resetMicStateColoring() {
+	// Reset the overall background of the TalkingUI
+	setStyleSheet(QLatin1String(""));
+
+	// Reset channel box of local user
+	TalkingUIUser *localUserEntry = findUser(g.uiSession);
+	if (!localUserEntry) {
+		return;
+	}
+	TalkingUIContainer *channelEntry = localUserEntry->getContainer();
+	if (!channelEntry) {
+		return;
+	}
+
+	MultiStyleWidgetWrapper &widgetWrapper = channelEntry->getStylableWidget();
+
+	widgetWrapper.clearBackgroundColor();
+}
+
 void TalkingUI::setVisible(bool visible) {
 	if (visible) {
 		adjustSize();
@@ -813,6 +832,7 @@ void TalkingUI::on_settingsChanged() {
 	}
 
 	// Update mic status
+	resetMicStateColoring();
 	if (self) {
 		updateMicState(self->tsState);
 	}
@@ -900,7 +920,7 @@ void TalkingUI::on_stateChanged(TalkingUIMicState state) {
 	MultiStyleWidgetWrapper &widgetWrapper = channelEntry->getStylableWidget();
 
 	if (!g.s.bTalkingUI_experimentalStateColorCode) {
-		widgetWrapper.clearBackgroundColor();
+		resetMicStateColoring();
 	} else {
 		QString color;
 		switch (state) {
@@ -919,7 +939,11 @@ void TalkingUI::on_stateChanged(TalkingUIMicState state) {
 				break;
 		}
 
-		widgetWrapper.setBackgroundColor(color);
+		if (g.s.bTalkingUI_showExperimentalStateColorCodeOnBackground) {
+			setStyleSheet(QString::fromLatin1("TalkingUI { background-color: %1; }").arg(color));
+		} else {
+			widgetWrapper.setBackgroundColor(color);
+		}
 	}
 
 }

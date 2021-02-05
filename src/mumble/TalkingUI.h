@@ -111,6 +111,7 @@ private:
 	void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE;
 
 	void updateMicState(Settings::TalkState talkState);
+	void resetMicStateColoring();
 
 public:
 	TalkingUI(QWidget *parent = nullptr);

@@ -196,6 +196,7 @@ void LookConfig::load(const Settings &r) {
 	loadCheckBox(qcbAbbreviateCurrentChannel, r.bTalkingUI_AbbreviateCurrentChannel);
 	loadCheckBox(qcbShowLocalListeners, r.bTalkingUI_ShowLocalListeners);
 	loadCheckBox(qcbExperimentalColorCode, r.bTalkingUI_experimentalStateColorCode);
+	loadCheckBox(qcbExperimentalColorCodeOnBackground, r.bTalkingUI_showExperimentalStateColorCodeOnBackground);
 	qsbRelFontSize->setValue(r.iTalkingUI_RelativeFontSize);
 	qsbSilentUserLifetime->setValue(r.iTalkingUI_SilentUserLifeTime);
 	qsbChannelHierarchyDepth->setValue(r.iTalkingUI_ChannelHierarchyDepth);
@@ -258,19 +259,20 @@ void LookConfig::save() const {
 		Themes::setConfiguredStyle(s, themeData.value< ThemeInfo::StyleInfo >(), s.requireRestartToApply);
 	}
 
-	s.bTalkingUI_LocalUserStaysVisible      = qcbLocalUserVisible->isChecked();
-	s.bTalkingUI_AbbreviateChannelNames     = qcbAbbreviateChannelNames->isChecked();
-	s.bTalkingUI_AbbreviateCurrentChannel   = qcbAbbreviateCurrentChannel->isChecked();
-	s.bTalkingUI_ShowLocalListeners         = qcbShowLocalListeners->isChecked();
-	s.bTalkingUI_experimentalStateColorCode = qcbExperimentalColorCode->isChecked();
-	s.iTalkingUI_RelativeFontSize           = qsbRelFontSize->value();
-	s.iTalkingUI_SilentUserLifeTime         = qsbSilentUserLifetime->value();
-	s.iTalkingUI_ChannelHierarchyDepth      = qsbChannelHierarchyDepth->value();
-	s.iTalkingUI_MaxChannelNameLength       = qsbMaxNameLength->value();
-	s.iTalkingUI_PrefixCharCount            = qsbPrefixCharCount->value();
-	s.iTalkingUI_PostfixCharCount           = qsbPostfixCharCount->value();
-	s.qsTalkingUI_ChannelSeparator          = qleChannelSeparator->text();
-	s.qsTalkingUI_AbbreviationReplacement   = qleAbbreviationReplacement->text();
+	s.bTalkingUI_LocalUserStaysVisible                      = qcbLocalUserVisible->isChecked();
+	s.bTalkingUI_AbbreviateChannelNames                     = qcbAbbreviateChannelNames->isChecked();
+	s.bTalkingUI_AbbreviateCurrentChannel                   = qcbAbbreviateCurrentChannel->isChecked();
+	s.bTalkingUI_ShowLocalListeners                         = qcbShowLocalListeners->isChecked();
+	s.bTalkingUI_experimentalStateColorCode                 = qcbExperimentalColorCode->isChecked();
+	s.bTalkingUI_showExperimentalStateColorCodeOnBackground = qcbExperimentalColorCodeOnBackground->isChecked();
+	s.iTalkingUI_RelativeFontSize                           = qsbRelFontSize->value();
+	s.iTalkingUI_SilentUserLifeTime                         = qsbSilentUserLifetime->value();
+	s.iTalkingUI_ChannelHierarchyDepth                      = qsbChannelHierarchyDepth->value();
+	s.iTalkingUI_MaxChannelNameLength                       = qsbMaxNameLength->value();
+	s.iTalkingUI_PrefixCharCount                            = qsbPrefixCharCount->value();
+	s.iTalkingUI_PostfixCharCount                           = qsbPostfixCharCount->value();
+	s.qsTalkingUI_ChannelSeparator                          = qleChannelSeparator->text();
+	s.qsTalkingUI_AbbreviationReplacement                   = qleAbbreviationReplacement->text();
 }
 
 void LookConfig::accept() const {
