@@ -57,6 +57,8 @@ option(plugins "Build plugins." ON)
 
 option(debug-dependency-search "Prints extended information during the search for the needed dependencies" OFF)
 
+option(force-iwyu "Enforces the usage of the 'include-what-you-use' (iwyu) tool when building" OFF)
+
 if(NOT CMAKE_BUILD_TYPE)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY VALUE "Release")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -102,6 +104,20 @@ set(BUILD_TESTING_CHECKED ON INTERNAL CACHE BOOL "Persistent helper variable" FO
 
 if(tests)
 	include(CTest)
+endif()
+
+# Check if the include-what-you-use (iwyu) program is available
+find_program(MUMBLE_IWYU_PATH NAMES include-what-you-use iwyu)
+if(NOT MUMBLE_IWYU_PATH)
+	if (force-iwyu)
+		# The program was not found but it is enforced to be used -> error
+		message(FATAL_ERROR "Unable to find the iwyu (include-what-you-use) tool")
+	else()
+		# The program was not found but its usage is not enforced -> warning
+		message(WARNING "Unable to find the iwyu (include-what-you-use) tool. Its usage is strongly recommended though")
+	endif()
+else()
+	message(STATUS "Found IWYU: ${MUMBLE_IWYU_PATH}")
 endif()
 
 

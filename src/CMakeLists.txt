@@ -33,6 +33,9 @@ find_pkg(Protobuf REQUIRED)
 
 add_library(shared STATIC)
 
+# Use iwyu (if available)
+set_property(TARGET shared PROPERTY CXX_INCLUDE_WHAT_YOU_USE "${MUMBLE_IWYU_PATH}")
+
 protobuf_generate(LANGUAGE cpp TARGET shared PROTOS ${PROTO_FILE} OUT_VAR BUILT_PROTO_FILES)
 
 # Disable warnings for the generated source files
