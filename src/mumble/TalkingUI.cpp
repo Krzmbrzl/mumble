@@ -37,6 +37,8 @@
 
 TalkingUI::TalkingUI(QWidget *parent) : QWidget(parent), m_containers(), m_currentSelection(nullptr) {
 	setupUI();
+
+	QObject::connect(g.mw, &MainWindow::transmissionModeChanged, this, &TalkingUI::on_transmissionModeChanged);
 }
 
 int TalkingUI::findContainer(int associatedChannelID, ContainerType type) const {
@@ -908,6 +910,13 @@ void TalkingUI::on_channelListenerLocalVolumeAdjustmentChanged(int channelID, fl
 
 	if (listenerEntry && channel && self) {
 		listenerEntry->setDisplayString(UserModel::createDisplayString(*self, true, channel));
+	}
+}
+
+void TalkingUI::on_transmissionModeChanged(Settings::AudioTransmit) {
+	const ClientUser *self = ClientUser::get(g.uiSession);
+	if (self) {
+		updateMicState(self->tsState);
 	}
 }
 

@@ -135,6 +135,7 @@ public slots:
 	void on_channelListenerRemoved(const ClientUser *user, const Channel *channel);
 	void on_channelListenerLocalVolumeAdjustmentChanged(int channelID, float newAdjustment, float oldAdjustment);
 
+	void on_transmissionModeChanged(Settings::AudioTransmit newMode);
 	void on_stateChanged(TalkingUIState state);
 };
 
