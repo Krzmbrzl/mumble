@@ -921,17 +921,6 @@ void TalkingUI::on_transmissionModeChanged(Settings::AudioTransmit) {
 }
 
 void TalkingUI::on_stateChanged(TalkingUIState state) {
-	TalkingUIUser *localUserEntry = findUser(g.uiSession);
-	if (!localUserEntry) {
-		return;
-	}
-	TalkingUIContainer *channelEntry = localUserEntry->getContainer();
-	if (!channelEntry) {
-		return;
-	}
-
-	MultiStyleWidgetWrapper &widgetWrapper = channelEntry->getStylableWidget();
-
 	if (!g.s.bTalkingUI_experimentalStateColorCode) {
 		resetMicStateColoring();
 	} else {
@@ -944,7 +933,6 @@ void TalkingUI::on_stateChanged(TalkingUIState state) {
 				color = "yellow";
 				break;
 			case TalkingUIState::DEAFENED:
-				// You are currently transmitting audio
 				color = "gray";
 				break;
 			case TalkingUIState::MIC_DEACTIVED:
@@ -957,6 +945,17 @@ void TalkingUI::on_stateChanged(TalkingUIState state) {
 		if (g.s.bTalkingUI_showExperimentalStateColorCodeOnBackground) {
 			setStyleSheet(QString::fromLatin1("TalkingUI { background-color: %1; }").arg(color));
 		} else {
+			TalkingUIUser *localUserEntry = findUser(g.uiSession);
+			if (!localUserEntry) {
+				return;
+			}
+			TalkingUIContainer *channelEntry = localUserEntry->getContainer();
+			if (!channelEntry) {
+				return;
+			}
+
+			MultiStyleWidgetWrapper &widgetWrapper = channelEntry->getStylableWidget();
+
 			widgetWrapper.setBackgroundColor(color);
 		}
 	}
