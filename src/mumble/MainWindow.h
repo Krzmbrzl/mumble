@@ -195,7 +195,7 @@ public slots:
 	void on_qaSelfComment_triggered();
 	void on_qaSelfRegister_triggered();
 	void qcbTransmitMode_activated(int index);
-	void updateTransmitModeComboBox();
+	void updateTransmitModeComboBox(Settings::AudioTransmit newMode);
 	void qmUser_aboutToShow();
 	void qmListener_aboutToShow();
 	void on_qaUserCommentReset_triggered();
@@ -310,6 +310,7 @@ public slots:
 	/// Updates the user's image directory to the given path (any included
 	/// filename is discarded).
 	void updateImagePath(QString filepath) const;
+	void setTransmissionMode(Settings::AudioTransmit mode);
 signals:
 	/// Reports that audio input is now, or is no longer, required.
 	///
@@ -327,6 +328,7 @@ signals:
 	void userAddedChannelListener(ClientUser *user, Channel *channel);
 	/// Signal emitted whenever a user removes a ChannelListener
 	void userRemovedChannelListener(ClientUser *user, Channel *channel);
+	void transmissionModeChanged(Settings::AudioTransmit newMode);
 
 public:
 	MainWindow(QWidget *parent);

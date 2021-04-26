@@ -172,6 +172,8 @@ MainWindow::MainWindow(QWidget *p) : QMainWindow(p) {
 	connect(qstiIcon, SIGNAL(messageClicked()), this, SLOT(showRaiseWindow()));
 	connect(qaShow, SIGNAL(triggered()), this, SLOT(showRaiseWindow()));
 
+	QObject::connect(this, &MainWindow::transmissionModeChanged, this, &MainWindow::updateTransmitModeComboBox);
+
 	// Explicitely add actions to mainwindow so their shortcuts are available
 	// if only the main window is visible (e.g. minimal mode)
 	addActions(findChildren< QAction * >());
@@ -381,7 +383,7 @@ void MainWindow::setupGui() {
 
 	connect(qcbTransmitMode, SIGNAL(activated(int)), this, SLOT(qcbTransmitMode_activated(int)));
 
-	updateTransmitModeComboBox();
+	updateTransmitModeComboBox(g.s.atTransmit);
 
 #ifdef Q_OS_WIN
 	setupView(false);
@@ -658,8 +660,8 @@ void MainWindow::updateUserModel() {
 	um->toggleChannelFiltered(nullptr); // Force a UI refresh
 }
 
-void MainWindow::updateTransmitModeComboBox() {
-	switch (g.s.atTransmit) {
+void MainWindow::updateTransmitModeComboBox(Settings::AudioTransmit newMode) {
+	switch (newMode) {
 		case Settings::Continuous:
 			qcbTransmitMode->setCurrentIndex(0);
 			return;
@@ -874,6 +876,26 @@ QString MainWindow::getImagePath(QString filename) const {
 void MainWindow::updateImagePath(QString filepath) const {
 	QFileInfo fi(filepath);
 	g.s.qsImagePath = fi.absolutePath();
+}
+
+void MainWindow::setTransmissionMode(Settings::AudioTransmit mode) {
+	if (g.s.atTransmit != mode) {
+		g.s.atTransmit = mode;
+
+		switch (mode) {
+			case Settings::Continuous:
+				g.l->log(Log::Information, tr("Transmit Mode set to Continuous"));
+				break;
+			case Settings::VAD:
+				g.l->log(Log::Information, tr("Transmit Mode set to Voice Activity"));
+				break;
+			case Settings::PushToTalk:
+				g.l->log(Log::Information, tr("Transmit Mode set to Push-to-Talk"));
+				break;
+		}
+
+		emit transmissionModeChanged(mode);
+	}
 }
 
 static void recreateServerHandler() {
@@ -1315,19 +1337,14 @@ void MainWindow::on_qaSelfRegister_triggered() {
 void MainWindow::qcbTransmitMode_activated(int index) {
 	switch (index) {
 		case 0: // Continuous
-			g.s.atTransmit = Settings::Continuous;
-			g.l->log(Log::Information, tr("Transmit Mode set to Continuous"));
-			return;
-
+			setTransmissionMode(Settings::Continuous);
+			break;
 		case 1: // Voice Activity
-			g.s.atTransmit = Settings::VAD;
-			g.l->log(Log::Information, tr("Transmit Mode set to Voice Activity"));
-			return;
-
+			setTransmissionMode(Settings::VAD);
+			break;
 		case 2: // Push-to-Talk
-			g.s.atTransmit = Settings::PushToTalk;
-			g.l->log(Log::Information, tr("Transmit Mode set to Push-to-Talk"));
-			return;
+			setTransmissionMode(Settings::PushToTalk);
+			break;
 	}
 }
 
@@ -2656,7 +2673,7 @@ void MainWindow::on_qaConfigDialog_triggered() {
 
 	if (dlg->exec() == QDialog::Accepted) {
 		setupView(false);
-		updateTransmitModeComboBox();
+		updateTransmitModeComboBox(g.s.atTransmit);
 		updateTrayIcon();
 		updateUserModel();
 
@@ -3025,21 +3042,16 @@ void MainWindow::on_gsCycleTransmitMode_triggered(bool down, QVariant) {
 
 		switch (g.s.atTransmit) {
 			case Settings::Continuous:
-				g.s.atTransmit = Settings::VAD;
-				g.l->log(Log::Information, tr("Transmit Mode set to Voice Activity"));
+				setTransmissionMode(Settings::VAD);
 				break;
 			case Settings::VAD:
-				g.s.atTransmit = Settings::PushToTalk;
-				g.l->log(Log::Information, tr("Transmit Mode set to Push-to-Talk"));
+				setTransmissionMode(Settings::PushToTalk);
 				break;
 			case Settings::PushToTalk:
-				g.s.atTransmit = Settings::Continuous;
-				g.l->log(Log::Information, tr("Transmit Mode set to Continuous"));
+				setTransmissionMode(Settings::Continuous);
 				break;
 		}
 	}
-
-	updateTransmitModeComboBox();
 }
 
 void MainWindow::on_gsToggleMainWindowVisibility_triggered(bool down, QVariant) {
@@ -3054,29 +3066,20 @@ void MainWindow::on_gsToggleMainWindowVisibility_triggered(bool down, QVariant) 
 
 void MainWindow::on_gsTransmitModePushToTalk_triggered(bool down, QVariant) {
 	if (down) {
-		g.s.atTransmit = Settings::PushToTalk;
-		g.l->log(Log::Information, tr("Transmit Mode set to Push-to-Talk"));
+		setTransmissionMode(Settings::PushToTalk);
 	}
-
-	updateTransmitModeComboBox();
 }
 
 void MainWindow::on_gsTransmitModeContinuous_triggered(bool down, QVariant) {
 	if (down) {
-		g.s.atTransmit = Settings::Continuous;
-		g.l->log(Log::Information, tr("Transmit Mode set to Continuous"));
+		setTransmissionMode(Settings::Continuous);
 	}
-
-	updateTransmitModeComboBox();
 }
 
 void MainWindow::on_gsTransmitModeVAD_triggered(bool down, QVariant) {
 	if (down) {
-		g.s.atTransmit = Settings::VAD;
-		g.l->log(Log::Information, tr("Transmit Mode set to Voice Activity"));
+		setTransmissionMode(Settings::VAD);
 	}
-
-	updateTransmitModeComboBox();
 }
 
 void MainWindow::on_gsSendTextMessage_triggered(bool down, QVariant scdata) {
