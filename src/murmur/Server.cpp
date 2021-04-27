@@ -1223,123 +1223,54 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 			}
 		}
 	} else if (u->qmTargets.contains(target)) { // Whisper/Shout
-		QSet< ServerUser * > channel;
-		QSet< ServerUser * > direct;
-		QSet< ServerUser * > listener;
-
-		if (u->qmTargetCache.contains(target)) {
-			const WhisperTargetCache &cache = u->qmTargetCache.value(target);
-			channel                         = cache.channelTargets;
-			direct                          = cache.directTargets;
-			listener                        = cache.listeningTargets;
-		} else {
+		if (!u->qmTargetCache.contains(target)) {
+			// Create cache entry for the given target
 			const WhisperTarget &wt = u->qmTargets.value(target);
-			if (!wt.qlChannels.isEmpty()) {
-				QMutexLocker qml(&qmCache);
 
-				foreach (const WhisperTarget::Channel &wtc, wt.qlChannels) {
-					Channel *wc = qhChannels.value(wtc.iId);
-					if (wc) {
-						bool link       = wtc.bLinks && !wc->qhLinks.isEmpty();
-						bool dochildren = wtc.bChildren && !wc->qlChannels.isEmpty();
-						bool group      = !wtc.qsGroup.isEmpty();
-						if (!link && !dochildren && !group) {
-							// Common case
-							if (ChanACL::hasPermission(u, wc, ChanACL::Whisper, &acCache)) {
-								foreach (User *p, wc->qlUsers) { channel.insert(static_cast< ServerUser * >(p)); }
-
-								foreach (unsigned int currentSession,
-										 m_channelListenerManager.getListenersForChannel(wc->iId)) {
-									ServerUser *pDst = static_cast< ServerUser * >(qhUsers.value(currentSession));
-
-									if (pDst) {
-										listener << pDst;
-									}
-								}
-							}
-						} else {
-							QSet< Channel * > channels;
-							if (link)
-								channels = wc->allLinks();
-							else
-								channels.insert(wc);
-							if (dochildren)
-								channels.unite(wc->allChildren());
-							const QString &redirect = u->qmWhisperRedirect.value(wtc.qsGroup);
-							const QString &qsg      = redirect.isEmpty() ? wtc.qsGroup : redirect;
-							foreach (Channel *tc, channels) {
-								if (ChanACL::hasPermission(u, tc, ChanACL::Whisper, &acCache)) {
-									foreach (User *p, tc->qlUsers) {
-										ServerUser *su = static_cast< ServerUser * >(p);
-
-										if (!group || Group::isMember(tc, tc, qsg, su)) {
-											channel.insert(su);
-										}
-									}
-
-									foreach (unsigned int currentSession,
-											 m_channelListenerManager.getListenersForChannel(tc->iId)) {
-										ServerUser *pDst = static_cast< ServerUser * >(qhUsers.value(currentSession));
-
-										if (pDst && (!group || Group::isMember(tc, tc, qsg, pDst))) {
-											// Only send audio to listener if the user exists and it is in the group the
-											// speech is directed at (if any)
-											listener << pDst;
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-
-				// If a user receives the audio through this shout anyways, we won't send it through the
-				// listening channel again (and thus sending the audio twice)
-				listener -= channel;
-			}
-
-			{
-				QMutexLocker qml(&qmCache);
-
-				foreach (unsigned int id, wt.qlSessions) {
-					ServerUser *pDst = qhUsers.value(id);
-					if (pDst && ChanACL::hasPermission(u, pDst->cChannel, ChanACL::Whisper, &acCache)
-						&& !channel.contains(pDst))
-						direct.insert(pDst);
-				}
-			}
+			WhisperTargetCache cache = createWhisperTargetCacheFor(*u, wt);
 
 			int uiSession = u->uiSession;
+
 			qrwlVoiceThread.unlock();
 			qrwlVoiceThread.lockForWrite();
 
-			if (qhUsers.contains(uiSession))
-				u->qmTargetCache.insert(target, { channel, direct, listener });
+			if (qhUsers.contains(uiSession)) {
+				u->qmTargetCache.insert(target, cache);
+			}
 			qrwlVoiceThread.unlock();
 			qrwlVoiceThread.lockForRead();
-			if (!qhUsers.contains(uiSession))
+
+			if (!qhUsers.contains(uiSession)) {
 				return;
+			}
 		}
-		if (!channel.isEmpty()) {
+
+		const WhisperTargetCache &cache = u->qmTargetCache.value(target);
+
+		if (!cache.channelTargets.isEmpty()) {
 			// These users receive the audio because someone is shouting to their channel
 			buffer[0] = static_cast< char >(type | SpeechFlags::Shout);
-			foreach (ServerUser *pDst, channel) { SENDTO; }
-			if (!direct.isEmpty()) {
+
+			foreach (ServerUser *pDst, cache.channelTargets) { SENDTO; }
+
+			if (!cache.directTargets.isEmpty()) {
 				qba.clear();
 				qba_npos.clear();
 			}
 		}
-		if (!direct.isEmpty()) {
+		if (!cache.directTargets.isEmpty()) {
 			buffer[0] = static_cast< char >(type | SpeechFlags::Whisper);
-			foreach (ServerUser *pDst, direct) { SENDTO; }
+
+			foreach (ServerUser *pDst, cache.directTargets) { SENDTO; }
 		}
 
 		// Add the listening users to the set of current listeners
-		listeningUsers += listener;
+		listeningUsers += cache.listeningTargets;
 	}
 
 	// Send the audio to all listening users
 	buffer[0] = static_cast< char >(type | SpeechFlags::Listen);
+
 	foreach (ServerUser *pDst, listeningUsers) { SENDTO; }
 }
 
@@ -2304,6 +2235,111 @@ bool Server::canNest(Channel *newParent, Channel *channel) const {
 	const int channelDepth = channel ? static_cast< int >(channel->getDepth()) : 0;
 
 	return (parentLevel + channelDepth) < iChannelNestingLimit;
+}
+
+WhisperTargetCache Server::createWhisperTargetCacheFor(ServerUser &speaker, const WhisperTarget &target) {
+	QMutexLocker qml(&qmCache);
+
+	WhisperTargetCache cache;
+
+	if (!target.qlChannels.isEmpty()) {
+		for (const WhisperTarget::Channel &currentTarget : target.qlChannels) {
+			Channel *targetChannel = qhChannels.value(currentTarget.iId);
+
+			if (targetChannel) {
+				bool includeLinks    = currentTarget.bLinks && !targetChannel->qhLinks.isEmpty();
+				bool includeChildren = currentTarget.bChildren && !targetChannel->qlChannels.isEmpty();
+				bool restrictToGroup = !currentTarget.qsGroup.isEmpty();
+
+				if (!includeLinks && !includeChildren && !restrictToGroup) {
+					// Common case
+					if (ChanACL::hasPermission(&speaker, targetChannel, ChanACL::Whisper, &acCache)) {
+						for (User *p : targetChannel->qlUsers) {
+							// Add users of the target channel
+							cache.channelTargets.insert(static_cast< ServerUser * >(p));
+						}
+
+						for (unsigned int currentSession :
+							 m_channelListenerManager.getListenersForChannel(targetChannel->iId)) {
+							// Add users that listen to the target channel (duplicates with users directly
+							// in this channel are handled further down)
+							ServerUser *pDst = static_cast< ServerUser * >(qhUsers.value(currentSession));
+
+							if (pDst) {
+								cache.listeningTargets << pDst;
+							}
+						}
+					}
+				} else {
+					QSet< Channel * > channels;
+
+					if (includeLinks) {
+						// allLinks contains the channel itself
+						channels = targetChannel->allLinks();
+					} else {
+						channels.insert(targetChannel);
+					}
+
+					if (includeChildren) {
+						channels.unite(targetChannel->allChildren());
+					}
+
+					// The target group might be changed by a redirect set up via RPC (Ice/gRPC). In that
+					// case the shout is sent to the redirection target instead the originally specified group
+					const QString &redirect    = speaker.qmWhisperRedirect.value(currentTarget.qsGroup);
+					const QString &targetGroup = redirect.isEmpty() ? currentTarget.qsGroup : redirect;
+
+					for (Channel *subTargetChan : channels) {
+						if (ChanACL::hasPermission(&speaker, subTargetChan, ChanACL::Whisper, &acCache)) {
+							for (User *p : subTargetChan->qlUsers) {
+								ServerUser *su = static_cast< ServerUser * >(p);
+
+								if (!restrictToGroup
+									|| Group::isMember(subTargetChan, subTargetChan, targetGroup, su)) {
+									cache.channelTargets.insert(su);
+								}
+							}
+
+							for (unsigned int currentSession :
+								 m_channelListenerManager.getListenersForChannel(subTargetChan->iId)) {
+								ServerUser *pDst = static_cast< ServerUser * >(qhUsers.value(currentSession));
+
+								if (pDst
+									&& (!restrictToGroup
+										|| Group::isMember(subTargetChan, subTargetChan, targetGroup, pDst))) {
+									// Only send audio to listener if the user exists and it is in the group the
+									// speech is directed at (if any)
+									cache.listeningTargets << pDst;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// If a user receives the audio through this shout anyways, we won't send it through the
+		// listening channel again (and thus sending the audio twice)
+		cache.listeningTargets -= cache.channelTargets;
+
+		// Also make sure the speaker itself is not part of the channelTargets
+		// Note: By doing this after we removed duplicates from the listener targets, we
+		// make sure that the listening targets don't contain the speaker either
+		cache.channelTargets.remove(&speaker);
+	}
+
+	for (unsigned int id : target.qlSessions) {
+		ServerUser *pDst = qhUsers.value(id);
+		if (pDst && ChanACL::hasPermission(&speaker, pDst->cChannel, ChanACL::Whisper, &acCache)
+			&& !cache.channelTargets.contains(pDst))
+			cache.directTargets.insert(pDst);
+	}
+
+	// Also make sure the direct targets don't contain the speaker as the audio won't be sent to
+	// that user anyway (due to the check in the used SENDTO macro)
+	cache.directTargets.remove(&speaker);
+
+	return cache;
 }
 
 #undef MAX

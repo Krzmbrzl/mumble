@@ -52,6 +52,8 @@ class PacketDataStream;
 class ServerUser;
 class User;
 class QNetworkAccessManager;
+struct WhisperTarget;
+struct WhisperTargetCache;
 
 struct TextMessage {
 	QList< unsigned int > qlSessions;
@@ -186,6 +188,8 @@ public:
 	// Registration, implementation in Register.cpp
 	QTimer qtTick;
 	void initRegister();
+
+	WhisperTargetCache createWhisperTargetCacheFor(ServerUser &speaker, const WhisperTarget &target);
 
 private:
 	int iChannelNestingLimit;
