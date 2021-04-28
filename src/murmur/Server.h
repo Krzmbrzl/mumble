@@ -55,6 +55,11 @@ class QNetworkAccessManager;
 struct WhisperTarget;
 struct WhisperTargetCache;
 
+struct AudioRecipients {
+	QSet< ServerUser * > direct;
+	QSet< ServerUser * > listeners;
+};
+
 struct TextMessage {
 	QList< unsigned int > qlSessions;
 	QList< unsigned int > qlChannels;
@@ -190,6 +195,7 @@ public:
 	void initRegister();
 
 	WhisperTargetCache createWhisperTargetCacheFor(ServerUser &speaker, const WhisperTarget &target);
+	AudioRecipients computeAudioRecipients(ServerUser &speaker, Channel &channel);
 
 private:
 	int iChannelNestingLimit;

@@ -1164,64 +1164,16 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 		sendMessage(u, buffer, len, qba);
 		return;
 	} else if (target == 0) { // Normal speech
-		Channel *c = u->cChannel;
+		AudioRecipients recipients = computeAudioRecipients(*u, *u->cChannel);
 
 		buffer[0] = static_cast< char >(type | SpeechFlags::Normal);
 
-		// Send audio to all users that are listening to the channel
-		foreach (unsigned int currentSession, m_channelListenerManager.getListenersForChannel(c->iId)) {
-			ServerUser *pDst = static_cast< ServerUser * >(qhUsers.value(currentSession));
-			if (pDst) {
-				listeningUsers << pDst;
-			}
-		}
-
-		// Send audio to all users in the same channel
-		foreach (User *p, c->qlUsers) {
-			ServerUser *pDst = static_cast< ServerUser * >(p);
-
-			// As we send the audio to this particular user here, we want to make sure to not send it again due to a
-			// listener proxy
-			listeningUsers -= pDst;
-
+		for (ServerUser *pDst : recipients.direct) {
 			SENDTO;
 		}
 
-		// Send audio to all linked channels the user has speak-permission
-		if (!c->qhLinks.isEmpty()) {
-			QSet< Channel * > chans = c->allLinks();
-			chans.remove(c);
+		listeningUsers = std::move(recipients.listeners);
 
-			QMutexLocker qml(&qmCache);
-
-			foreach (Channel *l, chans) {
-				if (ChanACL::hasPermission(u, l, ChanACL::Speak, &acCache)) {
-					// Send the audio stream to all users that are listening to the linked channel but are not
-					// in the original channel the audio is coming from nor are they listening to the orignal
-					// channel (in these cases they have received the audio already).
-					foreach (unsigned int currentSession, m_channelListenerManager.getListenersForChannel(l->iId)) {
-						ServerUser *pDst = static_cast< ServerUser * >(qhUsers.value(currentSession));
-						if (pDst && pDst->cChannel != c
-							&& !m_channelListenerManager.isListening(pDst->uiSession, c->iId)) {
-							listeningUsers << pDst;
-						}
-					}
-
-					// Send audio to users in the linked channel
-					foreach (User *p, l->qlUsers) {
-						if (!m_channelListenerManager.isListening(p->uiSession, c->iId)) {
-							ServerUser *pDst = static_cast< ServerUser * >(p);
-
-							// As we send the audio to this particular user here, we want to make sure to not send it
-							// again due to a listener proxy
-							listeningUsers -= pDst;
-
-							SENDTO;
-						}
-					}
-				}
-			}
-		}
 	} else if (u->qmTargets.contains(target)) { // Whisper/Shout
 		if (!u->qmTargetCache.contains(target)) {
 			// Create cache entry for the given target
@@ -2340,6 +2292,71 @@ WhisperTargetCache Server::createWhisperTargetCacheFor(ServerUser &speaker, cons
 	cache.directTargets.remove(&speaker);
 
 	return cache;
+}
+
+AudioRecipients Server::computeAudioRecipients(ServerUser &speaker, Channel &channel) {
+	AudioRecipients recipients;
+
+	// Add users directly listening to channel
+	for (unsigned int currentSession : m_channelListenerManager.getListenersForChannel(channel.iId)) {
+		ServerUser *user = static_cast< ServerUser * >(qhUsers.value(currentSession));
+		if (user && user->uiSession != speaker.uiSession) {
+			recipients.listeners << user;
+		}
+	}
+
+	// Add users who are a direct member of channel
+	for (User *currentUser : channel.qlUsers) {
+		ServerUser *user = static_cast< ServerUser * >(currentUser);
+
+		if (user->uiSession == speaker.uiSession) {
+			continue;
+		}
+
+		// As we send the audio to this particular user here, we want to make sure to not send it again due to a
+		// listener proxy
+		recipients.listeners -= user;
+
+		recipients.direct << user;
+	}
+
+	// Include all linked channels the user has speak-permission
+	if (!channel.qhLinks.isEmpty()) {
+		QSet< Channel * > linkedChannels = channel.allLinks();
+		linkedChannels.remove(&channel);
+
+		QMutexLocker qml(&qmCache);
+
+		for (Channel *currentChan : linkedChannels) {
+			if (ChanACL::hasPermission(&speaker, currentChan, ChanACL::Speak, &acCache)) {
+				// Send the audio stream to all users that are listening to the linked channel but are not
+				// in the original channel the audio is coming from nor are they listening to the orignal
+				// channel (in these cases they have received the audio already).
+				for (unsigned int currentSession : m_channelListenerManager.getListenersForChannel(currentChan->iId)) {
+					ServerUser *user = static_cast< ServerUser * >(qhUsers.value(currentSession));
+					if (user && user->cChannel != &channel
+						&& !m_channelListenerManager.isListening(user->uiSession, channel.iId)) {
+						recipients.listeners << user;
+					}
+				}
+
+				// Include users in linked channels
+				for (User *currentUser : currentChan->qlUsers) {
+					if (!m_channelListenerManager.isListening(currentUser->uiSession, channel.iId)) {
+						ServerUser *user = static_cast< ServerUser * >(currentUser);
+
+						// As we send the audio to this particular user here, we want to make sure to not send it
+						// again due to a listener proxy
+						recipients.listeners -= user;
+
+						recipients.direct << user;
+					}
+				}
+			}
+		}
+	}
+
+	return recipients;
 }
 
 #undef MAX
