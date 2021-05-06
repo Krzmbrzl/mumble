@@ -309,7 +309,6 @@ struct Settings {
 	static const QPoint UNSPECIFIED_POSITION;
 	QPoint qpTalkingUI_Position;
 	bool bShowTalkingUI;
-	bool bTalkingUI_LocalUserStaysVisible;
 	bool bTalkingUI_AbbreviateChannelNames;
 	bool bTalkingUI_AbbreviateCurrentChannel;
 	bool bTalkingUI_ShowLocalListeners;

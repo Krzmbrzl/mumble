@@ -17,12 +17,14 @@
 #include "Settings.h"
 #include "TalkingUIContainer.h"
 #include "TalkingUIEntry.h"
+#include "TalkingUIHeader.h"
 #include "TalkingUISelection.h"
 
 class QLabel;
 class QGroupBox;
 class QTimer;
 class QMouseEvent;
+class QBoxLayout;
 
 class Channel;
 class ClientUser;
@@ -37,6 +39,8 @@ class TalkingUI : public QWidget {
 private:
 	Q_OBJECT
 	Q_DISABLE_COPY(TalkingUI);
+
+	TalkingUIHeader m_header;
 
 	std::vector< std::unique_ptr< TalkingUIContainer > > m_containers;
 	/// The Entry corresponding to the currently selected user
@@ -70,7 +74,6 @@ private:
 	///
 	/// @param channel A pointer to the channel that shall be added
 	void addChannel(const Channel *channel);
-	;
 	/// Adds an UI entry for the given User, if none exists yet.
 	///
 	/// @param channel A pointer to the user that shall be added

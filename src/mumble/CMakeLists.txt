@@ -218,6 +218,8 @@ set(MUMBLE_SOURCES
 	"TalkingUIContainer.h"
 	"TalkingUIEntry.cpp"
 	"TalkingUIEntry.h"
+	"TalkingUIHeader.cpp"
+	"TalkingUIHeader.h"
 	"TalkingUISelection.cpp"
 	"TalkingUISelection.h"
 	"TextMessage.cpp"

@@ -18,8 +18,10 @@ TalkingUISelection::TalkingUISelection(QWidget *widget) : m_widget(widget) {
 void TalkingUISelection::setActive(bool active) {
 	if (m_widget) {
 		m_widget->setProperty("selected", active);
-		// Unpolish the widget's style so that the new property can take effect
+		// Repolish the widget's style so that the new property can take effect
 		m_widget->style()->unpolish(m_widget);
+		m_widget->style()->polish(m_widget);
+		m_widget->update();
 	}
 }
 
