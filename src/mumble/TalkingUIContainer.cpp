@@ -4,6 +4,7 @@
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
 
 #include "TalkingUIContainer.h"
+#include "TalkingUI.h"
 #include "TalkingUIEntry.h"
 
 #include <QGroupBox>
@@ -240,4 +241,24 @@ std::unique_ptr< TalkingUIEntry > TalkingUIChannel::removeEntry(unsigned int ass
 	updatePriority();
 
 	return entry;
+}
+
+
+QString getSpecialName(SpecialType type) {
+	switch (type) {
+		case SpecialType::WHISPERS:
+			return TalkingUI::tr("Whispers");
+		case SpecialType::SHOUTS:
+			return TalkingUI::tr("Shouts");
+	}
+
+	return "<Internal error>";
+}
+
+TalkingUISpecialContainer::TalkingUISpecialContainer(SpecialType type, TalkingUI &talkingUI)
+	: TalkingUIChannel(static_cast< int >(type), getSpecialName(type), talkingUI) {
+}
+
+ContainerType TalkingUISpecialContainer::getType() const {
+	return ContainerType::SPECIAL;
 }

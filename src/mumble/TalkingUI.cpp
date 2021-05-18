@@ -357,6 +357,21 @@ void TalkingUI::addChannel(const Channel *channel) {
 	}
 }
 
+void TalkingUI::addSpecial(SpecialType type) {
+	if (findContainer(static_cast< int >(type), ContainerType::SPECIAL) < 0) {
+		std::unique_ptr< TalkingUISpecialContainer > channelContainer =
+			std::make_unique< TalkingUISpecialContainer >(type, *this);
+
+		QWidget *channelWidget = channelContainer->getWidget();
+
+		setFontSize(channelContainer->getStylableWidget());
+
+		layout()->addWidget(channelWidget);
+
+		m_containers.push_back(std::move(channelContainer));
+	}
+}
+
 TalkingUIUser *TalkingUI::findOrAddUser(const ClientUser *user) {
 	TalkingUIUser *oldUserEntry = findUser(user->uiSession);
 	bool nameMatches            = true;
@@ -459,6 +474,43 @@ void TalkingUI::moveUserToChannel(unsigned int userSession, int channelID) {
 		sortContainers();
 	} else {
 		qCritical("TalkingUI::moveUserToChannel Unable to locate user");
+		return;
+	}
+
+	updateUI();
+}
+
+void TalkingUI::moveUserToSpecial(unsigned int userSession, SpecialType type) {
+	// Make sure the target container exists
+	addSpecial(type);
+
+	int targetChanIndex = findContainer(static_cast< int >(type), ContainerType::SPECIAL);
+
+	if (targetChanIndex < 0) {
+		qCritical("TalkingUI::moveUserToSpecial Can't find container for user");
+		return;
+	}
+
+	std::unique_ptr< TalkingUIContainer > &targetChannel = m_containers[targetChanIndex];
+
+	if (targetChannel->contains(userSession, EntryType::USER)) {
+		// The given user is already in the target channel - nothing to do
+		return;
+	}
+
+	// Iterate all containers in order to find the one the user is currently in
+	TalkingUIUser *userEntry = findUser(userSession);
+
+	if (userEntry) {
+		TalkingUIContainer *oldContainer = userEntry->getContainer();
+
+		targetChannel->addEntry(oldContainer->removeEntry(userEntry));
+
+		removeIfSuperfluous(*oldContainer);
+
+		sortContainers();
+	} else {
+		qCritical("TalkingUI::moveUserToSpecial Unable to locate user");
 		return;
 	}
 
@@ -639,6 +691,14 @@ void TalkingUI::on_talkingStateChanged() {
 
 		if (userEntry) {
 			userEntry->setTalkingState(user->tsState);
+
+			if (user->tsState == Settings::Whispering) {
+				moveUserToSpecial(user->uiSession, SpecialType::WHISPERS);
+			} else if (user->tsState == Settings::Shouting) {
+				moveUserToSpecial(user->uiSession, SpecialType::SHOUTS);
+			} else {
+				moveUserToChannel(user->uiSession, user->cChannel->iId);
+			}
 		}
 	}
 
@@ -735,6 +795,13 @@ void TalkingUI::on_channelChanged(QObject *obj) {
 	ClientUser *user = static_cast< ClientUser * >(obj);
 
 	if (!user) {
+		return;
+	}
+
+	if (user->tsState == Settings::Whispering || user->tsState == Settings::Shouting) {
+		// When the user is shouting/whispering, the user is in a special container that we
+		// don't want to move them out of. They'll get moved to their current channel as soon
+		// as they'll stop whispering/shouting.
 		return;
 	}
 

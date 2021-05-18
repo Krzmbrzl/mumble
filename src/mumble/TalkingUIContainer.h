@@ -19,7 +19,8 @@ class QWidget;
 class QGroupBox;
 class TalkingUI;
 
-enum class ContainerType { CHANNEL };
+enum class ContainerType { CHANNEL, SPECIAL };
+enum class SpecialType { WHISPERS, SHOUTS };
 
 class TalkingUIContainer : public TalkingUIComponent {
 	friend class TalkingUIUser;
@@ -99,6 +100,13 @@ public:
 
 	virtual void addEntry(std::unique_ptr< TalkingUIEntry > entry) override;
 	virtual std::unique_ptr< TalkingUIEntry > removeEntry(unsigned int associatedUserSession, EntryType type) override;
+};
+
+class TalkingUISpecialContainer : public TalkingUIChannel {
+public:
+	TalkingUISpecialContainer(SpecialType type, TalkingUI &talkingUI);
+
+	virtual ContainerType getType() const override;
 };
 
 #endif // MUMBLE_MUMBLE_TALKINGUICONTAINER_H_
