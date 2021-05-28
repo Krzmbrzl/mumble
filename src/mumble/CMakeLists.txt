@@ -271,6 +271,8 @@ set(MUMBLE_SOURCES
 
 	"widgets/CompletablePage.cpp"
 	"widgets/CompletablePage.h"
+	"widgets/IconGroupBox.cpp"
+	"widgets/IconGroupBox.h"
 	"widgets/MUComboBox.cpp"
 	"widgets/MUComboBox.h"
 	"widgets/MultiStyleWidgetWrapper.cpp"

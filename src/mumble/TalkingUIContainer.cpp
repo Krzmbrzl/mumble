@@ -6,10 +6,9 @@
 #include "TalkingUIContainer.h"
 #include "TalkingUI.h"
 #include "TalkingUIEntry.h"
+#include "widgets/IconGroupBox.h"
 
-#include <QGroupBox>
 #include <QVBoxLayout>
-
 #include <algorithm>
 
 
@@ -133,21 +132,16 @@ bool TalkingUIContainer::operator<=(const TalkingUIContainer &other) const {
 
 
 
-const int CHANNEL_LAYOUT_TOP_MARGIN = 10;
-
 TalkingUIChannel::TalkingUIChannel(int associatedChannelID, QString name, TalkingUI &talkingUI)
-	: TalkingUIContainer(associatedChannelID, talkingUI), m_channelBox(new QGroupBox()),
+	: TalkingUIContainer(associatedChannelID, talkingUI), m_channelBox(new IconGroupBox()),
 	  m_channelBoxStyleWrapper(m_channelBox) {
 	// Set name
 	m_channelBox->setTitle(name);
 
 	// Don't inherit the background color set on the channel box to its children.
-	m_channelBoxStyleWrapper.setBackgroundColorSelector("TalkingUI > QGroupBox");
+	m_channelBoxStyleWrapper.setBackgroundColorSelector("TalkingUI > IconGroupBox");
 
-	// Set layout
-	QVBoxLayout *layout = new QVBoxLayout();
-	layout->setContentsMargins(0, CHANNEL_LAYOUT_TOP_MARGIN, 0, 0);
-	m_channelBox->setLayout(layout);
+	m_channelBox->setProperty("selected", false);
 }
 
 TalkingUIChannel::~TalkingUIChannel() {
@@ -241,6 +235,42 @@ std::unique_ptr< TalkingUIEntry > TalkingUIChannel::removeEntry(unsigned int ass
 	updatePriority();
 
 	return entry;
+}
+
+QWidget *TalkingUIChannel::findListenerIcon(const QPoint &point) {
+	QWidget *listenerWidget = m_channelBox->getIconWidget();
+
+	if (!listenerWidget || !listenerWidget->isVisible()) {
+		return nullptr;
+	}
+
+	QRect area(listenerWidget->mapToGlobal({ 0, 0 }), listenerWidget->size());
+
+	if (area.contains(point)) {
+		return listenerWidget;
+	} else {
+		return nullptr;
+	}
+}
+
+QWidget *TalkingUIChannel::getListenerIcon() {
+	return m_channelBox->getIconWidget();
+}
+
+void TalkingUIChannel::setContainsListener(bool contained) {
+	m_containsListener = contained;
+
+	setPermanent(contained);
+
+	if (contained) {
+		m_channelBox->setIcon(QIcon("skin:ear.svg"));
+	} else {
+		m_channelBox->clearIcon();
+	}
+}
+
+bool TalkingUIChannel::containsListener() const {
+	return m_containsListener;
 }
 
 

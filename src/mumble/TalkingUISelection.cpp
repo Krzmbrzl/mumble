@@ -11,6 +11,8 @@
 #include <QVariant>
 #include <QWidget>
 
+#include <QDebug>
+
 TalkingUISelection::TalkingUISelection(QWidget *widget) : m_widget(widget) {
 }
 
@@ -94,6 +96,37 @@ void ListenerSelection::syncToMainWindow() const {
 
 std::unique_ptr< TalkingUISelection > ListenerSelection::cloneToHeap() const {
 	return std::make_unique< ListenerSelection >(*this);
+}
+
+
+
+LocalListenerSelection::LocalListenerSelection(QWidget *widget, int channelID)
+	: ListenerSelection(widget, Global::get().uiSession, channelID) {
+}
+
+void LocalListenerSelection::setActive(bool active) {
+	// We have to reset all local stylesheets here in order to make the transparent background color disappear
+	// as that would prevent the theme's background color for the new active state to take effect (as the local
+	// change would overwrite it).
+	m_widget->setStyleSheet("");
+
+	ListenerSelection::setActive(active);
+
+	if (m_widget && !active) {
+		// clear the property again in order to avoid a permanent background color for the listener
+		// icon in the GroupBox
+		// (Setting to an invalid QVariant clears the property)
+		m_widget->setProperty("selected", QVariant());
+		// As the icon was previously assigned a background color, it would default to white when we
+		// remove the property-based background color again. We want it to be transparent though and
+		// thus we have to explicitly make the background color transparent.
+		m_widget->setStyleSheet("background-color: transparent");
+		m_widget->style()->unpolish(m_widget);
+	}
+}
+
+std::unique_ptr< TalkingUISelection > LocalListenerSelection::cloneToHeap() const {
+	return std::make_unique< LocalListenerSelection >(*this);
 }
 
 

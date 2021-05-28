@@ -16,8 +16,9 @@
 #include <memory>
 
 class QWidget;
-class QGroupBox;
 class TalkingUI;
+class IconGroupBox;
+class QPoint;
 
 enum class ContainerType { CHANNEL, SPECIAL };
 enum class SpecialType { WHISPERS, SHOUTS };
@@ -65,6 +66,8 @@ public:
 
 	virtual TalkingUIEntry *get(unsigned int associatedUserSession, EntryType type);
 
+	virtual QWidget *findListenerIcon(const QPoint &point) = 0;
+
 	bool operator==(const TalkingUIContainer &other) const;
 	bool operator!=(const TalkingUIContainer &other) const;
 	bool operator>(const TalkingUIContainer &other) const;
@@ -76,8 +79,9 @@ public:
 
 class TalkingUIChannel : public TalkingUIContainer {
 protected:
-	QGroupBox *m_channelBox;
+	IconGroupBox *m_channelBox;
 	MultiStyleWidgetWrapper m_channelBoxStyleWrapper;
+	bool m_containsListener = false;
 
 	EntryPriority m_highestUserPriority = EntryPriority::LOWEST;
 
@@ -100,6 +104,12 @@ public:
 
 	virtual void addEntry(std::unique_ptr< TalkingUIEntry > entry) override;
 	virtual std::unique_ptr< TalkingUIEntry > removeEntry(unsigned int associatedUserSession, EntryType type) override;
+
+	virtual QWidget *findListenerIcon(const QPoint &point) override;
+	QWidget *getListenerIcon();
+
+	void setContainsListener(bool contained);
+	bool containsListener() const;
 };
 
 class TalkingUISpecialContainer : public TalkingUIChannel {
