@@ -88,6 +88,77 @@ static const int USER_CONTAINER_HORIZONTAL_MARGIN = 2;
 static const int USER_CONTAINER_VERTICAL_MARGIN   = 3;
 
 
+unsigned int TalkingUIUser::paintStatusIcons(QLabel *label, UserStatus status, unsigned int iconSize) {
+	static const QIcon s_muteIcon      = QIcon(QLatin1String("skin:muted_server.svg"));
+	static const QIcon s_deafIcon      = QIcon(QLatin1String("skin:deafened_server.svg"));
+	static const QIcon s_localMuteIcon = QIcon(QLatin1String("skin:muted_local.svg"));
+	static const QIcon s_selfMuteIcon  = QIcon(QLatin1String("skin:muted_self.svg"));
+	static const QIcon s_selfDeafIcon  = QIcon(QLatin1String("skin:deafened_self.svg"));
+
+
+	std::vector< std::reference_wrapper< const QIcon > > icons;
+
+	if (status.muted) {
+		icons.push_back(s_muteIcon);
+	}
+	if (status.selfMuted) {
+		icons.push_back(s_selfMuteIcon);
+	}
+	if (status.localMuted) {
+		icons.push_back(s_localMuteIcon);
+	}
+	if (status.deafened) {
+		icons.push_back(s_deafIcon);
+	}
+	if (status.selfDeafened) {
+		icons.push_back(s_selfDeafIcon);
+	}
+
+	if (icons.size() > 0) {
+		// Create a Pixmap that'll hold all icons
+		const QSize size(iconSize * static_cast< int >(icons.size()), iconSize);
+		QPixmap pixmap(size);
+		pixmap.fill(Qt::transparent);
+
+		// Draw the icons to the Pixmap
+		QPainter painter(&pixmap);
+		for (int i = 0; i < static_cast< int >(icons.size()); i++) {
+			painter.drawPixmap(i * iconSize, 0,
+							   icons[i].get().pixmap(QSize(iconSize, iconSize), QIcon::Normal, QIcon::On));
+		}
+
+		label->setPixmap(pixmap);
+	}
+
+	return icons.size();
+}
+
+const QIcon &TalkingUIUser::getTalkingIcon(Settings::TalkState talkState) {
+	static const QIcon s_talkingIcon      = QIcon(QLatin1String("skin:talking_on.svg"));
+	static const QIcon s_mutedTalkingIcon = QIcon(QLatin1String("skin:talking_muted.svg"));
+	static const QIcon s_passiveIcon      = QIcon(QLatin1String("skin:talking_off.svg"));
+	static const QIcon s_shoutingIcon     = QIcon(QLatin1String("skin:talking_alt.svg"));
+	static const QIcon s_whisperingIcon   = QIcon(QLatin1String("skin:talking_whisper.svg"));
+
+	switch (talkState) {
+		case Settings::MutedTalking:
+			return s_mutedTalkingIcon;
+		case Settings::Talking:
+			return s_talkingIcon;
+		case Settings::Whispering:
+			return s_whisperingIcon;
+		case Settings::Shouting:
+			return s_shoutingIcon;
+		case Settings::Passive:
+			return s_passiveIcon;
+	}
+
+	// switch above should cover all possible TalkStates
+	// Return s_passiveIcon as a fallback
+	qCritical("TalkingUIUser: Encountered invalid TalkState");
+	return s_passiveIcon;
+}
+
 TalkingUIUser::TalkingUIUser(const ClientUser &user)
 	: TalkingUIEntry(user.uiSession), m_backgroundWidget(new QWidget()),
 	  m_backgroundWidgetStyleWrapper(m_backgroundWidget), m_name(user.qsName), m_timer() {
@@ -147,32 +218,6 @@ TalkingUIUser::~TalkingUIUser() {
 	m_talkingIcon->deleteLater();
 	m_nameLabel->deleteLater();
 	m_statusIcons->deleteLater();
-}
-
-const QIcon &TalkingUIUser::getTalkingIcon(Settings::TalkState talkState) const {
-	static const QIcon s_talkingIcon      = QIcon(QLatin1String("skin:talking_on.svg"));
-	static const QIcon s_mutedTalkingIcon = QIcon(QLatin1String("skin:talking_muted.svg"));
-	static const QIcon s_passiveIcon      = QIcon(QLatin1String("skin:talking_off.svg"));
-	static const QIcon s_shoutingIcon     = QIcon(QLatin1String("skin:talking_alt.svg"));
-	static const QIcon s_whisperingIcon   = QIcon(QLatin1String("skin:talking_whisper.svg"));
-
-	switch (talkState) {
-		case Settings::MutedTalking:
-			return s_mutedTalkingIcon;
-		case Settings::Talking:
-			return s_talkingIcon;
-		case Settings::Whispering:
-			return s_whisperingIcon;
-		case Settings::Shouting:
-			return s_shoutingIcon;
-		case Settings::Passive:
-			return s_passiveIcon;
-	}
-
-	// switch above should cover all possible TalkStates
-	// Return s_passiveIcon as a fallback
-	qCritical("TalkingUIUser: Encountered invalid TalkState");
-	return s_passiveIcon;
 }
 
 QWidget *TalkingUIUser::getWidget() {
@@ -279,50 +324,13 @@ void TalkingUIUser::restrictLifetime(bool restrict) {
 }
 
 void TalkingUIUser::setStatus(UserStatus status) {
-	static const QIcon s_muteIcon      = QIcon(QLatin1String("skin:muted_server.svg"));
-	static const QIcon s_deafIcon      = QIcon(QLatin1String("skin:deafened_server.svg"));
-	static const QIcon s_localMuteIcon = QIcon(QLatin1String("skin:muted_local.svg"));
-	static const QIcon s_selfMuteIcon  = QIcon(QLatin1String("skin:muted_self.svg"));
-	static const QIcon s_selfDeafIcon  = QIcon(QLatin1String("skin:deafened_self.svg"));
+	unsigned int paintedIcons = paintStatusIcons(m_statusIcons, status, m_iconSize);
 
-
-	std::vector< std::reference_wrapper< const QIcon > > icons;
-
-	if (status.muted) {
-		icons.push_back(s_muteIcon);
-	}
-	if (status.selfMuted) {
-		icons.push_back(s_selfMuteIcon);
-	}
-	if (status.localMuted) {
-		icons.push_back(s_localMuteIcon);
-	}
-	if (status.deafened) {
-		icons.push_back(s_deafIcon);
-	}
-	if (status.selfDeafened) {
-		icons.push_back(s_selfDeafIcon);
-	}
-
-	if (icons.size() == 0) {
+	if (paintedIcons == 0) {
 		// No status icons to be shown -> hide the widget
 		m_statusIcons->hide();
 		m_backgroundWidget->layout()->removeWidget(m_statusIcons);
 	} else {
-		// Create a Pixmap that'll hold all icons
-		const QSize size(m_iconSize * static_cast< int >(icons.size()), m_iconSize);
-		QPixmap pixmap(size);
-		pixmap.fill(Qt::transparent);
-
-		// Draw the icons to the Pixmap
-		QPainter painter(&pixmap);
-		for (int i = 0; i < static_cast< int >(icons.size()); i++) {
-			painter.drawPixmap(i * m_iconSize, 0,
-							   icons[i].get().pixmap(QSize(m_iconSize, m_iconSize), QIcon::Normal, QIcon::On));
-		}
-
-		m_statusIcons->setPixmap(pixmap);
-
 		if (m_backgroundWidget->layout()->indexOf(m_statusIcons) < 0) {
 			// Add the status icons into the scene
 			m_statusIcons->show();

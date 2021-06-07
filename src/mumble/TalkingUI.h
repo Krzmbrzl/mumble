@@ -17,12 +17,14 @@
 #include "Settings.h"
 #include "TalkingUIContainer.h"
 #include "TalkingUIEntry.h"
+#include "TalkingUIHeader.h"
 #include "TalkingUISelection.h"
 
 class QLabel;
 class QGroupBox;
 class QTimer;
 class QMouseEvent;
+class QBoxLayout;
 
 class Channel;
 class ClientUser;
@@ -37,6 +39,8 @@ class TalkingUI : public QWidget {
 private:
 	Q_OBJECT
 	Q_DISABLE_COPY(TalkingUI);
+
+	TalkingUIHeader m_header;
 
 	std::vector< std::unique_ptr< TalkingUIContainer > > m_containers;
 	/// The Entry corresponding to the currently selected user
@@ -70,18 +74,28 @@ private:
 	///
 	/// @param channel A pointer to the channel that shall be added
 	void addChannel(const Channel *channel);
-	;
+	/// Adds a UI container of the given type, if none exists already
+	///
+	/// @param type The type of the special container to create
+	void addSpecial(SpecialType type);
 	/// Adds an UI entry for the given User, if none exists yet.
 	///
 	/// @param channel A pointer to the user that shall be added
 	/// @returns The pointer to the respective user entry in the TalkingUI
 	/// (may be nullptr in case of an error)
 	TalkingUIUser *findOrAddUser(const ClientUser *user);
-	/// Moves the given user into the given channel
+	/// Moves the given user into the given channel. Note that the channel container is expected to
+	/// exist already.
 	///
-	/// @paam userSession The session ID of the user
+	/// @param userSession The session ID of the user
 	/// @param channelID The channel ID of the channel
 	void moveUserToChannel(unsigned int userSession, int channelID);
+	/// Moves the given user into the the container of the given special type. If the container doesn't exist yet,
+	/// it will be created.
+	///
+	/// @param userSession The session ID of the user
+	/// @param type The special type of the container to move the user into
+	void moveUserToSpecial(unsigned int userSession, SpecialType type);
 
 	/// Update (resize) the UI to its content
 	void updateUI();

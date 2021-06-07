@@ -11,6 +11,9 @@ class MultiStyleWidgetWrapper;
 
 class TalkingUIComponent {
 public:
+	TalkingUIComponent()          = default;
+	virtual ~TalkingUIComponent() = default;
+
 	virtual QWidget *getWidget()                         = 0;
 	virtual const QWidget *getWidget() const             = 0;
 	virtual MultiStyleWidgetWrapper &getStylableWidget() = 0;
