@@ -85,14 +85,15 @@ protected:
 	QTimer m_timer;
 	bool m_restrictLifetime = false;
 
-	const QIcon &getTalkingIcon(Settings::TalkState talkState) const;
-
 	virtual void updateTalkingIcon();
 
 public:
 	struct UserStatus {
 		bool muted, selfMuted, localMuted, deafened, selfDeafened;
 	};
+
+	static unsigned int paintStatusIcons(QLabel *label, UserStatus status, unsigned int iconSize);
+	static const QIcon &getTalkingIcon(Settings::TalkState talkState);
 
 	TalkingUIUser(const ClientUser &user);
 	virtual ~TalkingUIUser() override;

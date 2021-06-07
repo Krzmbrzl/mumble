@@ -800,7 +800,12 @@ void MainWindow::on_qtvUsers_customContextMenuRequested(const QPoint &mpos, bool
 	ClientUser *p    = pmModel->getUser(idx);
 	Channel *channel = pmModel->getChannel(idx);
 
-	qpContextPosition = mpos;
+	if (usePositionForGettingContext) {
+		qpContextPosition = mpos;
+	} else {
+		qpContextPosition = QPoint();
+	}
+
 	if (pmModel->isChannelListener(idx)) {
 		// Have a separate context menu for listeners
 		QModelIndex parent = idx.parent();

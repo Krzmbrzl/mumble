@@ -508,7 +508,6 @@ Settings::Settings() {
 
 	qpTalkingUI_Position                = UNSPECIFIED_POSITION;
 	bShowTalkingUI                      = false;
-	bTalkingUI_LocalUserStaysVisible    = false;
 	bTalkingUI_AbbreviateChannelNames   = true;
 	bTalkingUI_AbbreviateCurrentChannel = false;
 	bTalkingUI_ShowLocalListeners       = false;
@@ -953,7 +952,6 @@ void Settings::load(QSettings *settings_ptr) {
 	// TalkingUI
 	LOAD(qpTalkingUI_Position, "ui/talkingUIPosition");
 	LOAD(bShowTalkingUI, "ui/showTalkingUI");
-	LOAD(bTalkingUI_LocalUserStaysVisible, "ui/talkingUI_LocalUserStaysVisible");
 	LOAD(bTalkingUI_AbbreviateChannelNames, "ui/talkingUI_AbbreviateChannelNames");
 	LOAD(bTalkingUI_AbbreviateCurrentChannel, "ui/talkingUI_AbbreviateCurrentChannel");
 	LOAD(bTalkingUI_ShowLocalListeners, "ui/talkingUI_ShowLocalListeners");
@@ -1365,7 +1363,6 @@ void Settings::save() {
 	// TalkingUI
 	SAVE(qpTalkingUI_Position, "ui/talkingUIPosition");
 	SAVE(bShowTalkingUI, "ui/showTalkingUI");
-	SAVE(bTalkingUI_LocalUserStaysVisible, "ui/talkingUI_LocalUserStaysVisible");
 	SAVE(bTalkingUI_AbbreviateChannelNames, "ui/talkingUI_AbbreviateChannelNames");
 	SAVE(bTalkingUI_AbbreviateCurrentChannel, "ui/talkingUI_AbbreviateCurrentChannel");
 	SAVE(bTalkingUI_ShowLocalListeners, "ui/talkingUI_ShowLocalListeners");

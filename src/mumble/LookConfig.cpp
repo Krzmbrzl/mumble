@@ -203,7 +203,6 @@ void LookConfig::load(const Settings &r) {
 	const boost::optional< ThemeInfo::StyleInfo > configuredStyle = Themes::getConfiguredStyle(r);
 	reloadThemes(configuredStyle);
 
-	loadCheckBox(qcbLocalUserVisible, r.bTalkingUI_LocalUserStaysVisible);
 	loadCheckBox(qcbAbbreviateChannelNames, r.bTalkingUI_AbbreviateChannelNames);
 	loadCheckBox(qcbAbbreviateCurrentChannel, r.bTalkingUI_AbbreviateCurrentChannel);
 	loadCheckBox(qcbShowLocalListeners, r.bTalkingUI_ShowLocalListeners);
@@ -274,7 +273,6 @@ void LookConfig::save() const {
 		Themes::setConfiguredStyle(s, themeData.value< ThemeInfo::StyleInfo >(), s.requireRestartToApply);
 	}
 
-	s.bTalkingUI_LocalUserStaysVisible    = qcbLocalUserVisible->isChecked();
 	s.bTalkingUI_AbbreviateChannelNames   = qcbAbbreviateChannelNames->isChecked();
 	s.bTalkingUI_AbbreviateCurrentChannel = qcbAbbreviateCurrentChannel->isChecked();
 	s.bTalkingUI_ShowLocalListeners       = qcbShowLocalListeners->isChecked();
