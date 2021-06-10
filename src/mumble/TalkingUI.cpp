@@ -31,6 +31,81 @@
 #include <QtGui/QPixmap>
 
 #include <algorithm>
+#include <cmath>
+
+
+QString createChannelName(const Channel *chan) {
+	bool abbreviateCurrentChannel        = Global::get().s.bTalkingUI_AbbreviateChannelNames;
+	int minPrefixChars                   = Global::get().s.iTalkingUI_PrefixCharCount;
+	int minPostfixChars                  = Global::get().s.iTalkingUI_PostfixCharCount;
+	int idealMaxChars                    = Global::get().s.iTalkingUI_MaxChannelNameLength;
+	int parentLevel                      = Global::get().s.iTalkingUI_ChannelHierarchyDepth;
+	const QString &separator             = Global::get().s.qsHierarchyChannelSeparator;
+	const QString &abbreviationIndicator = Global::get().s.qsTalkingUI_AbbreviationReplacement;
+	bool abbreviateName                  = Global::get().s.bTalkingUI_AbbreviateCurrentChannel;
+	bool includeVolumeTag                = Global::get().s.bShowVolumeAdjustments;
+
+	QString volumeTag;
+	if (includeVolumeTag && Global::get().channelListenerManager->isListening(Global::get().uiSession, chan->iId)) {
+		// Transform the adjustment into dB
+		// *2 == 6 dB
+		int volumeAdjustment =
+			std::round(log2f(Global::get().channelListenerManager->getListenerLocalVolumeAdjustment(chan->iId)) * 6);
+		if (volumeAdjustment != 0) {
+			volumeTag = QString::asprintf("   |%+d|", volumeAdjustment);
+		}
+	}
+
+	if (!abbreviateName) {
+		return QString::fromLatin1("%1%2").arg(chan->qsName).arg(volumeTag);
+	}
+
+	// Assemble list of relevant channel names (representing the channel hierarchy
+	QStringList nameList;
+	do {
+		nameList << chan->qsName;
+
+		chan = chan->cParent;
+	} while (chan && nameList.size() < (parentLevel + 1));
+
+	const bool reachedRoot = !chan;
+
+	// We also want to abbreviate names that nominally have the same amount of characters before and
+	// after abbreviation. However as we're typically not using mono-spaced fonts, the abbreviation
+	// indicator might still occupy less space than the original text.
+	const int abbreviableSize = minPrefixChars + minPostfixChars + abbreviationIndicator.size();
+
+	// Iterate over all names and check how many of them could be abbreviated
+	int totalCharCount = reachedRoot ? separator.size() : 0;
+	for (int i = 0; i < nameList.size(); i++) {
+		totalCharCount += nameList[i].size();
+
+		if (i + 1 < nameList.size()) {
+			// Account for the separator's size as well
+			totalCharCount += separator.size();
+		}
+	}
+
+	QString groupName = reachedRoot ? separator : QString();
+
+	for (int i = nameList.size() - 1; i >= 0; i--) {
+		if (totalCharCount > idealMaxChars && nameList[i].size() >= abbreviableSize
+			&& (abbreviateCurrentChannel || i != 0)) {
+			// Abbreviate the names as much as possible
+			groupName += nameList[i].left(minPrefixChars) + abbreviationIndicator + nameList[i].right(minPostfixChars);
+		} else {
+			groupName += nameList[i];
+		}
+
+		if (i != 0) {
+			groupName += separator;
+		}
+	}
+
+	return QString::fromLatin1("%1%2").arg(groupName).arg(volumeTag);
+}
+
+
 
 TalkingUI::TalkingUI(QWidget *parent) : QWidget(parent), m_header(this), m_containers(), m_currentSelection(nullptr) {
 	setupUI();
@@ -153,7 +228,10 @@ void TalkingUI::addListener(const ClientUser *user, const Channel *channel) {
 			channelContainer->addEntry(std::move(listenerEntry));
 		} else {
 			// Local user's listener
-			static_cast< TalkingUIChannel * >(channelContainer.get())->setContainsListener(true);
+			TalkingUIChannel *channelEntry = static_cast< TalkingUIChannel * >(channelContainer.get());
+			channelEntry->setContainsListener(true);
+			// Update the name in case there is a local volume adjustment associated with the just added listener
+			channelEntry->setName(createChannelName(channel));
 		}
 
 		sortContainers();
@@ -192,6 +270,15 @@ void TalkingUI::removeListener(unsigned int userSession, int channelID) {
 		}
 
 		channelEntry->setContainsListener(false);
+
+		const Channel *channel = Channel::get(channelID);
+		if (channel) {
+			// Update the channel name as it might have contained a volume adjustment for the contained
+			// listener up to now
+			channelEntry->setName(createChannelName(channel));
+		} else {
+			qWarning("TalkingUI.cpp: Failed to obtain channel to update channel name");
+		}
 
 		removeIfSuperfluous(*channelEntry);
 
@@ -331,66 +418,10 @@ void TalkingUI::hideUser(unsigned int session) {
 	updateUI();
 }
 
-QString createChannelName(const Channel *chan, bool abbreviateName, int minPrefixChars, int minPostfixChars,
-						  int idealMaxChars, int parentLevel, const QString &separator,
-						  const QString &abbreviationIndicator, bool abbreviateCurrentChannel) {
-	if (!abbreviateName) {
-		return chan->qsName;
-	}
-
-	// Assemble list of relevant channel names (representing the channel hierarchy
-	QStringList nameList;
-	do {
-		nameList << chan->qsName;
-
-		chan = chan->cParent;
-	} while (chan && nameList.size() < (parentLevel + 1));
-
-	const bool reachedRoot = !chan;
-
-	// We also want to abbreviate names that nominally have the same amount of characters before and
-	// after abbreviation. However as we're typically not using mono-spaced fonts, the abbreviation
-	// indicator might still occupy less space than the original text.
-	const int abbreviableSize = minPrefixChars + minPostfixChars + abbreviationIndicator.size();
-
-	// Iterate over all names and check how many of them could be abbreviated
-	int totalCharCount = reachedRoot ? separator.size() : 0;
-	for (int i = 0; i < nameList.size(); i++) {
-		totalCharCount += nameList[i].size();
-
-		if (i + 1 < nameList.size()) {
-			// Account for the separator's size as well
-			totalCharCount += separator.size();
-		}
-	}
-
-	QString groupName = reachedRoot ? separator : QString();
-
-	for (int i = nameList.size() - 1; i >= 0; i--) {
-		if (totalCharCount > idealMaxChars && nameList[i].size() >= abbreviableSize
-			&& (abbreviateCurrentChannel || i != 0)) {
-			// Abbreviate the names as much as possible
-			groupName += nameList[i].left(minPrefixChars) + abbreviationIndicator + nameList[i].right(minPostfixChars);
-		} else {
-			groupName += nameList[i];
-		}
-
-		if (i != 0) {
-			groupName += separator;
-		}
-	}
-
-	return groupName;
-}
-
 void TalkingUI::addChannel(const Channel *channel) {
 	if (findContainer(channel->iId, ContainerType::CHANNEL) < 0) {
 		// Create a QGroupBox for this channel
-		const QString channelName = createChannelName(
-			channel, Global::get().s.bTalkingUI_AbbreviateChannelNames, Global::get().s.iTalkingUI_PrefixCharCount,
-			Global::get().s.iTalkingUI_PostfixCharCount, Global::get().s.iTalkingUI_MaxChannelNameLength,
-			Global::get().s.iTalkingUI_ChannelHierarchyDepth, Global::get().s.qsHierarchyChannelSeparator,
-			Global::get().s.qsTalkingUI_AbbreviationReplacement, Global::get().s.bTalkingUI_AbbreviateCurrentChannel);
+		const QString channelName = createChannelName(channel);
 
 		std::unique_ptr< TalkingUIChannel > channelContainer =
 			std::make_unique< TalkingUIChannel >(channel->iId, channelName, *this);
@@ -912,12 +943,7 @@ void TalkingUI::on_settingsChanged() {
 
 		if (channel) {
 			// Update
-			channelContainer->setName(createChannelName(
-				channel, Global::get().s.bTalkingUI_AbbreviateChannelNames, Global::get().s.iTalkingUI_PrefixCharCount,
-				Global::get().s.iTalkingUI_PostfixCharCount, Global::get().s.iTalkingUI_MaxChannelNameLength,
-				Global::get().s.iTalkingUI_ChannelHierarchyDepth, Global::get().s.qsHierarchyChannelSeparator,
-				Global::get().s.qsTalkingUI_AbbreviationReplacement,
-				Global::get().s.bTalkingUI_AbbreviateCurrentChannel));
+			channelContainer->setName(createChannelName(channel));
 		} else {
 			qCritical("TalkingUI: Can't find channel for stored ID");
 		}
@@ -995,12 +1021,22 @@ void TalkingUI::on_channelListenerRemoved(const ClientUser *user, const Channel 
 }
 
 void TalkingUI::on_channelListenerLocalVolumeAdjustmentChanged(int channelID, float, float) {
-	TalkingUIChannelListener *listenerEntry = findListener(Global::get().uiSession, channelID);
-
+	// We only ever receive these events for the local user's channel listeners
 	const Channel *channel = Channel::get(channelID);
-	const ClientUser *self = ClientUser::get(Global::get().uiSession);
+	if (!channel) {
+		return;
+	}
 
-	if (listenerEntry && channel && self) {
-		listenerEntry->setDisplayString(UserModel::createDisplayString(*self, true, channel));
+	int index = findContainer(channelID, ContainerType::CHANNEL);
+
+	if (index < 0) {
+		return;
+	}
+
+	TalkingUIChannel *channelContainer = static_cast< TalkingUIChannel * >(m_containers[index].get());
+
+	if (channelContainer) {
+		// Update the channel name to match the new volume adjustment of the listener contained in it
+		channelContainer->setName(createChannelName(channel));
 	}
 }
