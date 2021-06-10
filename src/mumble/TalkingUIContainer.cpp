@@ -135,8 +135,8 @@ bool TalkingUIContainer::operator<=(const TalkingUIContainer &other) const {
 TalkingUIChannel::TalkingUIChannel(int associatedChannelID, QString name, TalkingUI &talkingUI)
 	: TalkingUIContainer(associatedChannelID, talkingUI), m_channelBox(new IconGroupBox()),
 	  m_channelBoxStyleWrapper(m_channelBox) {
-	// Set name
-	m_channelBox->setTitle(name);
+
+	setName(name);
 
 	// Don't inherit the background color set on the channel box to its children.
 	m_channelBoxStyleWrapper.setBackgroundColorSelector("TalkingUI > IconGroupBox");
