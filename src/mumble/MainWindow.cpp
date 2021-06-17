@@ -2944,6 +2944,8 @@ void MainWindow::updateTarget() {
 				// Store a mapping of the list of ShortcutTargets and the used targetID
 				qmTargets.insert(ql, idx);
 
+				emit voiceTargetCreated(idx);
+
 				// Advance the iteration of qm (which contains the reverse mapping of qmTargetUse) by two.
 				// Note that qmTargetUse is first populated in Messages.cpp so we will not overflow the map
 				// by this.
