@@ -1368,6 +1368,41 @@ void MainWindow::msgPluginDataTransmission(const MumbleProto::PluginDataTransmis
 	}
 }
 
+void MainWindow::msgVoiceReceiver(const MumbleProto::VoiceReceiver &msg) {
+	const ClientUser *self = ClientUser::get(Global::get().uiSession);
+	if (!self) {
+		return;
+	}
+	if (msg.speakersession() != self->uiSession) {
+		// We are not interested in voice receivers for other users than ourself
+		return;
+	}
+	if (!msg.has_targetchannelid() && !msg.has_voicetargetid()) {
+		qWarning("Messages.cpp: VoiceReceiver message is missing target information");
+		return;
+	}
+
+	int target = 0;
+	if (msg.has_targetchannelid()) {
+		if (msg.targetchannelid() != static_cast< unsigned int >(self->cChannel->iId)) {
+			// These were the voice receivers for the default target (aka normal speech)
+			// but these were computed for a channel we are no longer in
+			return;
+		}
+	} else {
+		// If not target ID was given, then this must be for a specific voice target
+		target = msg.voicetargetid();
+	}
+
+	unsigned int count = msg.countonly() ? msg.receivercount() : msg.receiversessions_size();
+
+	if (self->tsState != Settings::Passive) {
+		// Only emit this signal if the user is still talking. That is because if the user is not talking
+		// then there can also be no audience the user is talking to.
+		emit audienceCountChanged(target, count);
+	}
+}
+
 #undef ACTOR_INIT
 #undef VICTIM_INIT
 #undef SELF_INIT

@@ -14,6 +14,8 @@
 #include "AudioInput.h"
 #include "AudioOutput.h"
 #include "Cert.h"
+#include "Channel.h"
+#include "ClientUser.h"
 #include "Connection.h"
 #include "Database.h"
 #include "HostAddress.h"
@@ -1115,6 +1117,26 @@ void ServerHandler::announceRecordingState(bool recording) {
 	MumbleProto::UserState mpus;
 	mpus.set_recording(recording);
 	sendMessage(mpus);
+}
+
+void ServerHandler::requestAudioReceivers(int target) {
+	MumbleProto::VoiceReceiver mpvr;
+	mpvr.set_speakersession(Global::get().uiSession);
+	if (target == 0) {
+		const ClientUser *self = ClientUser::get(Global::get().uiSession);
+
+		if (!self) {
+			return;
+		}
+
+		mpvr.set_targetchannelid(self->cChannel->iId);
+	} else {
+		mpvr.set_voicetargetid(target);
+	}
+
+	mpvr.set_countonly(false);
+
+	sendMessage(mpvr);
 }
 
 QUrl ServerHandler::getServerURL(bool withPassword) const {

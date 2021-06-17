@@ -2224,6 +2224,74 @@ void Server::msgPluginDataTransmission(ServerUser *sender, MumbleProto::PluginDa
 	}
 }
 
+void Server::msgVoiceReceiver(ServerUser *uSource, MumbleProto::VoiceReceiver &msg) {
+	MSG_SETUP_NO_UNIDLE(ServerUser::Authenticated);
+	RATELIMIT(uSource);
+
+	if (!msg.has_speakersession()) {
+		return;
+	}
+
+	ServerUser *speaker = qhUsers.value(msg.speakersession());
+	if (!speaker) {
+		return;
+	}
+
+	if (msg.has_voicetargetid() && msg.has_targetchannelid()) {
+		return;
+	}
+
+	if (msg.has_voicetargetid()) {
+		// voice target specified
+		WhisperTargetCache cache;
+		if (speaker->qmTargetCache.contains(msg.voicetargetid())) {
+			cache = speaker->qmTargetCache.value(msg.voicetargetid());
+		} else {
+			if (!speaker->qmTargets.contains(msg.voicetargetid())) {
+				return;
+			}
+
+			cache = createWhisperTargetCacheFor(*speaker, speaker->qmTargets.value(msg.voicetargetid()));
+		}
+
+		if (msg.countonly()) {
+			msg.set_receivercount(cache.directTargets.size() + cache.channelTargets.size()
+								  + cache.listeningTargets.size());
+		} else {
+			for (const ServerUser *currentUser : cache.directTargets) {
+				msg.add_receiversessions(currentUser->uiSession);
+			}
+			for (const ServerUser *currentUser : cache.channelTargets) {
+				msg.add_receiversessions(currentUser->uiSession);
+			}
+			for (const ServerUser *currentUser : cache.listeningTargets) {
+				msg.add_receiversessions(currentUser->uiSession);
+			}
+		}
+	} else {
+		// target channel specified
+		Channel *targetChannel = qhChannels.value(msg.targetchannelid());
+		if (!targetChannel) {
+			return;
+		}
+
+		AudioRecipients recipients = computeAudioRecipients(*speaker, *targetChannel);
+
+		if (msg.countonly()) {
+			msg.set_receivercount(recipients.direct.size() + recipients.listeners.size());
+		} else {
+			for (const ServerUser *currentUser : recipients.direct) {
+				msg.add_receiversessions(currentUser->uiSession);
+			}
+			for (const ServerUser *currentUser : recipients.listeners) {
+				msg.add_receiversessions(currentUser->uiSession);
+			}
+		}
+	}
+
+	sendMessage(uSource, msg);
+}
+
 #undef RATELIMIT
 #undef MSG_SETUP
 #undef MSG_SETUP_NO_UNIDLE

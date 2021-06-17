@@ -344,6 +344,7 @@ signals:
 	/// Signal emitted whenever a user removes a ChannelListener
 	void userRemovedChannelListener(ClientUser *user, Channel *channel);
 	void transmissionModeChanged(Settings::AudioTransmit newMode);
+	void audienceCountChanged(unsigned int target, unsigned int count);
 
 public:
 	MainWindow(QWidget *parent);

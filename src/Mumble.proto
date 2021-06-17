@@ -600,3 +600,24 @@ message PluginDataTransmission {
 	// process it or not
 	optional string dataID = 4;
 }
+
+// Sent by the client to query the receivers for audio from the given speaker to the given target (either
+// channel or registered VoiceTarget).
+// Sent by the server to answer such a request from the client.
+message VoiceReceiver {
+	// The session ID of the speaker
+	optional uint32 speakerSession = 1;
+	// The channel ID of the target channel (the one the speaker is supposed to speak in)
+	// Note: targetChannelID and voiceTargetID are mutual exclusive!
+	optional uint32 targetChannelID = 2;
+	// The ID of the registered voice target (the one the speaker is supposed to use)
+	// Note: targetChannelID and voiceTargetID are mutual exclusive!
+	optional uint32 voiceTargetID = 3;
+	// Whether the server should only send the count of receiving users instead of listing them explicitly
+	optional bool countOnly = 4 [default = true];
+
+	// The list of session IDs of receivers (filled in by the server)
+	repeated uint32 receiverSessions = 5;
+	// The amount of receivers (filled in by the server)
+	optional uint32 receiverCount = 6;
+};
