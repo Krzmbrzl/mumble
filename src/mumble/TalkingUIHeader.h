@@ -12,11 +12,33 @@
 #include "TalkingUIEntry.h"
 
 #include <QTimer>
+#include <QWidget>
 
 class QFrame;
 class QWidget;
 class QLabel;
+class QMouseEvent;
 class Channel;
+
+class AudioReceiverWidget : public QWidget {
+	Q_OBJECT;
+public:
+	AudioReceiverWidget(QWidget *parent = nullptr);
+	~AudioReceiverWidget();
+
+	QLabel *m_receiverCount;
+	QLabel *m_icon;
+	QLabel *m_placeholder;
+
+public slots:
+	void on_audienceCountChanged(unsigned int target, unsigned int count);
+	void on_audienceListReceived(const QVector<unsigned int> &sessions);
+	void setReceiverCountVisible(bool visible);
+
+protected:
+	void paintEvent(QPaintEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
+};
 
 class TalkingUIHeader : public TalkingUIComponent {
 public:
@@ -46,9 +68,11 @@ protected:
 	QLabel *m_userName;
 	QLabel *m_statusIcons;
 	QLabel *m_channelName;
+	AudioReceiverWidget *m_audioReceiverWidget;
 	MultiStyleWidgetWrapper m_containerStyleWrapper;
 	unsigned int m_iconSize;
 	QTimer m_timer;
+	QTimer m_receiverCountTimer;
 
 	void setupUI();
 };

@@ -48,6 +48,8 @@
     <file alias="priority_speaker.svg">Default/priority_speaker.svg</file>
     <file alias="self_comment.svg">Default/self_comment.svg</file>
     <file alias="self_undeafened.svg">Default/self_undeafened.svg</file>
+	<file alias="speaker_active.svg">Default/speaker_active.svg</file>
+	<file alias="speaker_unknown.svg">Default/speaker_unknown.svg</file>
     <file alias="talking_alt.svg">Default/talking_alt.svg</file>
     <file alias="talking_off.svg">Default/talking_off.svg</file>
     <file alias="talking_on.svg">Default/talking_on.svg</file>

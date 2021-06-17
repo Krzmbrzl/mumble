@@ -26,6 +26,8 @@
 #	include <sys/socket.h>
 #endif
 
+#include <limits>
+
 // Unfortunately, this needs to be "large enough" to hold
 // enough frames to account for both short-term and
 // long-term "maladjustments".
@@ -105,6 +107,11 @@ private:
 protected:
 	Server *s;
 
+	static constexpr unsigned int MAX_SPEAKING_GAP = 500;
+	QElapsedTimer m_audienceTimer;
+	unsigned int m_audienceCount = std::numeric_limits< unsigned int >::max();
+	unsigned int m_lastTarget    = 0;
+
 public:
 	enum State { Connected, Authenticated };
 	State sState;
@@ -160,6 +167,11 @@ public:
 	struct sockaddr_storage saiUdpAddress;
 	struct sockaddr_storage saiTcpLocalAddress;
 	ServerUser(Server *parent, QSslSocket *socket);
+
+	void setAudienceCount(unsigned int target, unsigned int count);
+
+signals:
+	void audienceCountChanged(unsigned int target, unsigned int count);
 };
 
 #endif

@@ -31,12 +31,26 @@ ServerUser::ServerUser(Server *p, QSslSocket *socket)
 	iLastPermissionCheck = -1;
 
 	bOpus = false;
+
+	m_audienceTimer.start();
 }
 
 
 ServerUser::operator QString() const {
 	return QString::fromLatin1("%1:%2(%3)").arg(qsName).arg(uiSession).arg(iId);
 }
+
+void ServerUser::setAudienceCount(unsigned int target, unsigned int count) {
+	if (m_audienceCount != count || m_lastTarget != target || m_audienceTimer.elapsed() > MAX_SPEAKING_GAP) {
+		m_audienceCount = count;
+		m_lastTarget = target;
+
+		emit audienceCountChanged(target, count);
+	}
+
+	m_audienceTimer.restart();
+}
+
 BandwidthRecord::BandwidthRecord() {
 	iRecNum = 0;
 	iSum    = 0;

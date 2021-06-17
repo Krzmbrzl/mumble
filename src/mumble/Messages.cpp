@@ -1401,6 +1401,18 @@ void MainWindow::msgVoiceReceiver(const MumbleProto::VoiceReceiver &msg) {
 		// then there can also be no audience the user is talking to.
 		emit audienceCountChanged(target, count);
 	}
+
+	if (!msg.countonly()) {
+		// The message contains a list of IDs of the users in the audience
+		QVector<unsigned int> sessions;
+		sessions.reserve(msg.receiversessions_size());
+
+		for (unsigned int currentSession : msg.receiversessions()) {
+			sessions.push_back(currentSession);
+		}
+
+		emit audienceListReceived(std::move(sessions));
+	}
 }
 
 #undef ACTOR_INIT

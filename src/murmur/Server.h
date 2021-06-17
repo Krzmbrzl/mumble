@@ -205,6 +205,7 @@ public slots:
 	void regSslError(const QList< QSslError > &);
 	void finished();
 	void update();
+	void on_userAudienceCountChanged(unsigned int target, unsigned int count);
 
 	// Certificate stuff, implemented partially in Cert.cpp
 public:

@@ -346,6 +346,7 @@ signals:
 	void transmissionModeChanged(Settings::AudioTransmit newMode);
 	void voiceTargetCreated(int targetID);
 	void audienceCountChanged(unsigned int target, unsigned int count);
+	void audienceListReceived(QVector< unsigned int > audienceSessions);
 
 public:
 	MainWindow(QWidget *parent);

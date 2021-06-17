@@ -1158,6 +1158,7 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 	/// A set of users that'll receive the audio buffer because they are listening
 	/// to a channel that received that audio.
 	QSet< ServerUser * > listeningUsers;
+	unsigned int receivingUsers = 0;
 
 	if (target == 0x1f) { // Server loopback
 		buffer[0] = static_cast< char >(type | SpeechFlags::Normal);
@@ -1167,6 +1168,8 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 		AudioRecipients recipients = computeAudioRecipients(*u, *u->cChannel);
 
 		buffer[0] = static_cast< char >(type | SpeechFlags::Normal);
+
+		receivingUsers = recipients.direct.size();
 
 		for (ServerUser *pDst : recipients.direct) {
 			SENDTO;
@@ -1203,6 +1206,8 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 			// These users receive the audio because someone is shouting to their channel
 			buffer[0] = static_cast< char >(type | SpeechFlags::Shout);
 
+			receivingUsers += cache.channelTargets.size();
+
 			foreach (ServerUser *pDst, cache.channelTargets) { SENDTO; }
 
 			if (!cache.directTargets.isEmpty()) {
@@ -1212,6 +1217,8 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 		}
 		if (!cache.directTargets.isEmpty()) {
 			buffer[0] = static_cast< char >(type | SpeechFlags::Whisper);
+
+			receivingUsers += cache.directTargets.size();
 
 			foreach (ServerUser *pDst, cache.directTargets) { SENDTO; }
 		}
@@ -1223,7 +1230,11 @@ void Server::processMsg(ServerUser *u, const char *data, int len) {
 	// Send the audio to all listening users
 	buffer[0] = static_cast< char >(type | SpeechFlags::Listen);
 
+	receivingUsers += listeningUsers.size();
+
 	foreach (ServerUser *pDst, listeningUsers) { SENDTO; }
+
+	u->setAudienceCount(target, receivingUsers);
 }
 
 void Server::log(ServerUser *u, const QString &str) const {
@@ -1356,6 +1367,8 @@ void Server::newClient() {
 		connect(u, SIGNAL(handleSslErrors(const QList< QSslError > &)), this,
 				SLOT(sslError(const QList< QSslError > &)));
 		connect(u, SIGNAL(encrypted()), this, SLOT(encrypted()));
+
+		QObject::connect(u, &ServerUser::audienceCountChanged, this, &Server::on_userAudienceCountChanged);
 
 		log(u, QString("New connection: %1").arg(addressToString(sock->peerAddress(), sock->peerPort())));
 
@@ -2357,6 +2370,37 @@ AudioRecipients Server::computeAudioRecipients(ServerUser &speaker, Channel &cha
 	}
 
 	return recipients;
+}
+
+void Server::on_userAudienceCountChanged(unsigned int target, unsigned int count) {
+	ServerUser *sender = qobject_cast< ServerUser * >(QObject::sender());
+
+	if (!sender) {
+		return;
+	}
+
+	MumbleProto::VoiceReceiver mpvr;
+
+	if (target == 0) {
+		// Regular speech (to current channel)
+		// Assume the user has not changed channels in the meantime (and if that assumption is wrong
+		// then the issue is not too big either since a change in channel will probably also cause the
+		// audience count to change again, causing another message to be sent. And if the count doesn't
+		// change, then even better).
+		if (!sender->cChannel) {
+			return;
+		}
+		mpvr.set_targetchannelid(sender->cChannel->iId);
+	} else {
+		// Whisper/Shout
+		mpvr.set_voicetargetid(target);
+	}
+
+	mpvr.set_speakersession(sender->uiSession);
+	mpvr.set_receivercount(count);
+	mpvr.set_countonly(true);
+
+	sendMessage(sender, mpvr);
 }
 
 #undef MAX
