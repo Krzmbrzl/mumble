@@ -8,20 +8,13 @@
 
 #include <QString>
 
+#include <memory>
+
 class QObject;
 class QStringList;
 
 namespace Mumble {
 namespace QtUtils {
-
-	/**
-	 * A deleter function to be used for QObjects that must not be deleted using
-	 * delete directly but rather by calling deleteLater() on them (and thus letting
-	 * Qt perform the actual deletion).
-	 *
-	 * This function is intended to be used in smart-pointers holding QObjects.
-	 */
-	void deleteQObject(QObject *object);
 
 	QString decode_utf8_qssl_string(const QString &input);
 
@@ -30,6 +23,16 @@ namespace QtUtils {
 	 * given list. If the list is empty an empty String is returned.
 	 */
 	QString decode_first_utf8_qssl_string(const QStringList &list);
+
+	struct QObjectDeleter {
+		void operator()(QObject *obj);
+	};
+
+	template< typename T > using qobject_unique_ptr = std::unique_ptr< T, QObjectDeleter >;
+
+	template< typename T, class... Args > qobject_unique_ptr< T > make_unique_qobject(Args &&... args) {
+		return qobject_unique_ptr< T >(new T(std::forward< Args >(args)...));
+	}
 
 }; // namespace QtUtils
 }; // namespace Mumble

@@ -3,14 +3,14 @@
 // that can be found in the LICENSE file at the root of the
 // Mumble source tree or at <https://www.mumble.info/LICENSE>.
 
+#include "QtUtils.h"
+
 #include <QObject>
 #include <QStringList>
 #include <QUrl>
 
 namespace Mumble {
 namespace QtUtils {
-	void deleteQObject(QObject *object) { object->deleteLater(); }
-
 	QString decode_utf8_qssl_string(const QString &input) {
 		QString i = input;
 		return QUrl::fromPercentEncoding(i.replace(QLatin1String("\\x"), QLatin1String("%")).toLatin1());
@@ -22,6 +22,8 @@ namespace QtUtils {
 		}
 		return QString();
 	}
+
+	void QObjectDeleter::operator()(QObject *obj) { obj->deleteLater(); }
 
 
 }; // namespace QtUtils
