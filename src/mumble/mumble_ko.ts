@@ -651,6 +651,17 @@ This value allows you to set the maximum number of users allowed in the channel.
     </message>
 </context>
 <context>
+    <name>AudienceDialog</name>
+    <message>
+        <source>Current Audience</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users that will hear you if you start talking now (%1):</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioInput</name>
     <message>
         <source>Interface</source>
@@ -4361,14 +4372,6 @@ The setting only applies for new messages, the already shown ones will retain th
         <translation>이후 침묵한 유저 삭제</translation>
     </message>
     <message>
-        <source>If this is checked, the local user (yourself) will always be visible in the TalkingUI (regardless of talking state).</source>
-        <translation>대화 UI에서 로컬 유저를 (자신) 항상 표시됩니다 (말하는 상태에 관계없이).</translation>
-    </message>
-    <message>
-        <source>Always keep local user visible</source>
-        <translation>항상 로컬 유저 표시</translation>
-    </message>
-    <message>
         <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
         <translation>축약된 이름의 시작 부분에 표시할 원래 이름의 문자 수입니다.</translation>
     </message>
@@ -7694,6 +7697,10 @@ See &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;th
         <source>The support for this option is experimental only! This option works best when using built-in microphone and speaker.</source>
         <translation>이 옵션에 대한 지원은 실험용입니다! 이 옵션은 내장 마이크와 스피커를 사용할 때 가장 잘 작동합니다.</translation>
     </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">연결되지 않음</translation>
+    </message>
 </context>
 <context>
     <name>RichTextEditor</name>
@@ -8134,6 +8141,17 @@ See &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;th
     <message>
         <source>On</source>
         <translation>켜기</translation>
+    </message>
+</context>
+<context>
+    <name>TalkingUI</name>
+    <message>
+        <source>Whispers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shouts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

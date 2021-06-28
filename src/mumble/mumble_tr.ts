@@ -651,6 +651,17 @@ Bu değer kanalda izin verilen azami kullanıcı sayısını ayarlamanıza izin 
     </message>
 </context>
 <context>
+    <name>AudienceDialog</name>
+    <message>
+        <source>Current Audience</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users that will hear you if you start talking now (%1):</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioInput</name>
     <message>
         <source>Interface</source>
@@ -4361,14 +4372,6 @@ Bu ayar sadece yeni mesajlara uygulanır, zaten görüntülenmiş olanlar öncek
         <translation>Sessiz kullanıcıyı şu süre sonrasında kaldır:</translation>
     </message>
     <message>
-        <source>If this is checked, the local user (yourself) will always be visible in the TalkingUI (regardless of talking state).</source>
-        <translation>Şayet bu şık seçiliyse, yerel kullanıcı (yani siz) Konuşma Arayüzü&apos;nde daima görünür olacaktır (konuşma durumundan bağımsız olarak).</translation>
-    </message>
-    <message>
-        <source>Always keep local user visible</source>
-        <translation>Yerel kullanıcıyı daima görünür kıl</translation>
-    </message>
-    <message>
         <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
         <translation>Kısaltılmış isimin başında özgün isimden kaç karakter görüntülenecek.</translation>
     </message>
@@ -7694,6 +7697,10 @@ Ne tür alternatifler olduğunu görmek için &lt;a href=&quot;https://wiki.mumb
         <source>The support for this option is experimental only! This option works best when using built-in microphone and speaker.</source>
         <translation>Bu seçenek için destek yalnızca deneyseldir! Bu seçenek en iyi dahili mikrofon ve hoparlör kullanılırken işe yarar.</translation>
     </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Çevrimdışı</translation>
+    </message>
 </context>
 <context>
     <name>RichTextEditor</name>
@@ -8134,6 +8141,17 @@ Ne tür alternatifler olduğunu görmek için &lt;a href=&quot;https://wiki.mumb
     <message>
         <source>On</source>
         <translation>Açık</translation>
+    </message>
+</context>
+<context>
+    <name>TalkingUI</name>
+    <message>
+        <source>Whispers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shouts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

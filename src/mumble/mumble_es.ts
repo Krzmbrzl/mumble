@@ -651,6 +651,17 @@ Este valor permite fijar el número máximo de usuarios permitidos en el canal. 
     </message>
 </context>
 <context>
+    <name>AudienceDialog</name>
+    <message>
+        <source>Current Audience</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users that will hear you if you start talking now (%1):</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioInput</name>
     <message>
         <source>Interface</source>
@@ -4362,14 +4373,6 @@ La configuración solo se aplica a los mensajes nuevos, los que ya se muestran c
         <translation>Eliminar usuario silencioso después de</translation>
     </message>
     <message>
-        <source>If this is checked, the local user (yourself) will always be visible in the TalkingUI (regardless of talking state).</source>
-        <translation>Si esto ha sido marcado, el usuario local (usted) siempre será visible en la interfaz de uso del habla (sin importar su propio estado de habla)</translation>
-    </message>
-    <message>
-        <source>Always keep local user visible</source>
-        <translation>Siempre mantener visible al usuario local</translation>
-    </message>
-    <message>
         <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
         <translation>Cuántos caracteres mostrar del nombre original al principio de su abreviación.</translation>
     </message>
@@ -7611,6 +7614,10 @@ Vea &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;la
         <source>The support for this option is experimental only! This option works best when using built-in microphone and speaker.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Desconectado</translation>
+    </message>
 </context>
 <context>
     <name>RichTextEditor</name>
@@ -8051,6 +8058,17 @@ Vea &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;la
     <message>
         <source>On</source>
         <translation>Activado</translation>
+    </message>
+</context>
+<context>
+    <name>TalkingUI</name>
+    <message>
+        <source>Whispers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shouts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

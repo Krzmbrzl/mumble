@@ -651,6 +651,17 @@ Tato hodnota Vám umožňuje nastavit maximální počet povolených uživatelů
     </message>
 </context>
 <context>
+    <name>AudienceDialog</name>
+    <message>
+        <source>Current Audience</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users that will hear you if you start talking now (%1):</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioInput</name>
     <message>
         <source>Interface</source>
@@ -4355,14 +4366,6 @@ The setting only applies for new messages, the already shown ones will retain th
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>If this is checked, the local user (yourself) will always be visible in the TalkingUI (regardless of talking state).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Always keep local user visible</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7599,6 +7602,10 @@ See &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;th
         <source>The support for this option is experimental only! This option works best when using built-in microphone and speaker.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Nepřipojeno</translation>
+    </message>
 </context>
 <context>
     <name>RichTextEditor</name>
@@ -8039,6 +8046,17 @@ See &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;th
     <message>
         <source>On</source>
         <translation>Zapnuto</translation>
+    </message>
+</context>
+<context>
+    <name>TalkingUI</name>
+    <message>
+        <source>Whispers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shouts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

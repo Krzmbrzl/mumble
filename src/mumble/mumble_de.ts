@@ -651,6 +651,17 @@ Dieser Wert erlaubt das Einstellen der maximal im Kanal erlaubten Benutzeranzahl
     </message>
 </context>
 <context>
+    <name>AudienceDialog</name>
+    <message>
+        <source>Current Audience</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users that will hear you if you start talking now (%1):</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioInput</name>
     <message>
         <source>Interface</source>
@@ -4362,14 +4373,6 @@ Die Einstellung gilt nur für neue Nachrichten, die bereits angezeigten behalten
         <translation>Entferne stumme Benutzer nach</translation>
     </message>
     <message>
-        <source>If this is checked, the local user (yourself) will always be visible in the TalkingUI (regardless of talking state).</source>
-        <translation>Wenn diese Option aktiviert ist, wird der lokale Benutzer (Sie selbst) jederzeit in der Sprecher-Liste sichtbar sein (unabhängig davon, ob Sie gerade sprechen).</translation>
-    </message>
-    <message>
-        <source>Always keep local user visible</source>
-        <translation>Lokalen Benutzer immer sichtbar halten</translation>
-    </message>
-    <message>
         <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
         <translation>Wie viele Buchstaben des ursprünglichen Namen-Anfangs für einen abkekürzten Namen verwendet werden sollen.</translation>
     </message>
@@ -7613,6 +7616,10 @@ Infos hierzu finden Sie im &lt;a href=&quot;https://wiki.mumble.info/wiki/Instal
         <source>The support for this option is experimental only! This option works best when using built-in microphone and speaker.</source>
         <translation>Die Unterstützung für diese Option ist nur experimentell! Diese Option funktioniert am besten, wenn Sie das eingebaute Mikrofon und den Lautsprecher verwenden.</translation>
     </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Nicht verbunden</translation>
+    </message>
 </context>
 <context>
     <name>RichTextEditor</name>
@@ -8053,6 +8060,17 @@ Infos hierzu finden Sie im &lt;a href=&quot;https://wiki.mumble.info/wiki/Instal
     <message>
         <source>On</source>
         <translation>An</translation>
+    </message>
+</context>
+<context>
+    <name>TalkingUI</name>
+    <message>
+        <source>Whispers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shouts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

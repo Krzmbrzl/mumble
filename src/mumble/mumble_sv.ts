@@ -651,6 +651,17 @@ Det värdet tillåter dig att ställa in ett maximalt antal av användare som ä
     </message>
 </context>
 <context>
+    <name>AudienceDialog</name>
+    <message>
+        <source>Current Audience</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users that will hear you if you start talking now (%1):</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioInput</name>
     <message>
         <source>Interface</source>
@@ -4362,14 +4373,6 @@ Inställningen gäller endast för nya meddelanden, de redan visade meddelandena
         <translation>Ta bort tyst användare efter</translation>
     </message>
     <message>
-        <source>If this is checked, the local user (yourself) will always be visible in the TalkingUI (regardless of talking state).</source>
-        <translation>Om detta är markerat kommer den lokala användaren (du själv) alltid att vara synlig i TalkingUI (oavsett talstatus).</translation>
-    </message>
-    <message>
-        <source>Always keep local user visible</source>
-        <translation>Håll alltid lokal användare synlig</translation>
-    </message>
-    <message>
         <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
         <translation>Hur många tecken från det ursprungliga namnet som ska visas i början av ett förkortat namn.</translation>
     </message>
@@ -7635,6 +7638,10 @@ Se &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;Mum
         <source>The support for this option is experimental only! This option works best when using built-in microphone and speaker.</source>
         <translation>Stödet för detta alternativ är endast experimentellt! Det här alternativet fungerar bäst när du använder inbyggd mikrofon och högtalare.</translation>
     </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Ej ansluten</translation>
+    </message>
 </context>
 <context>
     <name>RichTextEditor</name>
@@ -8075,6 +8082,17 @@ Se &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;Mum
     <message>
         <source>On</source>
         <translation>På</translation>
+    </message>
+</context>
+<context>
+    <name>TalkingUI</name>
+    <message>
+        <source>Whispers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shouts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

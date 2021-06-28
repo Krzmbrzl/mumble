@@ -651,6 +651,17 @@ Cette valeur vous permet de définir un nombre maximum d&apos;utilisateurs autor
     </message>
 </context>
 <context>
+    <name>AudienceDialog</name>
+    <message>
+        <source>Current Audience</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users that will hear you if you start talking now (%1):</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioInput</name>
     <message>
         <source>Interface</source>
@@ -4361,14 +4372,6 @@ Le paramètre ne s&apos;applique qu&apos;aux nouveaux messages, ceux déjà affi
         <translation>Enlever l&apos;utilisateur silencieux après (s)</translation>
     </message>
     <message>
-        <source>If this is checked, the local user (yourself) will always be visible in the TalkingUI (regardless of talking state).</source>
-        <translation>Si cette case est cochée, vous serez toujours visible dans la Tribune (peu importe que vous parliez ou pas).</translation>
-    </message>
-    <message>
-        <source>Always keep local user visible</source>
-        <translation>Toujours garder l&apos;utilisateur local visible</translation>
-    </message>
-    <message>
         <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
         <translation>Nombre de caractères à afficher au début d&apos;un nom abbrévié.</translation>
     </message>
@@ -7610,6 +7613,10 @@ See &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;th
         <source>The support for this option is experimental only! This option works best when using built-in microphone and speaker.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Non connecté</translation>
+    </message>
 </context>
 <context>
     <name>RichTextEditor</name>
@@ -8050,6 +8057,17 @@ See &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;th
     <message>
         <source>On</source>
         <translation>Activer</translation>
+    </message>
+</context>
+<context>
+    <name>TalkingUI</name>
+    <message>
+        <source>Whispers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shouts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

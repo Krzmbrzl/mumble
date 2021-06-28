@@ -651,6 +651,17 @@ Deze waarde laat je toe om een maximum aantal gebruikers in te stellen voor het 
     </message>
 </context>
 <context>
+    <name>AudienceDialog</name>
+    <message>
+        <source>Current Audience</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users that will hear you if you start talking now (%1):</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioInput</name>
     <message>
         <source>Interface</source>
@@ -4362,14 +4373,6 @@ Deze instelling geldt voor nieuwe berichten, vermits getoonden conformeren aan h
         <translation>Verwijder stille gebruiker na</translation>
     </message>
     <message>
-        <source>If this is checked, the local user (yourself) will always be visible in the TalkingUI (regardless of talking state).</source>
-        <translation>Indien aangevinkt, zal de lokale gebruiker (jij dus) altijd zichtbaar zijn in de Sprekersweergave (ongeacht of je spreekt of niet).</translation>
-    </message>
-    <message>
-        <source>Always keep local user visible</source>
-        <translation>Laat lokale gebruiker altijd zien</translation>
-    </message>
-    <message>
         <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
         <translation>Hoeveel karakters van de volledige namen er vòòr alle afgekorte namen zou tonen.</translation>
     </message>
@@ -7695,6 +7698,10 @@ Zie &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;de
         <source>The support for this option is experimental only! This option works best when using built-in microphone and speaker.</source>
         <translation>Deze optie is louter experimenteel! Deze optie werkt het best als je de ingebouwde microfoon en luidsprekers gebruikt.</translation>
     </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Niet verbonden</translation>
+    </message>
 </context>
 <context>
     <name>RichTextEditor</name>
@@ -8135,6 +8142,17 @@ Zie &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;&gt;de
     <message>
         <source>On</source>
         <translation>Aan</translation>
+    </message>
+</context>
+<context>
+    <name>TalkingUI</name>
+    <message>
+        <source>Whispers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shouts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

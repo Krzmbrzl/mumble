@@ -651,6 +651,17 @@ Tämän numeron ollessa suurempi kuin nolla kanava sallii enintään numeron suu
     </message>
 </context>
 <context>
+    <name>AudienceDialog</name>
+    <message>
+        <source>Current Audience</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users that will hear you if you start talking now (%1):</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioInput</name>
     <message>
         <source>Interface</source>
@@ -4362,14 +4373,6 @@ Tämä vaikuttaa vain uusiin viesteihin, vanhojen viestien aikaleima ei muutu.</
         <translation>Poista hiljainen käyttäjä ajan jälkeen</translation>
     </message>
     <message>
-        <source>If this is checked, the local user (yourself) will always be visible in the TalkingUI (regardless of talking state).</source>
-        <translation>Jos valittu, paikallinen käyttäjä (sinä) näkyy aina puhujalistassa (riippumatta puhumisesta).</translation>
-    </message>
-    <message>
-        <source>Always keep local user visible</source>
-        <translation>Pidä aina paikallinen käyttäjä näkyvissä</translation>
-    </message>
-    <message>
         <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
         <translation>Kuinka monta merkkiä näytetään lyhennetyn nimen alussa alkuperäisestä nimestä.</translation>
     </message>
@@ -7653,6 +7656,10 @@ Lisätietoa löydät &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_M
         <source>The support for this option is experimental only! This option works best when using built-in microphone and speaker.</source>
         <translation>Tämä on kokeellinen ominaisuus! Tämä asetus toimii parhaiten käytettäessä sisäänrakennettua mikrofonia ja kaiutinta.</translation>
     </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Ei yhdistetty</translation>
+    </message>
 </context>
 <context>
     <name>RichTextEditor</name>
@@ -8093,6 +8100,17 @@ Lisätietoa löydät &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_M
     <message>
         <source>On</source>
         <translation>Päällä</translation>
+    </message>
+</context>
+<context>
+    <name>TalkingUI</name>
+    <message>
+        <source>Whispers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shouts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

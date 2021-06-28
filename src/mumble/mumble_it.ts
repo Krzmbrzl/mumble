@@ -651,6 +651,17 @@ Questo valore ti permette di impostare il numero massimo di utenti consentiti ne
     </message>
 </context>
 <context>
+    <name>AudienceDialog</name>
+    <message>
+        <source>Current Audience</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Users that will hear you if you start talking now (%1):</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AudioInput</name>
     <message>
         <source>Interface</source>
@@ -4362,14 +4373,6 @@ Questa impostazione si applica solo ai nuovi messaggi, quelli già mostrati mant
         <translation>Rimuovi utenti inattivi dopo</translation>
     </message>
     <message>
-        <source>If this is checked, the local user (yourself) will always be visible in the TalkingUI (regardless of talking state).</source>
-        <translation>Se selezionato, l&apos;utente locale (te stesso) sarà sempre visibile nella TalkingUI (indipendentemente dallo stato).</translation>
-    </message>
-    <message>
-        <source>Always keep local user visible</source>
-        <translation>Utente locale sempre visibile</translation>
-    </message>
-    <message>
         <source>How many characters from the original name to display at the beginning of an abbreviated name.</source>
         <translation>Numero di primi caratteri da mostrare in un nome abbreviato.</translation>
     </message>
@@ -7695,6 +7698,10 @@ Controlla &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;
         <source>The support for this option is experimental only! This option works best when using built-in microphone and speaker.</source>
         <translation>Il supporto per questa opzione è solo sperimentale! Funziona meglio se usi un microfono e altoparlante integrati.</translation>
     </message>
+    <message>
+        <source>Not connected</source>
+        <translation type="unfinished">Non connesso</translation>
+    </message>
 </context>
 <context>
     <name>RichTextEditor</name>
@@ -8135,6 +8142,17 @@ Controlla &lt;a href=&quot;https://wiki.mumble.info/wiki/Installing_Mumble&quot;
     <message>
         <source>On</source>
         <translation>On</translation>
+    </message>
+</context>
+<context>
+    <name>TalkingUI</name>
+    <message>
+        <source>Whispers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shouts</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
