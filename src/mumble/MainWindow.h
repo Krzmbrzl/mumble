@@ -133,6 +133,8 @@ public:
 	void openUserLocalNicknameDialog(const ClientUser &p);
 	void openUserLocalVolumeDialog(ClientUser *p);
 
+	const QList< ShortcutTarget > &voiceTargetsFor(int targetID) const;
+
 #ifdef Q_OS_WIN
 	bool nativeEvent(const QByteArray &eventType, void *message, long *result) Q_DECL_OVERRIDE;
 	unsigned int uiNewHardware;
@@ -348,6 +350,7 @@ signals:
 	/// Signal emitted whenever a user removes a ChannelListener
 	void userRemovedChannelListener(ClientUser *user, Channel *channel);
 	void transmissionModeChanged(Settings::AudioTransmit newMode);
+	void voiceTargetChanged(int target);
 
 public:
 	MainWindow(QWidget *parent);

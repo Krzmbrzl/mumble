@@ -1806,6 +1806,22 @@ void MainWindow::openUserLocalVolumeDialog(ClientUser *p) {
 	UserLocalVolumeDialog::present(session, &qmUserVolTracker);
 }
 
+const QList< ShortcutTarget > &MainWindow::voiceTargetsFor(int targetID) const {
+	// The targets are stored as mapping of the shortcut list to an ID so in order
+	// to find the list for a given ID, we have to manually iterate over the map
+	// and search ourselves.
+	for (auto it = qmTargets.constBegin(); it != qmTargets.constEnd(); ++it) {
+		if (it.value() == targetID) {
+			return it.key();
+		}
+	}
+
+	// We should never reach this point
+	qWarning("MainWindow.cpp: Requested voice target for non-existing ID");
+	static const QList< ShortcutTarget > empty;
+	return empty;
+};
+
 void MainWindow::on_qaUserDeaf_triggered() {
 	ClientUser *p = getContextMenuUser();
 	if (!p)
@@ -2997,6 +3013,8 @@ void MainWindow::updateTarget() {
 			Global::get().iTarget         = idx;
 		}
 	}
+
+	emit voiceTargetChanged(Global::get().iTarget);
 }
 
 void MainWindow::on_gsWhisper_triggered(bool down, QVariant scdata) {

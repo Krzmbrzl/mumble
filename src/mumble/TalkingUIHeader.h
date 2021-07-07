@@ -18,6 +18,25 @@ class QWidget;
 class QLabel;
 class Channel;
 
+class WhisperTargetDisplay : public QWidget {
+public:
+	WhisperTargetDisplay(QWidget *parent = nullptr);
+
+	void setIconSize(unsigned int size);
+
+public slots:
+	void on_voiceTargetChanged(int target);
+
+protected:
+	QLabel *m_targetString;
+	QLabel *m_icons;
+	QLabel *m_group;
+	MultiStyleWidgetWrapper m_targetStyle;
+	unsigned int m_iconSize = 0;
+
+	void setupUI();
+};
+
 class TalkingUIHeader : public TalkingUIComponent {
 public:
 	TalkingUIHeader(QWidget *parent = nullptr);
@@ -46,6 +65,7 @@ protected:
 	QLabel *m_userName;
 	QLabel *m_statusIcons;
 	QLabel *m_channelName;
+	WhisperTargetDisplay *m_whisperTargetDisplay;
 	MultiStyleWidgetWrapper m_containerStyleWrapper;
 	unsigned int m_iconSize;
 	QTimer m_timer;

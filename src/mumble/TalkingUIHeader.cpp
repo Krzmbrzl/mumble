@@ -6,28 +6,175 @@
 #include "TalkingUIHeader.h"
 #include "Channel.h"
 #include "ClientUser.h"
+#include "MainWindow.h"
+#include "Settings.h"
+#include "UserModel.h"
 #include "Global.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QObject>
+#include <QPainter>
 #include <QSizePolicy>
 #include <QVBoxLayout>
+
+WhisperTargetDisplay::WhisperTargetDisplay(QWidget *parent)
+	: QWidget(parent), m_targetString(new QLabel(this)), m_icons(new QLabel(this)), m_group(new QLabel(this)) {
+	setupUI();
+
+	QObject::connect(Global::get().mw, &MainWindow::voiceTargetChanged, this,
+					 &WhisperTargetDisplay::on_voiceTargetChanged);
+}
+
+void WhisperTargetDisplay::setIconSize(unsigned int size) {
+	m_iconSize = size;
+}
+
+void WhisperTargetDisplay::on_voiceTargetChanged(int targetID) {
+	if (targetID <= 0) {
+		// target == 0 means direct speach (no whisper/shout in progress) and target < 0
+		// means invalid target
+		hide();
+		return;
+	}
+
+	const QList< ShortcutTarget > &targets = Global::get().mw->voiceTargetsFor(targetID);
+
+	if (targets.empty()) {
+		return;
+	}
+
+	if (targets.size() > 1) {
+		m_targetString->setText(tr("→ <i>%1 targets</i>").arg(targets.size()));
+	} else {
+		const ShortcutTarget &target = targets[0];
+
+		const Channel *targetChannel = nullptr;
+		const ClientUser *targetUser = nullptr;
+		bool more                    = false;
+		if (target.bCurrentSelection) {
+			targetChannel = Global::get().mw->pmModel->getSelectedChannel();
+			targetUser    = Global::get().mw->pmModel->getSelectedUser();
+		} else if (target.bUsers) {
+			// Whisper to users
+			if (target.qlSessions.size() > 0) {
+				// Pick first user as "representative"
+				targetUser = ClientUser::get(target.qlSessions[0]);
+
+				more = target.qlSessions.size() > 1;
+			}
+		} else {
+			// Shout to channel
+			targetChannel = Channel::get(target.iChannel);
+		}
+
+		QString displayString;
+		QString tooltip;
+		if (targetUser) {
+			displayString = targetUser->qsName;
+			if (more) {
+				displayString += tr(" & …");
+			}
+
+			for (unsigned int session : target.qlSessions) {
+				const ClientUser *user = ClientUser::get(session);
+
+				if (user) {
+					if (tooltip.isEmpty()) {
+						tooltip = user->qsName;
+					} else {
+						tooltip = tooltip + ", " + user->qsName;
+					}
+				}
+			}
+
+			m_group->clear();
+		} else if (targetChannel) {
+			displayString = targetChannel->qsName;
+
+			if (target.qsGroup.isEmpty()) {
+				m_group->clear();
+			} else {
+				m_group->setText(tr("(%1)").arg(target.qsGroup));
+			}
+
+			// The tooltip is going to be the full channel path starting from root
+			tooltip               = targetChannel->qsName;
+			const Channel *parent = targetChannel->cParent;
+			while (parent) {
+				tooltip = parent->qsName + Global::get().s.qsHierarchyChannelSeparator + tooltip;
+
+				parent = parent->cParent;
+			}
+		}
+
+		m_targetString->setText(tr("→ %1").arg(displayString));
+		m_targetString->setToolTip(tooltip);
+
+		static const QIcon s_linkIcon     = QIcon(QLatin1String("skin:channel_linked.svg"));
+		static const QIcon s_avatarIcon   = QIcon(QLatin1String("skin:talking_off.svg"));
+		static const QIcon s_childrenIcon = QIcon(QLatin1String("skin:channel_tree.svg"));
+
+		std::vector< std::reference_wrapper< const QIcon > > icons;
+
+		if (target.bUsers) {
+			icons.push_back(s_avatarIcon);
+		} else {
+			if (target.bChildren) {
+				icons.push_back(s_childrenIcon);
+			}
+			if (target.bLinks) {
+				icons.push_back(s_linkIcon);
+			}
+		}
+
+		if (icons.empty()) {
+			m_icons->clear();
+		} else {
+			const QSize size(m_iconSize * static_cast< int >(icons.size()), m_iconSize);
+			QPixmap pixmap(size);
+			pixmap.fill(Qt::transparent);
+
+			QPainter painter(&pixmap);
+			for (int i = 0; i < static_cast< int >(icons.size()); i++) {
+				painter.drawPixmap(i * m_iconSize, 0,
+								   icons[i].get().pixmap(QSize(m_iconSize, m_iconSize), QIcon::Normal, QIcon::On));
+			}
+
+			m_icons->setPixmap(pixmap);
+		}
+	}
+
+	show();
+}
+
+void WhisperTargetDisplay::setupUI() {
+	QHBoxLayout *layout = new QHBoxLayout();
+	layout->setAlignment(Qt::AlignLeft);
+
+	layout->addWidget(m_targetString);
+	layout->addWidget(m_icons);
+	layout->addWidget(m_group);
+
+	setLayout(layout);
+}
+
 
 TalkingUIHeader::TalkingUIHeader(QWidget *parent)
 	: m_container(new QFrame(parent)), m_notConnectedMsg(new QLabel(m_container)), m_infoBox(new QWidget(m_container)),
 	  m_talkIcon(new QLabel(m_infoBox)), m_userName(new QLabel(m_infoBox)), m_statusIcons(new QLabel(m_infoBox)),
-	  m_channelName(new QLabel(m_infoBox)), m_containerStyleWrapper(m_container) {
+	  m_channelName(new QLabel(m_infoBox)), m_whisperTargetDisplay(new WhisperTargetDisplay(m_container)),
+	  m_containerStyleWrapper(m_container) {
 	setupUI();
 
 	// init size for talking icon to FontSize
-	m_iconSize = QFontMetrics(m_container->font()).height();
+	setIconSize(QFontMetrics(m_container->font()).height());
 
 	m_timer.setSingleShot(true);
 	QObject::connect(&m_timer, &QTimer::timeout, [&]() {
 		// Update the size again at the end of the current event loop iteration as the final font size will only
 		// be available then.
-		m_iconSize = QFontMetrics(m_container->font()).height();
+		setIconSize(QFontMetrics(m_container->font()).height());
 	});
 	m_timer.start(0);
 }
@@ -101,6 +248,7 @@ void TalkingUIHeader::updateStatusIcons(const TalkingUIUser::UserStatus &status)
 
 void TalkingUIHeader::setIconSize(unsigned int size) {
 	m_iconSize = size;
+	m_whisperTargetDisplay->setIconSize(size);
 }
 
 void TalkingUIHeader::setTalkingState(Settings::TalkState state) {
@@ -142,6 +290,10 @@ void TalkingUIHeader::setupUI() {
 	iconLayout->addWidget(m_statusIcons);
 	// Hide by default
 	m_statusIcons->hide();
+
+
+	m_whisperTargetDisplay->hide();
+	infoBoxLayout->addWidget(m_whisperTargetDisplay);
 
 
 	// Channel line
