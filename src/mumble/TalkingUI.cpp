@@ -923,6 +923,8 @@ void TalkingUI::on_settingsChanged() {
 		}
 	}
 
+	setFontSize(m_header.getStylableWidget());
+
 	// If the font has changed, we have to update the icon size as well
 	m_header.setIconSize(m_currentLineHeight);
 	for (auto &currentContainer : m_containers) {
