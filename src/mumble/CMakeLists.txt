@@ -91,6 +91,8 @@ set(MUMBLE_SOURCES
 	"AudioConfigDialog.h"
 	"Audio.cpp"
 	"Audio.h"
+	"AudioOutputCache.cpp"
+	"AudioOutputCache.h"
 	"AudioInput.cpp"
 	"AudioInput.h"
 	"AudioInput.ui"

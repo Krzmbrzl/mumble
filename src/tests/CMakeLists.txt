@@ -20,6 +20,7 @@ endif()
 
 if(server)
 	use_test("TestCrypt")
+	use_test("TestAudioReceiverBuffer")
 endif()
 
 # Shared tests
@@ -28,6 +29,7 @@ use_test("TestCryptographicRandom")
 use_test("TestFFDHE")
 use_test("TestPacketDataStream")
 use_test("TestPasswordGenerator")
+use_test("TestMumbleProtocol")
 use_test("TestSelfSignedCertificate")
 use_test("TestServerAddress")
 use_test("TestSSLLocks")

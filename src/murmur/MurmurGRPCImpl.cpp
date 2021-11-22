@@ -10,9 +10,9 @@
 #include "Mumble.pb.h"
 
 #include "../Group.h"
-#include "../Message.h"
 #include "Channel.h"
 #include "MurmurGRPCImpl.h"
+#include "QtUtils.h"
 #include "Server.h"
 #include "ServerDB.h"
 #include "ServerUser.h"
