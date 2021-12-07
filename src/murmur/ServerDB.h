@@ -40,6 +40,8 @@ public:
 	};
 	ServerDB();
 	~ServerDB();
+	ServerDB(const ServerDB &) = delete;
+
 	typedef QPair< unsigned int, QString > LogRecord;
 	static Timer tLogClean;
 	static QSqlDatabase *db;
@@ -62,8 +64,6 @@ public:
 	static bool query(QSqlQuery &, const QString &, bool fatal = true, bool warn = true);
 	static bool exec(QSqlQuery &, const QString &str = QString(), bool fatal = true, bool warn = true);
 	static bool execBatch(QSqlQuery &, const QString &str = QString(), bool fatal = true);
-	// No copy; private declaration without implementation
-	ServerDB(const ServerDB &);
 
 private:
 	static void loadOrSetupMetaPBKDF2IterationCount(QSqlQuery &query);
