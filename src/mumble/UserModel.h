@@ -142,12 +142,12 @@ public:
 	/// @param session The ID of the respective Channel
 	void setSelectedChannel(int id);
 
-	/// Adds the guven user as a listener to the given channel
+	/// Adds the given user as a listener to the given channel
 	///
 	/// @param p A pointer to the user
 	/// @param c A pointer to the channel
 	void addChannelListener(ClientUser *p, Channel *c);
-	/// Removes the guven user as a listener to the given channel
+	/// Removes the given user as a listener to the given channel
 	///
 	/// @param p A pointer to the user
 	/// @param c A pointer to the channel. If this is nullptr, then all listeners
