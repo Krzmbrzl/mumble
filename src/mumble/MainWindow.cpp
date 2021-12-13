@@ -31,7 +31,7 @@
 #endif
 #include "../SignalCurry.h"
 #include "ChannelListenerManager.h"
-#include "ListenerLocalVolumeDialog.h"
+#include "ListenerVolumeDialog.h"
 #include "Markdown.h"
 #include "PTTButtonWidget.h"
 #include "PluginManager.h"
@@ -2434,7 +2434,7 @@ void MainWindow::on_qaListenerLocalVolume_triggered() {
 		return;
 	}
 
-	ListenerLocalVolumeDialog dialog(user, channel);
+	ListenerVolumeDialog dialog(user, channel);
 	dialog.exec();
 }
 
