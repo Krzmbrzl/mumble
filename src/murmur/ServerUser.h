@@ -16,6 +16,7 @@
 #include "HostAddress.h"
 #include "Timer.h"
 #include "User.h"
+#include "VolumeAdjustment.h"
 
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QStringList>
@@ -65,7 +66,7 @@ class ServerUser;
 struct WhisperTargetCache {
 	QSet< ServerUser * > channelTargets;
 	QSet< ServerUser * > directTargets;
-	QSet< ServerUser * > listeningTargets;
+	QHash< ServerUser *, VolumeAdjustment > listeningTargets;
 };
 
 class Server;

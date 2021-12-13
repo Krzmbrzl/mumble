@@ -6,6 +6,8 @@
 #ifndef MUMBLE_MUMBLE_LISTENERVOLUME_H_
 #define MUMBLE_MUMBLE_LISTENERVOLUME_H_
 
+#include "VolumeAdjustment.h"
+
 #include "ui_ListenerVolumeDialog.h"
 
 class ClientUser;
@@ -25,9 +27,9 @@ protected:
 	/// The channel of the listener proxy this dialog has been invoked on
 	Channel *m_channel;
 	/// The volume adjustment that was set before this dialog opened
-	float m_initialAdjustemt;
+	VolumeAdjustment m_initialAdjustemt;
 	/// The volume adjustment that has been sent to the server most recently
-	float m_lastSentAdjustment;
+	VolumeAdjustment m_lastSentAdjustment;
 
 public slots:
 	void on_volumeSlider_valueChanged(int value);

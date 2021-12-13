@@ -544,7 +544,7 @@ void Server::startListeningToChannel(ServerUser *user, Channel *cChannel) {
 		return;
 	}
 
-	m_channelListenerManager.addListener(user->uiSession, cChannel->iId);
+	addChannelListener(*user, *cChannel);
 
 	MumbleProto::UserState mpus;
 	mpus.set_session(user->uiSession);
@@ -560,7 +560,7 @@ void Server::stopListeningToChannel(ServerUser *user, Channel *cChannel) {
 		return;
 	}
 
-	m_channelListenerManager.removeListener(user->uiSession, cChannel->iId);
+	disableChannelListener(*user, *cChannel);
 
 	MumbleProto::UserState mpus;
 	mpus.set_session(user->uiSession);

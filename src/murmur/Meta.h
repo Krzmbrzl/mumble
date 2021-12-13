@@ -107,6 +107,8 @@ public:
 	unsigned int iPluginMessageLimit;
 	unsigned int iPluginMessageBurst;
 
+	bool broadcastListenerVolumeAdjustments;
+
 	QSslCertificate qscCert;
 	QSslKey qskKey;
 

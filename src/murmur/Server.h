@@ -144,6 +144,8 @@ public:
 	unsigned int iPluginMessageLimit;
 	unsigned int iPluginMessageBurst;
 
+	bool broadcastListenerVolumeAdjustments;
+
 	QVariant qvSuggestVersion;
 	QVariant qvSuggestPositional;
 	QVariant qvSuggestPushToTalk;
@@ -308,6 +310,7 @@ public:
 
 	QList< Ban > qlBans;
 
+	void addListener(QHash< ServerUser *, VolumeAdjustment > &listeners, ServerUser &user, const Channel &channel);
 	void processMsg(ServerUser *u, Mumble::Protocol::AudioData audioData);
 	void sendMessage(ServerUser &u, const unsigned char *data, int len, QByteArray &cache, bool force = false);
 	void run();
@@ -472,6 +475,15 @@ public:
 	QVariant getConf(const QString &key, QVariant def);
 	void setConf(const QString &key, const QVariant &value);
 	void dblog(const QString &str) const;
+
+	// These functions perform both the necessary changes to ChannelListeners as
+	// well as persisting the changed listeners state to the DB. You should use
+	// these unless you have a good reason not to
+	void loadChannelListenersOf(const ServerUser &user);
+	void addChannelListener(const ServerUser &user, const Channel &channel);
+	void disableChannelListener(const ServerUser &user, const Channel &channel);
+	void deleteChannelListener(const ServerUser &user, const Channel &channel);
+	void setChannelListenerVolume(const ServerUser &user, const Channel &channel, float volumeAdjustment);
 
 	// From msgHandler. Implementation in Messages.cpp
 #define PROCESS_MUMBLE_TCP_MESSAGE(name, value) void msg##name(ServerUser *, MumbleProto::name &);

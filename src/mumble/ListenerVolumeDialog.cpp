@@ -17,26 +17,17 @@
 #include <cassert>
 #include <cmath>
 
-float dbToFactor(int dbAdjustment) {
-	// dB formula: +6dB double the volume
-	return std::pow(2.0f, dbAdjustment / 6.0f);
-}
-
-int factorToDb(float factor) {
-	// dB formula: Doubling the volume corresponds to +6dB
-	return static_cast< int >(std::round(std::log2(factor) * 6));
-}
-
 ListenerVolumeDialog::ListenerVolumeDialog(ClientUser *user, Channel *channel, QWidget *parent)
 	: QDialog(parent), m_user(user), m_channel(channel) {
 	assert(m_user->uiSession == Global::get().uiSession);
 
 	setupUi(this);
 
-	m_initialAdjustemt   = Global::get().channelListenerManager->getListenerLocalVolumeAdjustment(m_channel->iId);
+	m_initialAdjustemt =
+		Global::get().channelListenerManager->getListenerVolumeAdjustment(m_user->uiSession, m_channel->iId);
 	m_lastSentAdjustment = m_initialAdjustemt;
 
-	volumeBox->setValue(factorToDb(m_initialAdjustemt));
+	volumeBox->setValue(m_initialAdjustemt.dbAdjustment);
 
 	setWindowTitle(tr("Adjusting local volume for listening to %1").arg(channel->qsName));
 }
@@ -62,20 +53,51 @@ void ListenerVolumeDialog::on_resetBtn_clicked() {
 }
 
 void ListenerVolumeDialog::on_applyBtn_clicked() {
-	float factor = dbToFactor(volumeBox->value());
+	VolumeAdjustment adjustment = VolumeAdjustment::fromDBAdjustment(volumeBox->value());
 
 	ServerHandlerPtr handler = Global::get().sh;
 	if (!handler) {
 		return;
 	}
 
-	Global::get().channelListenerManager->setListenerLocalVolumeAdjustment(m_channel->iId, factor);
+	if (handler->uiVersion >= Mumble::Protocol::PROTOBUF_INTRODUCTION_VERSION) {
+		// Volume adjustments for listeners are handled on the server, since the protocol supports attaching volume
+		// adjustments
+		m_lastSentAdjustment = adjustment;
+
+		MumbleProto::UserState mpus;
+		mpus.set_session(m_user->uiSession);
+
+		MumbleProto::UserState::VolumeAdjustment *adjustmentMsg = mpus.add_listening_volume_adjustment();
+		adjustmentMsg->set_listening_channel(m_channel->iId);
+		adjustmentMsg->set_volume_adjustment(adjustment.factor);
+
+		handler->sendMessage(mpus);
+	} else {
+		// Before that the adjustments are handled locally
+		Global::get().channelListenerManager->setListenerVolumeAdjustment(m_user->uiSession, m_channel->iId,
+																		  adjustment);
+	}
 }
 
 void ListenerVolumeDialog::reject() {
 	ServerHandlerPtr handler = Global::get().sh;
 	if (handler) {
-		Global::get().channelListenerManager->setListenerLocalVolumeAdjustment(m_channel->iId, m_initialAdjustemt);
+		if (handler->uiVersion >= Mumble::Protocol::PROTOBUF_INTRODUCTION_VERSION) {
+			if (m_initialAdjustemt != m_lastSentAdjustment) {
+				MumbleProto::UserState mpus;
+				mpus.set_session(m_user->uiSession);
+
+				MumbleProto::UserState::VolumeAdjustment *adjustment = mpus.add_listening_volume_adjustment();
+				adjustment->set_listening_channel(m_channel->iId);
+				adjustment->set_volume_adjustment(m_initialAdjustemt.factor);
+
+				handler->sendMessage(mpus);
+			}
+		} else {
+			Global::get().channelListenerManager->setListenerVolumeAdjustment(m_user->uiSession, m_channel->iId,
+																			  m_initialAdjustemt);
+		}
 	}
 
 	QDialog::reject();
