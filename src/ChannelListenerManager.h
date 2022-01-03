@@ -8,10 +8,10 @@
 
 #include "VolumeAdjustment.h"
 
-#include <QtCore/QHash>
-#include <QtCore/QObject>
-#include <QtCore/QReadWriteLock>
-#include <QtCore/QSet>
+#include <QHash>
+#include <QObject>
+#include <QReadWriteLock>
+#include <QSet>
 
 #include <unordered_map>
 
