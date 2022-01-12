@@ -2431,7 +2431,7 @@ void Server::addChannelListener(const ServerUser &user, const Channel &channel) 
 
 		SQLEXEC();
 
-		bool entryAlreadyExists = query.value(0).toInt() > 0;
+		bool entryAlreadyExists = query.next() && query.value(0).toInt() > 0;
 
 		if (entryAlreadyExists) {
 			SQLPREP("UPDATE `%1channel_listeners` SET `enabled` = 1 WHERE `server_id` = ? AND `user_id`= ? AND "
