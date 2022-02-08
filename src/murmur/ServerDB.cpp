@@ -468,7 +468,7 @@ ServerDB::ServerDB() {
 				  "`%1bans` WHERE `server_id` = old.`server_id`; END;");
 
 			SQLDO("CREATE TABLE `%1channel_listeners` (`server_id` INTEGER NOT NULL, `user_id` INTEGER NOT NULL, "
-				  "`channel_id` INTEGER NOT NULL, `volume_adjustment` FLOAT DEFAULT 1, `enabled` BIT DEFAULT 1)");
+				  "`channel_id` INTEGER NOT NULL, `volume_adjustment` FLOAT DEFAULT 1, `enabled` SMALLINT DEFAULT 1)");
 			SQLDO("CREATE TRIGGER `%1channel_listeners_del_server` AFTER DELETE ON `%1servers` FOR EACH ROW BEGIN "
 				  "DELETE FROM `%1channel_listeners` WHERE `server_id` = old.`server_id`; END;");
 			SQLDO("CREATE TRIGGER `%1channel_listeners_del_channel` AFTER DELETE ON `%1channels` FOR EACH ROW BEGIN "
@@ -609,8 +609,9 @@ ServerDB::ServerDB() {
 			SQLQUERY("ALTER TABLE `%1bans` ADD CONSTRAINT `%1bans_del_server` FOREIGN KEY(`server_id`) REFERENCES "
 					 "`%1servers`(`server_id`) ON DELETE CASCADE");
 
-			SQLDO("CREATE TABLE `%1channel_listeners` (`server_id` INTEGER NOT NULL, `user_id` INTEGER NOT NULL, "
-				  "`channel_id` INTEGER NOT NULL, `volume_adjustment` FLOAT DEFAULT 1, `enabled` BIT DEFAULT 1)");
+			SQLQUERY(
+				"CREATE TABLE `%1channel_listeners` (`server_id` INTEGER NOT NULL, `user_id` INTEGER NOT NULL, "
+				"`channel_id` INTEGER NOT NULL, `volume_adjustment` FLOAT DEFAULT 1, `enabled` SMALLINT DEFAULT 1)");
 			SQLQUERY("ALTER TABLE `%1channel_listeners` ADD CONSTRAINT `%1channel_listeners_del_server` FOREIGN "
 					 "KEY(`server_id`) REFERENCES `%1servers`(`server_id`) ON DELETE CASCADE");
 			SQLQUERY("ALTER TABLE `%1channel_listeners` ADD CONSTRAINT `%1channel_listeners_del_channel` FOREIGN KEY "
@@ -721,13 +722,13 @@ ServerDB::ServerDB() {
 				  "`%1servers`(`server_id`) ON DELETE CASCADE");
 
 			SQLDO("CREATE TABLE `%1channel_listeners` (`server_id` INTEGER NOT NULL, `user_id` INTEGER NOT NULL, "
-				  "`channel_id` INTEGER NOT NULL, `volume_adjustment` FLOAT DEFAULT 1, `enabled` BIT DEFAULT 1)");
+				  "`channel_id` INTEGER NOT NULL, `volume_adjustment` FLOAT DEFAULT 1, `enabled` SMALLINT DEFAULT 1)");
 			SQLDO("ALTER TABLE `%1channel_listeners` ADD CONSTRAINT `%1channel_listeners_del_server` FOREIGN "
 				  "KEY(`server_id`) REFERENCES `%1servers`(`server_id`) ON DELETE CASCADE");
 			SQLDO("ALTER TABLE `%1channel_listeners` ADD CONSTRAINT `%1channel_listeners_del_channel` FOREIGN KEY "
 				  "(`server_id`, `channel_id`) REFERENCES `%1channels`(`server_id`, `channel_id`) ON DELETE CASCADE");
 			SQLDO("ALTER TABLE `%1channel_listeners` ADD CONSTRAINT `%1channel_listeners_del_user` FOREIGN KEY "
-				  "(`server_id`, `user_id`) REFERENCES `%1channels`(`server_id`, `user_id`) ON DELETE CASCADE");
+				  "(`server_id`, `user_id`) REFERENCES `%1users`(`server_id`, `user_id`) ON DELETE CASCADE");
 		}
 
 		if (version == 0) {
@@ -2404,7 +2405,7 @@ void Server::loadChannelListenersOf(const ServerUser &user) {
 	while (query.next()) {
 		int channelID = query.value(0).toInt();
 		float volume  = query.value(1).toFloat();
-		bool enabled  = query.value(2).toBool();
+		bool enabled  = query.value(2).toUInt() == 1;
 
 		if (enabled) {
 			m_channelListenerManager.addListener(user.uiSession, channelID);
@@ -2424,7 +2425,7 @@ void Server::addChannelListener(const ServerUser &user, const Channel &channel) 
 
 		// Update or insert entry
 		SQLPREP(
-			"SELECT COUNT() FROM `%1channel_listeners` WHERE `server_id` = ? AND `user_id` = ? AND `channel_id` = ?");
+			"SELECT COUNT(*) FROM `%1channel_listeners` WHERE `server_id` = ? AND `user_id` = ? AND `channel_id` = ?");
 		query.addBindValue(iServerNum);
 		query.addBindValue(user.iId);
 		query.addBindValue(channel.iId);
@@ -2461,7 +2462,8 @@ void Server::disableChannelListener(const ServerUser &user, const Channel &chann
 
 		SQLPREP("UPDATE `%1channel_listeners` SET `enabled` = ? WHERE `server_id` = ? AND `user_id` = ? AND "
 				"`channel_id` = ?");
-		query.addBindValue(false);
+		// Explicit cast to int is required for Postgresql
+		query.addBindValue(static_cast< int >(false));
 		query.addBindValue(iServerNum);
 		query.addBindValue(user.iId);
 		query.addBindValue(channel.iId);
