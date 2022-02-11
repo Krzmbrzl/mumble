@@ -1006,11 +1006,11 @@ void Server::msgUserState(ServerUser *uSource, MumbleProto::UserState &msg) {
 
 		const Channel *channel = qhChannels.value(adjustment.listening_channel());
 
-		if (channel && m_channelListenerManager.isListening(pDstServerUser->uiSession, channel->iId)) {
+		if (channel) {
 			setChannelListenerVolume(*pDstServerUser, *channel, adjustment.volume_adjustment());
 
 			volumeAdjustedChannels << channel->iId;
-		} else if (!channel) {
+		} else {
 			log(uSource, QString::fromLatin1("Invalid channel ID \"%1\" in volume adjustment")
 							 .arg(adjustment.listening_channel()));
 		}
